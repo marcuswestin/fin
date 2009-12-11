@@ -15,3 +15,11 @@ exports.setStyle = function(el, styles) {
 		el.style[key] = value + (!isNaN(value) ? value + 'px' : '');
 	}
 }
+
+exports.getStyle = function(el, styleProp) {
+	if (el.currentStyle) {
+		return el.currentStyle[styleProp];
+	} else if (window.getComputedStyle) {
+		return document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
+	}
+}

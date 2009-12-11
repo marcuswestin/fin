@@ -12,6 +12,9 @@ exports = Class(Publisher, function(supr) {
 	
 	this.setProperty = function(propertyName, propertyValue) {
 		this._properties[propertyName] = propertyValue;
-		this.publish('PropertyChanged', propertyName, propertyValue)
+		this.publish('PropertySet', propertyName, propertyValue)
+		setTimeout(bind(this, function fakeServerMessage(){ 
+			this.publish('PropertyUpdated', propertyName, propertyValue); 
+		}), 100);
 	}	
 })

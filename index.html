@@ -1,0 +1,36 @@
+<html>
+	<head>
+		<title>Ubiquity</title>
+		<style type="text/css">
+			#output1 {
+				margin: 50px;
+			}
+			#output2 {
+				margin: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<div id="output1"></div>
+		
+		<div id="output2"></div>
+		
+		<script type="text/javascript" src="js/module.js"></script>
+		<script type="text/javascript">
+			module.path = ['js']
+			module('import common.Item');
+			module('import browser.ItemView');
+			
+			var item = new common.Item({ type: 'User', properties: { 'name': 'Marcus', age: 26 } });
+			var itemView = new browser.ItemView(item);
+			
+			document.getElementById('output1').appendChild(itemView.getPropertyView('name'));
+			document.getElementById('output2').appendChild(itemView.getPropertyView('name'));
+			
+		</script>
+		
+		<button onclick="item.setProperty('name', 'Marcus Westin');">Set value</button>
+		
+	</body>
+</html>

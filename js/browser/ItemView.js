@@ -1,6 +1,6 @@
-module('from common.javascript import Class, bind')
-module('import browser.events')
-module('import browser.input')
+jsio('from common.javascript import Class, bind')
+jsio('import browser.events')
+jsio('import browser.input')
 
 exports = Class(function(supr) {
 	

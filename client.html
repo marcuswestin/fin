@@ -2,40 +2,33 @@
 	<head>
 		<title>Ubiquity</title>
 		<style type="text/css">
-			#output1 {
-				margin: 50px;
-			}
-			#output2 {
-				margin: 100px;
-				font-size: 20px;
-				font-family: Tahoma;
+			body {
+				margin-top: 150px;
+				text-align: center;
 			}
 		</style>
 	</head>
 	<body>
-
-		<br />
-		<br />
-		
-		<span id="output1"></span>
-		
-		<br />
-		<br />
-		
-		<span id="output2"></span>
-		
 		<script type="text/javascript" src="js/jsio/packages/jsio.js"></script>
 		<script type="text/javascript">
-			jsio.setPath('js');
+			jsio.path.common = 'js';
+			jsio.path.browser = 'js';
+			
+			// jsio('from base import *');
+			jsio('import net, logging');
+			jsio('import common.UbiquityProtocol');
 			jsio('import common.Item');
 			jsio('import browser.ItemView');
+			
+			var client = new common.UbiquityProtocol();			
 			
 			var item = new common.Item({ type: 'User', properties: { 'name': 'Marcus', age: 26 } });
 			var itemView = new browser.ItemView(item);
 			
-			document.getElementById('output1').appendChild(itemView.getPropertyView('name'));
-			document.getElementById('output2').appendChild(itemView.getPropertyView('name'));
+			var domain = document.domain || "127.0.0.1";
+			client.connect('csp', "http://" + domain + ":5555");
 			
+			document.body.appendChild(itemView.getPropertyView('name'));
 		</script>
 		
 		

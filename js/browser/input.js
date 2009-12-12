@@ -1,7 +1,7 @@
-module('from common.javascript import Singleton, bind');
-module('import browser.dimensions')
-module('import browser.dom')
-module('import browser.events')
+jsio('from common.javascript import Singleton, bind');
+jsio('import browser.dimensions')
+jsio('import browser.dom')
+jsio('import browser.events')
 
 exports = Singleton(function(){
 	

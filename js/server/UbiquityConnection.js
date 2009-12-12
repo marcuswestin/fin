@@ -15,6 +15,10 @@ exports = Class(RTJPProtocol, function(supr) {
 	this.frameReceived = function(id, name, args) {
 		logger.log('frameReceived', id, name, JSON.stringify(args));
 		
+		setTimeout(bind(this, function() {
+			this.sendFrame('RIGHT_BACK_ATCHA', { from: 'server' });
+		}), 500);
+		
 		switch(name) {
 			case 'ITEM_SUBSCRIBE':
 				var snapshots = [];

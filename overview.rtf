@@ -1,0 +1,124 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf250
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 LucidaGrande;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww16680\viewh11680\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\f0\fs24 \cf0 Ubiquity\
+Pervasion\
+Permeating\
+Omni\'85. time, value\
+Omnisious\
+\
+\pard\pardeftab720\ql\qnatural
+
+\f1\fs44 \cf0 omniscity.com
+\f0\fs24 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 \
+\pard\pardeftab720\ql\qnatural
+
+\f1\fs44 \cf0 omnixity.com
+\f0\fs24 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 \
+\
+PubSub hybrid of topic and content based\
+* Subscribe to an item.\
+* Filter the properties you care about\
+http://en.wikipedia.org/wiki/Publish/subscribe#Message_filtering\
+\
+(
+\i SUB:ItemX.alias=>div1 represents a subscription on the property alias of itemX, with changes delivered to receiver div1. itemX is retrieved from a factory, and the value change handler differs depending on the receiver
+\i0 )\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+
+\b \cf0 Client C1 
+\b0 starts events loop 
+\b E1
+\b0  on 
+\b Node N1\
+Client C2 
+\b0 starts events loop 
+\b E2
+\b0  on 
+\b Node N1\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 Client C2 
+\b0 opens view of 
+\b itemX 
+\b0 containing its 
+\b alias 
+\b0 in
+\b  div1\
+Client C2
+\b0  registers 
+\b SUB:itemX.alias=>div1
+\b0 \
+
+\b Client C2 
+\b0 sends subscription 
+\b SUB:itemX.alias=>C2
+\b0  to 
+\b Node N1
+\b0 \
+
+\b Node N1 
+\b0 registers 
+\b SUB:itemX.alias=>C2.eventQueue
+\b0 \
+item factory retrieves item and publishes its alias\
+...\
+
+\b Client C1
+\b0  changes property 
+\b alias
+\b0  of 
+\b itemX\
+itemX 
+\b0 publishes 
+\b mutex M\
+Client C1 UI
+\b0  updates all ui views of property 
+\b alias\
+Client C1 
+\b0 sends 
+\b mutex M
+\b0  to 
+\b Node N1
+\b0 \
+
+\b Node N1 
+\b0 publishes 
+\b mutex M
+\b0  on 
+\b itemX
+\b0 \
+subscription puts 
+\b mutex M
+\b0  on 
+\b C2.eventQueue\
+
+\b0 events loop 
+\b E2 
+\b0 picks up 
+\b mutex M 
+\b0 from 
+\b C2.eventQueue 
+\b0 and sends it to 
+\b Client C2\
+Client C2 
+\b0 receives and publishes 
+\b mutex M 
+\b0 on 
+\b itemX\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 Client C2 UI
+\b0  updates all ui views of 
+\b itemX
+\b0  property 
+\b alias\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural\pardirnatural
+\cf0 \
+}

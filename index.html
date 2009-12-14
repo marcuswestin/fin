@@ -2,42 +2,18 @@
 	<head>
 		<title>Ubiquity</title>
 		<style type="text/css">
-			#output1 {
-				margin: 50px;
+			body {
+				text-align: center;
 			}
-			#output2 {
-				margin: 100px;
-				font-size: 20px;
-				font-family: Tahoma;
+			#placeholder {
+				margin-top: 150px;
 			}
 		</style>
 	</head>
 	<body>
-
-		<br />
-		<br />
-		
-		<span id="output1"></span>
-		
-		<br />
-		<br />
-		
-		<span id="output2"></span>
+		<div id="placeholder"></div>
 		
 		<script type="text/javascript" src="js/jsio/packages/jsio.js"></script>
-		<script type="text/javascript">
-			jsio.setPath('js');
-			jsio('import common.Item');
-			jsio('import browser.ItemView');
-			
-			var item = new common.Item({ type: 'User', properties: { 'name': 'Marcus', age: 26 } });
-			var itemView = new browser.ItemView(item);
-			
-			document.getElementById('output1').appendChild(itemView.getPropertyView('name'));
-			document.getElementById('output2').appendChild(itemView.getPropertyView('name'));
-			
-		</script>
-		
-		
+		<script type="text/javascript" src="js/browser/app.js"></script>
 	</body>
 </html>

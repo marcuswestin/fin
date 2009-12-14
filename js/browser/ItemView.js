@@ -17,7 +17,8 @@ exports = Class(function(supr) {
 		var dom = document.createElement('span');
 		this._propertyViews[propertyName].push(dom);
 		this._connectEvents(propertyName, dom);
-		dom.innerHTML = this._item._properties[propertyName] || ''
+		dom.innerHTML = this._item.getProperty(propertyName) || 'loading...'
+		
 		return dom;
 	}
 	

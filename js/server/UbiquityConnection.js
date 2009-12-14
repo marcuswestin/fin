@@ -8,31 +8,30 @@ exports = Class(RTJPProtocol, function(supr) {
 	
 	this.connectionMade = function() {
 		logger.log('connectionMade', JSON.stringify(arguments));
-		this._subscribedItems = {};
+		this._itemSubscriptionIds = {};
 		this.sendFrame('WELCOME');
 	}
 	
 	this.frameReceived = function(id, name, args) {
 		logger.log('frameReceived', id, name, JSON.stringify(args));
 		
-		setTimeout(bind(this, function() {
-			this.sendFrame('RIGHT_BACK_ATCHA', { from: 'server' });
-		}), 500);
-		
 		switch(name) {
+			case 'ITEM_PROPERTY_SET': // This is just for development - we should pass mutations as opposeed to values
+				this.server.dispatchItemPropertyUpdated(args.id, args.name, args.value);
+				break;
 			case 'ITEM_SUBSCRIBE':
-				var snapshots = [];
-				for (var i=0, sub; sub = args.subscriptions[i]; i++) {
-					snapshots.push(this.server.getItemSnapshot(sub.itemId, sub.filter));
-					this.server.subscribeToItemMutations(sub.itemId, sub.filter, bind(this, 'onItemMutation'));
-					this._registerSubscription(sub);
-				}
-				this.sendFrame('ITEM_SNAPSHOT', { snapshots: snapshots });
+				logger.log('subscribing to item', args.id);
+				var snapshot = this.server.getItemSnapshot(args.id);
+				// var subId = this.server.subscribeToItemMutations(itemDescr.id, bind(this, 'onItemMutation'));
+				var subId = this.server.subscribeToItemPropertyChange(args.id, bind(this, 'onItemPropertyUpdated'));
+				this._itemSubscriptionIds[args.id] = subId;
+				this.sendFrame('ITEM_SNAPSHOT', snapshot);
 				break;
 			case 'ITEM_UNSUBSCRIBE':
 				for (var i=0, unsub; unsub = args.unsubscriptions[i]; i++) {
-					delete this._subscribedItems[unsub.itemId];
-					this.server.unsubscribeFromItemMutations(unsub.itemId, unsub.filter);
+					var subId = this._itemSubscriptionIds[unsub.itemId];
+					delete this._itemSubscriptionIds[unsub.itemId];
+					this.server.unsubscribeFromItemMutations(subId, unsub.itemId);
 				}
 				break;
 			case 'ITEM_MUTATION':
@@ -41,25 +40,25 @@ exports = Class(RTJPProtocol, function(supr) {
 				}
 				break;
 			default:
-				// logger.warn('Unknown frame type received', id, name, JSON.stringify(args));
+				logger.warn('Unknown frame type received', id, name, JSON.stringify(args));
 				break;
 		}
 	}
 	
-	// this.registerSubscription = function(sub) {
-	// 	if (!this._subscriptions[sub.itemId]) { this._subscriptions[sub.itemId] = {}; }
-	// 	for (var key in sub.filter) {
-	// 		this._subscriptions[sub.itemId][key] = true;
-	// 	}
-	// }
-	
+	// Unused
 	this.onItemMutation = function(mutation) {
 		this.sendFrame('ITEM_MUTATION', mutation);
 	}
 	
+	this.onItemPropertyUpdated = function(itemId, propertyName, propertyValue) {
+		this.sendFrame('ITEM_PROPERTY_UPDATED', { id: itemId, name: propertyName, value: propertyValue });
+	}
+	
 	this.connectionLost = function() {
 		logger.info('connectionLost');
-		this.unsubscribeFromItemMutations
+		for (var itemId in this._itemSubscriptionIds) {
+			this.server.unsubscribeFromItemMutations(itemId, this._itemSubscriptionIds[itemId]);
+		}
 	}
 
 })

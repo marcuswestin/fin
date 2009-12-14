@@ -8,3 +8,6 @@ install:
 clean:
 	rm -rf js.io
 	rm js/jsio
+
+run-server:
+	cd js/server; node start_with_node.js

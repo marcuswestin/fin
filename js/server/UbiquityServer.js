@@ -22,6 +22,12 @@ exports = Class(Server, function(supr) {
 		
 	}
 	
+	var _userSubscriptions = { hardcoded: [1,2] };
+	this.getSubscriptionsForUser = function(username) {
+		return _userSubscriptions[username];
+	}
+	
+	
 	// this.subscribeToItemMutations = function(itemId, callback) {
 	this.subscribeToItemPropertyChange = function(itemId, callback) {
 		if (!this._itemSubscriptions[itemId]) { this._itemSubscriptions[itemId] = {}; }
@@ -41,6 +47,8 @@ exports = Class(Server, function(supr) {
 	
 	// DEV - should be using mutations instead
 	this.dispatchItemPropertyUpdated = function(itemId, propertyName, propertyValue) {
+		var item = common.itemFactory.getItem(itemId);
+		item.setProperty(propertyName, propertyValue, true);
 		var subs = this._itemSubscriptions[itemId];
 		logger.log('dispatchItemPropertyUpdated', itemId, propertyName, '=', propertyValue);
 		for (var key in subs) {

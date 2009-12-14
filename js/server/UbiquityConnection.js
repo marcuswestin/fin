@@ -7,9 +7,10 @@ logger.setLevel(0);
 exports = Class(RTJPProtocol, function(supr) {
 	
 	this.connectionMade = function() {
-		logger.log('connectionMade', JSON.stringify(arguments));
+		logger.log('connectionMade');
 		this._itemSubscriptionIds = {};
-		this.sendFrame('WELCOME');
+		var subscriptions = this.server.getSubscriptionsForUser('hardcoded');
+		this.sendFrame('WELCOME', { subscriptions: subscriptions });
 	}
 	
 	this.frameReceived = function(id, name, args) {

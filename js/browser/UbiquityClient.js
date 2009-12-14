@@ -52,7 +52,7 @@ exports = Class(RTJPProtocol, function(supr) {
 		switch(name) {
 			case 'WELCOME':
 				logger.log('Connected!')
-				this._onConnectedCallback();
+				this._onConnectedCallback(args.subscriptions);
 				break;
 			case 'ITEM_SNAPSHOT':
 				setTimeout(function(){ common.itemFactory.loadItemSnapshot(args); });

@@ -1,0 +1,8 @@
+alpha
+	Persistent backend storage
+	Each user has list of initial subscriptions - this will correspond to the drawer
+	Drawer - ui to list all initial subscriptions
+	
+beta
+	Demo - a corner of the screen is a mini-version of the UI, driven by computer. Simulates doing actions, which are reflected in users UI. Uses FE pubsub of items only - no BE
+

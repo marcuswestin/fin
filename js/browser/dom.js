@@ -12,7 +12,7 @@ exports.create = function(params) {
 exports.setStyle = function(el, styles) {
 	for (var key in styles) {
 		var value = styles[key];
-		el.style[key] = value + (!isNaN(value) ? value + 'px' : '');
+		el.style[key] = value + (!isNaN(value) ? 'px' : '');
 	}
 }
 

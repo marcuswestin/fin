@@ -7,8 +7,11 @@ jsio('import common.Item');
 jsio('import common.itemFactory');
 jsio('import browser.ItemView');
 jsio('import browser.UbiquityClient');
+jsio('import browser.Drawer');
 
 gClient = new browser.UbiquityClient();			
+gDrawer = new browser.Drawer();
+document.body.appendChild(gDrawer.getElement());
 
 gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", function(itemSubscriptions){
 	var connecting = document.getElementById('connecting');
@@ -20,13 +23,8 @@ gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", f
 		var item = common.itemFactory.getItem(itemId);
 		var itemView = new browser.ItemView(item);
 
-		placeHolder.appendChild(itemView.getPropertyView('name'))
-		placeHolder.appendChild(itemView.getPropertyView('age'))
-		placeHolder.appendChild(document.createElement('br'));
-
-		placeHolder.appendChild(itemView.getPropertyView('name'))
-		placeHolder.appendChild(itemView.getPropertyView('age'))
-		placeHolder.appendChild(document.createElement('br'));
+		placeHolder.appendChild(itemView.getPropertyView('name'));
+		placeHolder.appendChild(itemView.getPropertyView('age'));
 		placeHolder.appendChild(document.createElement('br'));
 
 		item.subscribe('PropertySet', bind(gClient, 'onItemPropertySet', item.getId()));

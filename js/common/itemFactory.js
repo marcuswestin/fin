@@ -15,7 +15,7 @@ exports = Singleton(function(supr) {
 		var item = this.getItem(snapshot.id);
 		item.setType(snapshot.type);
 		for (var key in snapshot.properties) {
-			item.setProperty(key, snapshot.properties[key], true);
+			item.updateProperty(key, snapshot.properties[key]);
 		}
 	}
 	

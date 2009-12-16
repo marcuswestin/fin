@@ -1,15 +1,13 @@
 .Drawer {
 	position: fixed;
 	left: 0px;
-	width: 300px;
-	background: #b2b2b2;
-	border: 2px solid #a0a0a0;
+	border: 3px solid #a0a0a0;
 	border-radius: 0 7px 7px 0;
 	-moz-border-radius: 0 7px 7px 0;
 	-webkit-border-radius: 0 7px 7px 0;
 }
 
-.Drawer .contents {
-	background: #f6f6f6;
-	border-right: 1px solid #a0a0a0;
+.Drawer .label {
+	cursor: pointer;
+	margin: 3px 7px 0;
 }

@@ -1,6 +1,7 @@
 jsio('from common.javascript import Class, Publisher, bind');
 jsio('from net.protocols.rtjp import RTJPProtocol');
 jsio('import net, logging');
+jsio('import common.itemFactory');
 
 var logger = logging.getLogger('common.UbiquityClient');
 logger.setLevel(0);
@@ -10,6 +11,7 @@ exports = Class(RTJPProtocol, function(supr) {
 		supr(this, 'init');
 		this._isConnected = false;
 		this._subscribedItems = {};
+		this._labelCallbacks = {};
 	}
 	
 	this.connect = function(transport, url, onConnectedCallback) {
@@ -22,6 +24,11 @@ exports = Class(RTJPProtocol, function(supr) {
 		}
 	}
 	
+	this.sendFrame = function(name, args) {
+		logger.log('sendFrame', name, JSON.stringify(args));
+		supr(this, 'sendFrame', arguments);
+	}
+	
 	this.isConnected = function() { return this._isConnected; }
 	
 	this.subscribeToItem = function(item) {
@@ -29,6 +36,11 @@ exports = Class(RTJPProtocol, function(supr) {
 		this._subscribedItems[item.getId()] = true;
 		var args = { id: item.getId() };
 		this.sendFrame('ITEM_SUBSCRIBE', args);
+	}
+	
+	this.getItemsForLabel = function(label, callback) {
+		this._labelCallbacks[label] = callback;
+		this.sendFrame('LABEL_GET_ITEMS', { label: label });
 	}
 	
 	/* Private */
@@ -52,14 +64,26 @@ exports = Class(RTJPProtocol, function(supr) {
 		switch(name) {
 			case 'WELCOME':
 				logger.log('Connected!')
-				this._onConnectedCallback(args.subscriptions);
+				this._onConnectedCallback(args.labels);
 				break;
 			case 'ITEM_SNAPSHOT':
 				setTimeout(function(){ common.itemFactory.loadItemSnapshot(args); });
 				break;
 			case 'ITEM_PROPERTY_UPDATED':
 				var item = common.itemFactory.getItem(args.id);
-				setTimeout(function(){ item.setProperty(args.name, args.value, true); });
+				setTimeout(function(){ item.updateProperty(args.name, args.value); });
+				break;
+			case 'LABEL_ITEMS':
+				var callback = this._labelCallbacks[args.label];
+				delete this._labelCallbacks[args.label];
+				var items = [];
+				for (var i=0, itemId; itemId = args.itemIds[i]; i++) {
+					var item = common.itemFactory.getItem(itemId);
+					item.subscribe('PropertySet', bind(this, 'onItemPropertySet', item.getId()));
+					this.subscribeToItem(item);
+					items.push(item);
+				}
+				setTimeout(function(){ callback(args.label, items); });
 				break;
 		}
 	}

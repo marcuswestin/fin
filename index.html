@@ -2,19 +2,66 @@
 	<head>
 		<title>Ubiquity</title>
 		<style type="text/css">
-			body {
-				text-align: center;
+			html, body {
+				margin: 0;
+				padding: 0;
+				font-family: Helvetica, Tahoma;
+				color: #333;
 			}
-			#connecting, #placeholder {
-				margin-top: 150px;
+			a { 
+				text-decoration: none;
+				color: #333;
 			}
+			a:hover {
+				background-color: #eee;
+			}
+			#connecting {
+				width: 100px;
+				margin: 150px auto;
+			}
+			#view-templates { display: none; }
 		</style>
 	</head>
 	<body>
 		<div id="connecting">connecting...</div>
-		<div id="placeholder"></div>
-		
 		<script type="text/javascript" src="js/jsio/packages/jsio.js"></script>
 		<script type="text/javascript" src="js/browser/app.js"></script>
+		
+		<div id="view-templates">
+			
+			<!-- Line view templates -->
+			<div id="user-line-template">
+				<span class="displayname">{{displayname}}</span>
+				<span class="username">({{username}})</span>
+			</div>
+			<div id="bug-line-template">
+				<span class="title">{{title}}</span>
+			</div>
+			<div id="project-line-template">
+				<span class="name">{{name}}</span>
+				<span class="milestone">({{milestone}})</span>
+			</div>
+			
+			<!-- Reference view templates -->
+			<div id="user-reference-template">
+				<div class="displayname">{{displayname}}</div>
+			</div>
+			
+			<!-- Half panel view templates -->
+			<div id="user-halfView-template">
+				<span class="displayname">{{displayname}}</span>
+				<span class="username">({{username}})</span>
+			</div>
+			<div id="bug-halfView-template">
+				<div class="title">{{title}}</div>
+				{{user}}
+				<div class="repro">{{repro}}</div>
+			</div>
+			<div id="project-halfView-template">
+				<div class="name">{{name}}</div>
+				<div class="milestone">({{milestone}})</div>
+				<div class="description">{{description}}</div>
+			</div>
+		</div>
 	</body>
 </html>

@@ -1,7 +1,8 @@
-jsio('from common.javascript import Class');
+jsio('from common.javascript import Class, map');
 jsio('from net.interfaces import Server');
 jsio('import .UbiquityConnection');
 jsio('import common.itemFactory');
+jsio('import .rubberData as __RubberData');
 
 var logger = logging.getLogger('UbiquityServer');
 logger.setLevel(0);
@@ -15,16 +16,22 @@ exports = Class(Server, function(supr) {
 		
 		// Dev rubber data
 		jsio('import common.Item');
-		common.itemFactory._items = {
-			1: new common.Item(1, 'Person', { name: 'Marcus', age: 23 }),
-			2: new common.Item(2, 'Person', { name: 'Jon', age: 26 })
-		}
+		common.itemFactory._items 
 		
+		for (var i=0, itemData; itemData = __RubberData.itemData[i]; i++) {
+			var item = new common.Item(itemData.id);
+			item._type = itemData.type;
+			item._properties = itemData.properties;
+			common.itemFactory._items[itemData.id] = item;
+		}
 	}
 	
-	var _userSubscriptions = { hardcoded: [1,2] };
-	this.getSubscriptionsForUser = function(username) {
-		return _userSubscriptions[username];
+	this.getLabelsForUser = function(username) {
+		return __RubberData.userToLabel[username];
+	}
+	
+	this.getItemIdsForLabel = function(label) {
+		return __RubberData.labelToItemIds[label];
 	}
 	
 	
@@ -48,7 +55,7 @@ exports = Class(Server, function(supr) {
 	// DEV - should be using mutations instead
 	this.dispatchItemPropertyUpdated = function(itemId, propertyName, propertyValue) {
 		var item = common.itemFactory.getItem(itemId);
-		item.setProperty(propertyName, propertyValue, true);
+		item.updateProperty(propertyName, propertyValue);
 		var subs = this._itemSubscriptions[itemId];
 		logger.log('dispatchItemPropertyUpdated', itemId, propertyName, '=', propertyValue);
 		for (var key in subs) {
@@ -58,6 +65,7 @@ exports = Class(Server, function(supr) {
 	
 	this.getItemSnapshot = function(id) {
 		var item = common.itemFactory.getItem(id);
+		logger.log('GET SNAPSHOT', JSON.stringify(item.getProperties()))
 		return { id: id, type: item.getType(), properties: item.getProperties() }
 	}
 });

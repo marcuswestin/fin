@@ -4,31 +4,34 @@ jsio.path.browser = 'js';
 jsio('from common.javascript import bind');
 jsio('import net, logging');
 jsio('import common.Item');
-jsio('import common.itemFactory');
-jsio('import browser.ItemView');
 jsio('import browser.UbiquityClient');
 jsio('import browser.Drawer');
+jsio('import browser.PanelManager');
+jsio('import browser.dimensions as dimensions');
+jsio('import browser.events as events');
+jsio('import browser.css as css');
+
+css.loadStyles('browser.app');
 
 gClient = new browser.UbiquityClient();			
 gDrawer = new browser.Drawer();
-document.body.appendChild(gDrawer.getElement());
+gPanelManager = new browser.PanelManager();
 
-gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", function(itemSubscriptions){
-	var connecting = document.getElementById('connecting');
-	connecting.parentNode.removeChild(connecting);
-
-	var placeHolder = document.getElementById('placeholder');
-
-	for (var i=0, itemId; itemId = itemSubscriptions[i]; i++) {
-		var item = common.itemFactory.getItem(itemId);
-		var itemView = new browser.ItemView(item);
-
-		placeHolder.appendChild(itemView.getPropertyView('name'));
-		placeHolder.appendChild(itemView.getPropertyView('age'));
-		placeHolder.appendChild(document.createElement('br'));
-
-		item.subscribe('PropertySet', bind(gClient, 'onItemPropertySet', item.getId()));
-		gClient.subscribeToItem(item);
+gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", function(labels){
+	document.body.removeChild(document.getElementById('connecting'));
+	document.body.appendChild(gDrawer.getElement());
+	document.body.appendChild(gPanelManager.getElement());
+	
+	function onResize() {
+		var size = dimensions.getSize(window);
+		var drawerSize = gDrawer.resize();
+		gPanelManager.position(drawerSize.width + 50, drawerSize.top, size.width - drawerSize.width, size.height + 20);
 	}
+	
+	gDrawer.subscribe('LabelClick', bind(gPanelManager, 'openLabel'));
+	events.add(window, 'resize', onResize);
+	
+	gDrawer.addLabels(labels);
+	onResize();
 });
 

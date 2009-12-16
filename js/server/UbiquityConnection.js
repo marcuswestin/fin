@@ -9,8 +9,13 @@ exports = Class(RTJPProtocol, function(supr) {
 	this.connectionMade = function() {
 		logger.log('connectionMade');
 		this._itemSubscriptionIds = {};
-		var subscriptions = this.server.getSubscriptionsForUser('hardcoded');
-		this.sendFrame('WELCOME', { subscriptions: subscriptions });
+		var labels = this.server.getLabelsForUser('hardcoded');
+		this.sendFrame('WELCOME', { labels: labels });
+	}
+	
+	this.sendFrame = function(name, args) {
+		logger.log('sendFrame', name, JSON.stringify(args));
+		supr(this, 'sendFrame', arguments);
 	}
 	
 	this.frameReceived = function(id, name, args) {
@@ -39,6 +44,10 @@ exports = Class(RTJPProtocol, function(supr) {
 				for (var i=0, mutation; mutation = args.mutations[i]; i++) {
 					this.server.queueMutation(mutation);
 				}
+				break;
+			case 'LABEL_GET_ITEMS':
+				var itemIds = this.server.getItemIdsForLabel(args.label);
+				this.sendFrame('LABEL_ITEMS', { label: args.label, itemIds: itemIds });
 				break;
 			default:
 				logger.warn('Unknown frame type received', id, name, JSON.stringify(args));

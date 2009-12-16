@@ -3,6 +3,7 @@ exports.create = function(params) {
 	if (params.className) { el.className = params.className; }
 	if (params.html) { el.innerHTML = params.html; }
 	if (params.src) { el.src = params.src; }
+	if (params.href) { el.href = params.href; }
 	if (params.text) { el.appendChild(document.createTextNode(params.text)); }
 	if (params.style) { exports.setStyle(el, params.style); }
 	if (params.parent) { params.parent.appendChild(el); }
@@ -22,4 +23,8 @@ exports.getStyle = function(el, styleProp) {
 	} else if (window.getComputedStyle) {
 		return document.defaultView.getComputedStyle(el,null).getPropertyValue(styleProp);
 	}
+}
+
+exports.remove = function(el) {
+	el.parentNode.removeChild(el);
 }

@@ -3,20 +3,21 @@ jsio('import common.Publisher as Publisher')
 
 exports = Class(Publisher, function(supr) {
 	
-	this.init = function(id, type, properties) {
+	this.init = function(id) {
 		supr(this, 'init');
-		this._type = type;
 		this._id = id;
-		this._properties = properties || {};
+		this._type = null;
+		this._properties = {};
 	}
 	
-	this.setProperty = function(propertyName, propertyValue, hasBeenUpdatedOnServer) {
+	this.setProperty = function(propertyName, propertyValue) {
 		this._properties[propertyName] = propertyValue;
-		if (hasBeenUpdatedOnServer) {
-			this.publish('PropertyUpdated', propertyName, propertyValue);
-		} else {
-			this.publish('PropertySet', propertyName, propertyValue);
-		}
+		this.publish('PropertySet', propertyName, propertyValue);
+	}
+	
+	this.updateProperty = function(propertyName, propertyValue) {
+		this._properties[propertyName] = propertyValue;
+		this.publish('PropertyUpdated', propertyName, propertyValue);
 	}
 	
 	this.getId = function() { return this._id; }

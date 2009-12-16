@@ -1,0 +1,11 @@
+.PanelSplitView .divider {
+	position: relative;
+	bottom: 1px;
+	background: #a0a0a0;
+}
+
+.PanelSplitView .itemList, .PanelSplitView .itemView {
+	vertical-align: top;
+	padding: 10px;
+}
+

@@ -11,7 +11,7 @@ exports.removeClassName = function(element, className) {
 	element.className = current.slice(0, index) + current.slice(index + className.length);
 }
 
-var base = '/css/';
+var base = 'css/';
 var loadedStyles = {};
 exports.loadStyles = function(path) {
 	path = path.split('.').join('/');

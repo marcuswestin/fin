@@ -29,8 +29,6 @@ exports = Class(RTJPProtocol, function(supr) {
 		supr(this, 'sendFrame', arguments);
 	}
 	
-	this.isConnected = function() { return this._isConnected; }
-	
 	this.subscribeToItem = function(item) {
 		if (this._subscribedItems[item.getId()]) { return; }
 		this._subscribedItems[item.getId()] = true;

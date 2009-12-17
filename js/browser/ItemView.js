@@ -63,7 +63,6 @@ var ItemView = exports = Class(function(supr) {
 	this._onPropertyUpdated = function(propertyName, propertyValue) {
 		
 		var views = this._propertyViews[propertyName];
-		window.top.console.debug('_onPropertyUpdated', views);
 		if (!views) { 
 			logger.warn('Received property update of property "' + propertyName + '", which is not in the template') 
 			return;

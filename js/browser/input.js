@@ -50,7 +50,6 @@ exports = Singleton(function(){
 	}
 	
 	this.onKeyPress = function(e) {
-		window.top.console.debug('onKeyPress');
 		if (e.keyCode == browser.events.KEY_ENTER) {
 			this._input.blur();
 			browser.events.cancel(e);

@@ -1,4 +1,4 @@
-jsio('from common.javascript import Class, Publisher, bind');
+jsio('from common.javascript import Class, bind');
 jsio('from net.protocols.rtjp import RTJPProtocol');
 jsio('import net, logging');
 jsio('import common.itemFactory');

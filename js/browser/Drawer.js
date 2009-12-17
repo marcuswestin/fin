@@ -19,6 +19,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.createContent = function() {
 		this.addClassName('Drawer');
+		this._element.innerHTML = '<div class="header">unnamed</div>';
 		this.resize();
 	}
 	

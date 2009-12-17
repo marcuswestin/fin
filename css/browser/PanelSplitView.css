@@ -9,3 +9,10 @@
 	padding: 10px;
 }
 
+
+.PanelSplitView .itemList .itemView-line {
+	padding: 3px 6px 2px;
+	border: 1px solid #a0a0a0;
+	margin: 0 0 3px 0;
+	cursor: pointer;
+}

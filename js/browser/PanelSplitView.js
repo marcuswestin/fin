@@ -12,18 +12,21 @@ exports = Class(browser.Panel, function(supr) {
 	this.createContent = function() {
 		supr(this, 'createContent');
 		this.addClassName('PanelSplitView');
-		this._itemList = dom.create({ type: 'td', parent: this._layout, className: 'itemList' });
+		var itemListCell = dom.create({ type: 'td', parent: this._layout });
 		this._divider = dom.create({ type: 'td', parent: this._layout, className: 'divider' })
-		this._itemView = dom.create({ type: 'td', parent: this._layout, className: 'itemView' });
+		var itemViewCell = dom.create({ type: 'td', parent: this._layout });
+
+		this._itemList = dom.create({ parent: itemListCell, className: 'itemList' });
+		this._itemView = dom.create({ parent: itemViewCell, className: 'itemList' });
 	}
 	
 	var dividerWidth = 2;
 	this.resize = function(width, height) {
 		supr(this, 'resize', arguments);
 		var halfWidth = Math.round(width / 2 - dividerWidth / 2);
-		dom.setStyle(this._itemList, { width: halfWidth });
+		dom.setStyle(this._itemList, { width: halfWidth, height: height - 10 });
 		dom.setStyle(this._divider, { width: dividerWidth });
-		dom.setStyle(this._itemView, { width: halfWidth });
+		dom.setStyle(this._itemView, { width: halfWidth - 50, height: height - 10 });
 	}
 	
 	this.addItem = function(item) {

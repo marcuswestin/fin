@@ -8,7 +8,9 @@ exports.removeClassName = function(element, className) {
 	className += ' ';
 	var current = element.className;
 	var index = current.indexOf(className);
-	element.className = current.slice(0, index) + current.slice(index + className.length);
+	if (index != -1) {
+		element.className = current.slice(0, index) + current.slice(index + className.length);
+	}
 }
 
 var base = 'css/';

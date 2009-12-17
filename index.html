@@ -30,10 +30,14 @@
 		
 		<div id="view-templates">
 			
-			<!-- Line view templates -->
+			<!-- 
+				Line templates 
+			-->
 			<div id="user-line-template">
-				<span class="displayname">{{displayname}}</span>
-				<span class="username">({{username}})</span>
+				<div style="float: left; width: 45px; height: 45px; background-color: #ddd; margin-right: 10px"></div>
+				<div class="displayname">{{displayname}}</div>
+				<div class="username" style="color: #555; font-size: .9em;">{{username}}</div>
+				<div style="clear: both"></div>
 			</div>
 			<div id="bug-line-template">
 				<span class="title">{{title}}</span>
@@ -43,26 +47,35 @@
 				<span class="milestone">({{milestone}})</span>
 			</div>
 			
-			<!-- Reference view templates -->
-			<div id="user-reference-template">
-				<div class="displayname">{{displayname}}</div>
-			</div>
-			
-			<!-- Half panel view templates -->
+			<!-- 
+				Full panel templates 
+			-->
 			<div id="user-halfView-template">
-				<div style="width: 100px; height: 100px; background: #ddd; margin: 10px"></div>
-				<span class="displayname">{{displayname}}</span>
-				<span class="username">({{username}})</span>
+				<div style="width: 100px; height: 100px; background: #ddd; margin: 10px; float: left"></div>
+				<div class="displayname" style="padding-top: 10px">{{displayname}}</div>
+				<div class="username" style="color: #555; font-size: .9em;">{{username}}</div>
+				<div style="clear:both;"></div>
+				<div class="profile" style="padding: 5px 20px; font-size: .9em;">{{profile}}</div>
 			</div>
 			<div id="bug-halfView-template">
-				<br />Title: <div class="title">{{title}}</div>
-				<br />User: {{user}}
-				<br />Repro:<div class="repro">{{repro}}</div>
+				<div class="title" style="font-size: 1.2em;">Title:</div>
+				<div style="margin: 5px 5px 10px 10px;">{{title}}</div>
+				<div class="user" style="font-size: 1.2em;">User:</div>
+				<div style="margin: 5px 5px 10px 10px;">{{user}}</div>
+				<div class="repro" style="font-size: 1.2em;">Repro:</div> 
+				<div style="margin: 5px 5px 10px 10px;">{{repro}}</div>
 			</div>
 			<div id="project-halfView-template">
-				<div class="name">{{name}}</div>
-				<div class="milestone">({{milestone}})</div>
-				<div class="description">{{description}}</div>
+				<div class="name" style="font-size: 2em; margin: 4px;">{{name}}</div>
+				<div style="padding: 5px 10px;"> milestone: {{milestone}}</div>
+				<br />description: <br /><div class="description" style="margin: 4px; font-size: .9em; padding: 5px 20px">{{description}}</div>
+			</div>
+			
+			<!-- 
+				Reference templates 
+			-->
+			<div id="user-reference-template">
+				<div class="displayname">{{displayname}}</div>
 			</div>
 		</div>
 	</body>

@@ -6,6 +6,11 @@ exports.userToLabel = {
 }
 exports.labelToItemIds = {}
 
+var lipsum = "lorem ipsum per se esse fugiendum. itaque aiunt hanc quasi "
+    + "naturalem atque insitam in animis nostris inesse notionem, ut "
+    + "alterum esse appetendum, alterum aspernandum sentiamus. Alii autem,"
+    + " quibus ego assentior, cum a philosophis compluribus permulta.";
+
 var uniqueId = 1;
 var itemProperties = {
 	project: [
@@ -21,13 +26,13 @@ var itemProperties = {
 	}],
 
 	user: [
-		{ username: 'marcus', displayname: 'Marcus Westin'},
-		{ username: 'martin', displayname: 'Martin Hunt' },
-		{ username: 'jon', displayname: 'Jonathan Cowperthwait' },
-		{ username: 'greg', displayname: 'Greg Fair' },
-		{ username: 'vijay', displayname: 'Vijay!' },
-		{ username: 'paul', displayname: 'Paul Sowden' },
-		{ username: 'jones', displayname: 'Jones Martinez' }
+		{ username: 'marcus', displayname: 'Marcus Westin', profile: lipsum },
+		{ username: 'martin', displayname: 'Martin Hunt', profile: lipsum },
+		{ username: 'jon', displayname: 'Jonathan Cowperthwait', profile: lipsum },
+		{ username: 'greg', displayname: 'Greg Fair', profile: lipsum },
+		{ username: 'vijay', displayname: 'Vijay!', profile: lipsum },
+		{ username: 'paul', displayname: 'Paul Sowden', profile: lipsum },
+		{ username: 'jones', displayname: 'Jones Martinez', profile: lipsum }
 	],
 	
 	bug: [
@@ -40,13 +45,15 @@ var itemProperties = {
 	]
 }
 
+var bugUserId = 0;
+var numUsers = itemProperties['user'].length;
 for (var type in itemProperties) {
 	map(itemProperties[type], function(properties){ 
 		var id = uniqueId++;
 		var item = { type: type, id: id, properties: properties };
 		
 		if (type == 'bug') { 
-			item.properties.user.id = exports.labelToItemIds['user'][0]; 
+			item.properties.user.id = exports.labelToItemIds['user'][bugUserId++ % numUsers]; 
 		}
 		exports.itemData.push(item); 
 		if (!exports.labelToItemIds[type]) { exports.labelToItemIds[type] = []; }

@@ -27,6 +27,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.resize = function(width, height) {
 		dom.setStyle(this._element, { width: width, height: height });
+		dom.setStyle(this._layout.parentNode, { height: height });
 		dom.setStyle(this._labelEl, { height: height - 4 });
 	}
 	

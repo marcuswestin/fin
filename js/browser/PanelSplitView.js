@@ -28,15 +28,15 @@ exports = Class(browser.Panel, function(supr) {
 	
 	this.addItem = function(item) {
 		this.hideSpinner();
-		var lineView = new browser.ItemView(item).getView(this._label, 'line');
-		this._itemList.appendChild(lineView);
-		events.add(lineView, 'click', bind(this, 'showItem', item));
+		var lineView = new browser.ItemView(item, this._label, 'line');
+		this._itemList.appendChild(lineView.getElement());
+		events.add(lineView.getElement(), 'click', bind(this, 'showItem', item));
 	}
 	
 	this.showItem = function(item, e) {
 		events.cancel(e);
 		this._itemView.innerHTML = '';
-		var halfPanelView = new browser.ItemView(item).getView(this._label, 'halfView');
-		this._itemView.appendChild(halfPanelView);
+		var halfPanelView = new browser.ItemView(item, this._label, 'halfView');
+		this._itemView.appendChild(halfPanelView.getElement());
 	}
 })

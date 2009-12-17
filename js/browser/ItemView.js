@@ -4,78 +4,117 @@ jsio('import browser.events as events')
 jsio('import browser.dom as dom')
 jsio('import browser.input')
 jsio('import browser.templateFactory')
+jsio('import browser.UIComponent')
 
 var logger = logging.getLogger('browser.ItemView');
 logger.setLevel(0);
 
-var templatePropsRegex = /\{\{[^\}]+\}\}/g;
-
-var ItemView = exports = Class(function(supr) {
+var ItemView = exports = Class(browser.UIComponent, function(supr) {
 	
-	this.init = function(item) {
+	this.init = function(item, itemType, viewType) {
+		supr(this, 'init');
 		this._item = item;
-		this._propertyViews = {};
-		this._snapshotLoaded = false;
-		this._viewsPendingSnapshot = [];
+		this._itemType = itemType;
+		this._viewType = viewType;
+
+		this._valueViews = {};
+		this._referenceViews = {};
+		
+		this._holdForSnapshot = {};
+		
+		this._item.subscribe('SnapshotSet', bind(this, '_onSnapshotSet'));
 		this._item.subscribe('PropertyUpdated', bind(this, '_onPropertyUpdated'));
 	}
 	
-	this.getPropertyView = function(propertyName) {
-		if (!this._propertyViews[propertyName]) { 
-			this._propertyViews[propertyName] = []; 
-		}
-		var el = dom.create({ type: 'a', className: 'propertyView', href: '#' });
-		this._propertyViews[propertyName].push(el);
-		this._connectEvents(propertyName, el);
-		el.innerHTML = this._item.getProperty(propertyName) || 'loading...'
+	this.createContent = function() {
+		this.addClassName('itemViewType-' + this._itemType + ' itemView-' + this._viewType);
 		
-		return el;
+		var templateId = browser.templateFactory.getTemplateId(this._itemType, this._viewType);
+		var templateHTML = browser.templateFactory.getTemplateHTML(templateId);
+		var propertyMatches = browser.templateFactory.getPropertyMatches(templateId); 
+
+		this._element.innerHTML = templateHTML;
+		for (var i=0, propertyMatch; propertyMatch = propertyMatches[i]; i++) {
+			var propertyName = propertyMatch.substring(2, propertyMatch.length - 2);
+			var placeholderClassName = 'propertyPlaceholder-' + propertyName;
+			var placeholders = this._element.getElementsByClassName(placeholderClassName);
+			for (var j=0, placeholder; placeholder = placeholders[j]; j++) {
+				this._createView(propertyName, placeholder)
+			}
+		}
 	}
 	
-	this.getView = function(itemType, viewType) {
-		var viewEl = dom.create({ className: 'itemViewType-' + itemType + ' itemView-' + viewType });
+	this._createView = function(propertyName, viewElement) {
+		var propertyValue = this._item.getProperty(propertyName);
 		
-		var templateHTML = browser.templateFactory.getTemplateHTML(itemType, viewType, viewEl, this);
+		// If snapshot hasn't loaded, we need to create a placeholder in waiting for snapshot. When snapshot loads, we need to determine if it is a reference or a regular value
+		// If snapshot has loaded and property is a reference, we need to create a reference item view
+		// If snapshot has loaded and property is a regular value, go ahead and render it and hook up events
 		
-		var propertyMatches = templateHTML.match(templatePropsRegex);
-		for (var i=0, propertyMatch; propertyMatch = propertyMatches[i]; i++) {
-			var propertyName = propertyMatch.substring(2, propertyMatch.length - 2);
-			var placeholderClassName = 'propertyPlaceholder-' + propertyName;
-			while (templateHTML.match(propertyMatch)) {
-				templateHTML = templateHTML.replace(propertyMatch, '<span class="'+placeholderClassName+'"></span>');
+		if (!propertyValue) { // snapshot hasn't loaded
+			if (!this._holdForSnapshot[propertyName]) { this._holdForSnapshot[propertyName] = []; }
+			this._holdForSnapshot[propertyName].push(viewElement);
+			viewElement.innerHTML = 'loading...';
+		} else {
+			if (propertyValue.type) { // the property is an item reference
+				this._createReferenceView(propertyName, propertyValue.id, propertyValue.type, viewElement);
+			} else { // the propery is
+				this._createValueView(propertyName, propertyValue, viewElement)
 			}
 		}
-		
-		viewEl.innerHTML = templateHTML;
-		
-		for (var i=0, propertyMatch; propertyMatch = propertyMatches[i]; i++) {
-			var propertyName = propertyMatch.substring(2, propertyMatch.length - 2);
-			var placeholderClassName = 'propertyPlaceholder-' + propertyName;
-			var placeholders = viewEl.getElementsByClassName(placeholderClassName);
-			for (var j=0, placeholder; placeholder = placeholders[j]; j++) {
-				placeholder.appendChild(this.getPropertyView(propertyName));
+	}
+	
+	this._onSnapshotSet = function() {
+		if (!this._holdForSnapshot) { logger.warn("Got snapshot set twice!") }
+		for (var propertyName in this._holdForSnapshot) {
+			var propertyValue = this._item.getProperty(propertyName);
+			for (var i=0, viewElement; viewElement = this._holdForSnapshot[propertyName][i]; i++) {
+				if (propertyValue.type) { // the property is an item reference
+					this._createReferenceView(propertyValue.id, propertyValue.type, viewElement);
+				} else {
+					this._createValueView(propertyName, propertyValue, viewElement);
+				}
 			}
 		}
-		
-		return viewEl;
+		delete this._holdForSnapshot;
+	}
+	
+	this._createReferenceView = function(propertyName, itemId, itemType, viewElement) {
+		if (!this._referenceViews[propertyName]) { this._referenceViews[propertyName] = []; }
+		var item = common.itemFactory.getItem(itemId);
+		gClient.subscribeToItem(item);
+		var referenceView = new ItemView(item, itemType, 'reference');
+		viewElement.appendChild(referenceView.getElement());
+		this._referenceViews[propertyName] = viewElement;
+	}
+	
+	this._createValueView = function(propertyName, propertyValue, viewElement) {
+		if (!this._valueViews[propertyName]) { this._valueViews[propertyName] = []; }
+		this._valueViews[propertyName].push(viewElement);
+		viewElement.innerHTML = propertyValue;
+		this._connectEvents(propertyName, viewElement);
+	}
+	
+	this._updateValueViews = function(propertyName, propertyValue) {
+		if (!this._valueViews[propertyName]) { return; }
+		for (var i=0, viewElement; viewElement = this._valueViews[propertyName][i]; i++) {
+			viewElement.innerHTML = propertyValue;
+		}
+	}
+	
+	this._updateReferenceViews = function(propertyName, itemId, itemType) {
+		if (!this._referenceViews[propertyName]) { return; }
+		for (var i=0, viewElement; viewElement = this._referenceViews[propertyName][i]; i++) {
+			viewElement.innerHTML = '';
+			this._createReferenceView(propertyName, itemId, itemType, viewElement);
+		}
 	}
 	
 	this._onPropertyUpdated = function(propertyName, propertyValue) {
-		
-		var views = this._propertyViews[propertyName];
-		if (!views) { 
-			logger.warn('Received property update of property "' + propertyName + '", which is not in the template') 
-			return;
-		}
-		for (var i=0, view; view = views[i]; i++) {
-			view.innerHTML = '';
-			if (propertyValue.type) {
-				var item = common.itemFactory.getItem(propertyValue.id);
-				view.appendChild(new ItemView(item).getView(propertyName, 'reference'));
-				gClient.subscribeToItem(item);
-			} else {
-				view.innerHTML = propertyValue;
-			}
+		if (propertyValue.type) {
+			this._updateReferenceViews(propertyName, propertyValue.id, propertyValue.type);
+		} else {
+			this._updateValueViews(propertyName, propertyValue);
 		}
 	}
 	

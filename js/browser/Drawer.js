@@ -32,11 +32,13 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.addLabels = function(labels) {
 		for (var i=0, label; label = labels[i]; i++) {
-			var el = dom.create({ parent: this._element, className: 'label', text: label + 's' });
-			events.add(el, 'click', bind(this, 'publish', 'LabelClick', label));
+			var el = dom.create({ type: 'a', href: '#', parent: this._element, className: 'label', text: label + 's' });
+			events.add(el, 'click', bind(this, '_onLabelClick', label));
 		}
-		// item.subscribe('PropertySet', bind(gClient, 'onItemPropertySet', item.getId()));
-		// gClient.subscribeToItem(item);
-		
+	}
+	
+	this._onLabelClick = function(label, e) {
+		events.cancel(e);
+		this.publish('LabelClick', label);
 	}
 })

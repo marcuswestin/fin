@@ -15,6 +15,14 @@ exports = Class(Publisher, function(supr) {
 		this.publish('PropertySet', propertyName, propertyValue);
 	}
 	
+	this.setSnapshot = function(snapshot) {
+		this.setType(snapshot.type);
+		for (var key in snapshot.properties) {
+			this._properties[key] = snapshot.properties[key];
+		}
+		this.publish('SnapshotSet');
+	}
+	
 	this.updateProperty = function(propertyName, propertyValue) {
 		this._properties[propertyName] = propertyValue;
 		this.publish('PropertyUpdated', propertyName, propertyValue);

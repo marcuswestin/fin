@@ -12,6 +12,7 @@ exports = Class(RTJPProtocol, function(supr) {
 		this._isConnected = false;
 		this._subscribedItems = {};
 		this._labelCallbacks = {};
+		common.itemFactory.subscribe('ItemCreated', bind(this, '_onItemCreated'));
 	}
 	
 	this.connect = function(transport, url, onConnectedCallback) {
@@ -42,6 +43,11 @@ exports = Class(RTJPProtocol, function(supr) {
 	}
 	
 	/* Private */
+	this._onItemCreated = function(item) {
+		item.subscribe('PropertySet', bind(this, 'onItemPropertySet', item.getId()));
+		this.subscribeToItem(item);
+	}
+	
 	this.connectionMade = function() {
 		this._isConnected = true;
 	}
@@ -77,8 +83,6 @@ exports = Class(RTJPProtocol, function(supr) {
 				var items = [];
 				for (var i=0, itemId; itemId = args.itemIds[i]; i++) {
 					var item = common.itemFactory.getItem(itemId);
-					item.subscribe('PropertySet', bind(this, 'onItemPropertySet', item.getId()));
-					this.subscribeToItem(item);
 					items.push(item);
 				}
 				setTimeout(function(){ callback(args.label, items); });

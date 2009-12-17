@@ -4,7 +4,7 @@ jsio.path.browser = 'js';
 jsio('from common.javascript import bind');
 jsio('import net, logging');
 jsio('import common.Item');
-jsio('import browser.UbiquityClient');
+jsio('import browser.Client');
 jsio('import browser.Drawer');
 jsio('import browser.PanelManager');
 jsio('import browser.dimensions as dimensions');
@@ -13,7 +13,7 @@ jsio('import browser.css as css');
 
 css.loadStyles('browser.app');
 
-gClient = new browser.UbiquityClient();			
+gClient = new browser.Client();
 gDrawer = new browser.Drawer();
 gPanelManager = new browser.PanelManager();
 

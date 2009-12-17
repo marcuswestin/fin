@@ -3,7 +3,7 @@ jsio('from net.protocols.rtjp import RTJPProtocol');
 jsio('import net, logging');
 jsio('import common.itemFactory');
 
-var logger = logging.getLogger('common.UbiquityClient');
+var logger = logging.getLogger('common.Client');
 logger.setLevel(0);
 
 exports = Class(RTJPProtocol, function(supr) {

@@ -1,16 +1,16 @@
 jsio('from common.javascript import Class, map');
 jsio('from net.interfaces import Server');
-jsio('import .UbiquityConnection');
+jsio('import .Connection');
 jsio('import common.itemFactory');
 jsio('import .rubberData as __RubberData');
 
-var logger = logging.getLogger('UbiquityServer');
+var logger = logging.getLogger('Server');
 logger.setLevel(0);
 
 exports = Class(Server, function(supr) {
 	
 	this.init = function() {
-		supr(this, 'init', [UbiquityConnection]);
+		supr(this, 'init', [Connection]);
 		this._itemSubscriptions = {};
 		this._uniqueId = 0;
 		

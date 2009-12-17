@@ -13,8 +13,8 @@ jsio('import logging');
 //logging.getLogger('DelimitedProtocol').setLevel(0);
 //logging.getLogger('world.server').setLevel(1);
 
-jsio("import .UbiquityServer");
-server = new UbiquityServer();
+jsio("import .Server");
+server = new Server();
 net.listen(server, 'csp', {port: 5555})
 
 //jsio.listen(w, 'tcp', {port: 5556})

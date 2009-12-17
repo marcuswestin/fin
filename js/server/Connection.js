@@ -1,7 +1,7 @@
 jsio('from common.javascript import Class, bind');
 jsio('from net.protocols.rtjp import RTJPProtocol');
 
-var logger = logging.getLogger('server.UbiquityConnection');
+var logger = logging.getLogger('server.Connection');
 logger.setLevel(0);
 
 exports = Class(RTJPProtocol, function(supr) {

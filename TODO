@@ -1,8 +1,28 @@
 alpha
-	Persistent backend storage
-	Each user has list of initial subscriptions - this will correspond to the drawer
-	Drawer - ui to list all initial subscriptions
-	
+	templates should say the type of item references, also possibly which template to use to render it
+	mutations!
+	split panels
+	animate planels
+	keystroke handling
+	email + password => labels
+
+storage
+	X create db
+	User => labels
+	label => view over items
+	every now and then, dump items to database
+
+mutations
+	keystroke generates diff - publish
+	Server puts diff in message queue
+	itemFactory applies mutation to item
+	connection publishes mutation
+	clients apply mutation and update ui
+
 beta
-	Demo - a corner of the screen is a mini-version of the UI, driven by computer. Simulates doing actions, which are reflected in users UI. Uses FE pubsub of items only - no BE
+	filtered pubsub?
+	
+Demo
+ 	a corner of the screen is a mini-version of the UI, driven by computer. Simulates doing actions, which are reflected in users UI. Uses FE pubsub of items only - no BE
+
 

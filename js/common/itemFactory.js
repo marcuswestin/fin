@@ -12,7 +12,7 @@ exports = Singleton(common.Publisher, function(supr) {
 		this._items = {};
 	}
 	
-	this.loadItemSnapshot = function(snapshot) {
+	this.loadItemSnapshot = function(snapshot, callback) {
 		logger.log('Loading snapshot for item', snapshot);
 		var item = this.getItem(snapshot.id);
 		item.setSnapshot(snapshot);
@@ -23,6 +23,10 @@ exports = Singleton(common.Publisher, function(supr) {
 		this._items[id] = new common.Item(id);
 		this.publish('ItemCreated', this._items[id]);
 		return this._items[id];
+	}
+	
+	this.hasItem = function(id) {
+		return !!this._items[id];
 	}
 	
 })

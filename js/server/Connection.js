@@ -27,11 +27,12 @@ exports = Class(RTJPProtocol, function(supr) {
 				break;
 			case 'ITEM_SUBSCRIBE':
 				logger.log('subscribing to item', args.id);
-				var snapshot = this.server.getItemSnapshot(args.id);
 				// var subId = this.server.subscribeToItemMutations(itemDescr.id, bind(this, 'onItemMutation'));
-				var subId = this.server.subscribeToItemPropertyChange(args.id, bind(this, 'onItemPropertyUpdated'));
-				this._itemSubscriptionIds[args.id] = subId;
-				this.sendFrame('ITEM_SNAPSHOT', snapshot);
+				this.server.getItem(args.id, bind(this, function(item){
+					var subId = this.server.subscribeToItemPropertyChange(args.id, bind(this, 'onItemPropertyUpdated'));
+					this._itemSubscriptionIds[args.id] = subId;
+					this.sendFrame('ITEM_SNAPSHOT', item.asObject());
+				}));
 				break;
 			case 'ITEM_UNSUBSCRIBE':
 				for (var i=0, unsub; unsub = args.unsubscriptions[i]; i++) {

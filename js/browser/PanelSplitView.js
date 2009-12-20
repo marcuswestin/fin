@@ -39,7 +39,7 @@ exports = Class(browser.Panel, function(supr) {
 	this.showItem = function(item, e) {
 		events.cancel(e);
 		this._itemView.innerHTML = '';
-		var halfPanelView = new browser.ItemView(item, this._label, 'halfView');
-		this._itemView.appendChild(halfPanelView.getElement());
+		var panelView = new browser.ItemView(item, this._label, 'panel');
+		this._itemView.appendChild(panelView.getElement());
 	}
 })

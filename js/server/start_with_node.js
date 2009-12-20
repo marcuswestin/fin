@@ -14,8 +14,6 @@ jsio('import logging');
 //logging.getLogger('world.server').setLevel(1);
 
 jsio("import .Server");
-server = new Server();
-net.listen(server, 'csp', {port: 5555})
-
-//jsio.listen(w, 'tcp', {port: 5556})
-	
+var http = require('http');
+server = new Server(http);
+net.listen(server, 'csp', {port: 5555});

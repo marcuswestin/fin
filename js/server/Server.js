@@ -1,41 +1,36 @@
 jsio('from common.javascript import Class, map');
 jsio('from net.interfaces import Server');
 jsio('import .Connection');
+jsio('import .Database');
 jsio('import common.itemFactory');
-jsio('import .rubberData as __RubberData');
 
 var logger = logging.getLogger('Server');
 logger.setLevel(0);
 
 exports = Class(Server, function(supr) {
-	
-	this.init = function() {
+
+	this.init = function(http) {
 		supr(this, 'init', [Connection]);
 		this._itemSubscriptions = {};
 		this._uniqueId = 0;
 		
-		// Dev rubber data
-		jsio('import common.Item');
-		common.itemFactory._items 
-		
-		for (var i=0, itemData; itemData = __RubberData.itemData[i]; i++) {
-			var item = new common.Item(itemData.id);
-			item._type = itemData.type;
-			item._properties = itemData.properties;
-			common.itemFactory._items[itemData.id] = item;
-		}
+		this._database = new Database(http);
 	}
-	
+
 	this.getLabelsForUser = function(username) {
-		return __RubberData.userToLabel[username];
+		return ['user', 'bug'];
 	}
-	
+
 	this.getItemIdsForLabel = function(label) {
-		return __RubberData.labelToItemIds[label];
+		if (label == 'user') {
+			return ['6e1295ed6c29495e54cc05947f18c8af'];
+		} else if (label == 'bug') {
+			return ['b7b3bf9667db2a4c923b882136002fda'];
+		}
+		
 	}
-	
-	
-	// this.subscribeToItemMutations = function(itemId, callback) {
+
+
 	this.subscribeToItemPropertyChange = function(itemId, callback) {
 		if (!this._itemSubscriptions[itemId]) { this._itemSubscriptions[itemId] = {}; }
 		logger.log('subscribeToItemPropertyChange', this._itemSubscriptions[itemId].length, 'subscribers')
@@ -43,15 +38,11 @@ exports = Class(Server, function(supr) {
 		this._itemSubscriptions[itemId][subId] = callback;
 		return subId;
 	}
-	
+
 	this.unsubscribeFromItemMutations = function(itemId, subId) {
 		delete this._itemSubscriptions[itemId][subId];
 	}
-	
-	this.queueMutation = function(mutation) {
-		
-	}
-	
+
 	// DEV - should be using mutations instead
 	this.dispatchItemPropertyUpdated = function(itemId, propertyName, propertyValue) {
 		var item = common.itemFactory.getItem(itemId);
@@ -62,11 +53,31 @@ exports = Class(Server, function(supr) {
 			subs[key](itemId, propertyName, propertyValue);
 		}
 	}
-	
-	this.getItemSnapshot = function(id) {
-		var item = common.itemFactory.getItem(id);
-		logger.log('GET SNAPSHOT', JSON.stringify(item.getProperties()))
-		return { id: id, type: item.getType(), properties: item.getProperties() }
+
+	this.getItem = function(id, callback) {
+		if (common.itemFactory.hasItem(id)) {
+			var item = common.itemFactory.getItem(id)
+			logger.log('getItem', id, 'from memory', JSON.stringify(item.getProperties()));
+			var item = common.itemFactory.getItem(id);
+			callback(item);
+		} else {
+			logger.log('getItem', id, 'from database');
+			this._database.getItemData(id, function(properties) {
+				
+				var id = properties._id;
+				var revision = properties._rev;
+				var type = properties.type;
+				delete properties._id;
+				delete properties._rev;
+				delete properties.type;
+				
+				var item = common.itemFactory.getItem(id);
+				item.setType(type);
+				item.setRevision(revision);
+				item.setProperties(properties);
+				callback(item);
+			});
+		}
 	}
 });
 

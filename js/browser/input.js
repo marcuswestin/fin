@@ -8,7 +8,7 @@ exports = Singleton(function(){
 	var PADDING = 4;
 
 	this.init = function() {
-		this._input = document.createElement('input');
+		this._input = document.createElement('textarea');
 		this._input.style.position = 'absolute';
 		this._input.style.padding = '1px 0 0 3px'
 		browser.events.add(this._input, 'keypress', bind(this, 'onKeyPress'))

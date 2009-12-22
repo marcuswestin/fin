@@ -33,4 +33,6 @@ if (typeof exports != 'undefined') { exports = events };
 	}
 	
 	events.KEY_ENTER = 13;
+	events.KEY_BACKSPACE = 8;
+	events.KEY_ESCAPE = 27;
 })()

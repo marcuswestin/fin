@@ -2,6 +2,7 @@ jsio('from common.javascript import Singleton, bind');
 jsio('import browser.dimensions')
 jsio('import browser.dom')
 jsio('import browser.events')
+jsio('import browser.caret')
 
 exports = Singleton(function(){
 	
@@ -19,10 +20,10 @@ exports = Singleton(function(){
 		this._input.value = value;
 	}
 	
-	this.showAt = function(dom, onValueChangeCallback) {
+	this.showAt = function(dom, onMutationCallback) {
 		this._targetDom = dom;
-		this._onValueChangeCallback = onValueChangeCallback;
-
+		this._onMutationCallback = onMutationCallback;
+		
 		this._input.style.fontSize = browser.dom.getStyle(dom, 'font-size');
 		this._input.style.fontFamily = browser.dom.getStyle(dom, 'font-family');
 		
@@ -50,13 +51,37 @@ exports = Singleton(function(){
 	}
 	
 	this.onKeyPress = function(e) {
-		if (e.keyCode == browser.events.KEY_ENTER) {
+		// TODO: Deal with pasting
+		if (e.metaKey) { return; }
+		
+		var position = browser.caret.getPosition(this._input);
+		var selectionLength = position.end - position.start;
+		var mutation = { position: position.caret - selectionLength };
+		
+		if (e.keyCode == browser.events.KEY_ENTER || e.keyCode == browser.events.KEY_ESCAPE) {
 			this._input.blur();
 			browser.events.cancel(e);
+			return;
+		} else if (e.keyCode == browser.events.KEY_BACKSPACE) {
+			if (selectionLength) {
+				mutation.deletion = selectionLength;
+			} else {
+				mutation.position -= 1;
+				mutation.deletion = 1;
+			}
+		} else if (e.charCode) {
+			mutation.addition = String.fromCharCode(e.charCode);
+			if (selectionLength) {
+				mutation.deletion = selectionLength;
+			}
 		}
+		
+		// Don't publish no op mutations
+		if (!mutation.deletion && !mutation.addition) { return; }
+		
 		setTimeout(bind(this, function() {
 			this._resize();
-			this._onValueChangeCallback(this._input.value);
-		}), 0)
+			this._onMutationCallback(mutation, this._input.value);
+		}), 0);
 	}
 })

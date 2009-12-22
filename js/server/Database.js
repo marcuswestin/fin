@@ -21,6 +21,10 @@ exports = Class(function() {
 		this._request('GET', id, callback);
 	}
 	
+	this.storeItemData = function(item, callback) {
+		this._request('PUT', item.getId(), { data: JSON.stringify(item.asDatabaseObject()) }, callback);
+	}
+	
 	this._request = function(verb, id, /* optional */ headers, responseCallback) {
 		if (!responseCallback) { 
 			responseCallback = headers;

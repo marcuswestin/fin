@@ -1,4 +1,4 @@
-jsio('from common.javascript import Class, map');
+jsio('from common.javascript import Class, map, bind');
 jsio('from net.interfaces import Server');
 jsio('import .Connection');
 jsio('import .Database');
@@ -11,7 +11,7 @@ exports = Class(Server, function(supr) {
 
 	this.init = function(http) {
 		supr(this, 'init', [Connection]);
-		this._itemSubscriptions = {};
+		this._mutationSubscriptions = {};
 		this._uniqueId = 0;
 		
 		this._database = new Database(http);
@@ -27,33 +27,27 @@ exports = Class(Server, function(supr) {
 		} else if (label == 'bug') {
 			return ['b7b3bf9667db2a4c923b882136002fda'];
 		}
-		
 	}
 
-
-	this.subscribeToItemPropertyChange = function(itemId, callback) {
-		if (!this._itemSubscriptions[itemId]) { this._itemSubscriptions[itemId] = {}; }
-		logger.log('subscribeToItemPropertyChange', this._itemSubscriptions[itemId].length, 'subscribers')
+	this.subscribeToItemMutations = function(item, callback) {
+		var id = item.getId();
+		if (!this._mutationSubscriptions[id]) { this._mutationSubscriptions[id] = {}; }
+		logger.log('subscribeToItemMutations', this._mutationSubscriptions[id].length, 'subscribers');
 		var subId = 'sub' + this._uniqueId++;
-		this._itemSubscriptions[itemId][subId] = callback;
+		this._mutationSubscriptions[id][subId] = callback;
 		return subId;
 	}
-
-	this.unsubscribeFromItemMutations = function(itemId, subId) {
-		delete this._itemSubscriptions[itemId][subId];
-	}
-
-	// DEV - should be using mutations instead
-	this.dispatchItemPropertyUpdated = function(itemId, propertyName, propertyValue) {
-		var item = common.itemFactory.getItem(itemId);
-		item.updateProperty(propertyName, propertyValue);
-		var subs = this._itemSubscriptions[itemId];
-		logger.log('dispatchItemPropertyUpdated', itemId, propertyName, '=', propertyValue);
+	
+	this.handleMutation = function(mutation) {
+		var item = common.itemFactory.getItem(mutation.id);
+		logger.log('handleMutation', mutation.id, JSON.stringify(mutation));
+		item.applyMutation(mutation, true);
+		var subs = this._mutationSubscriptions[item.getId()];
 		for (var key in subs) {
-			subs[key](itemId, propertyName, propertyValue);
+			subs[key](mutation);
 		}
 	}
-
+	
 	this.getItem = function(id, callback) {
 		if (common.itemFactory.hasItem(id)) {
 			var item = common.itemFactory.getItem(id)

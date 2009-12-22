@@ -125,9 +125,11 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 	this._makeEditable = function(propertyName, el) {
 		logger.log('_makeEditable', this._item.getId(), this._item.getProperty(propertyName));
 		browser.input.setValue(this._item.getProperty(propertyName));
-		browser.input.showAt(el, bind(this, function(value){
+		browser.input.showAt(el, bind(this, function(mutation, value){
 			el.innerHTML = value; // set the value of the element beneath the input early, so that its size updates correctly
-			this._item.setProperty(propertyName, value);
+			mutation.property = propertyName;
+			mutation.id = this._item.getId();
+			this._item.mutate(mutation);
 		}));
 	}
 })

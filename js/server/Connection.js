@@ -22,29 +22,16 @@ exports = Class(RTJPProtocol, function(supr) {
 		logger.log('frameReceived', id, name, JSON.stringify(args));
 		
 		switch(name) {
-			case 'ITEM_PROPERTY_SET': // This is just for development - we should pass mutations as opposeed to values
-				this.server.dispatchItemPropertyUpdated(args.id, args.name, args.value);
-				break;
 			case 'ITEM_SUBSCRIBE':
 				logger.log('subscribing to item', args.id);
-				// var subId = this.server.subscribeToItemMutations(itemDescr.id, bind(this, 'onItemMutation'));
 				this.server.getItem(args.id, bind(this, function(item){
-					var subId = this.server.subscribeToItemPropertyChange(args.id, bind(this, 'onItemPropertyUpdated'));
+					var subId = this.server.subscribeToItemMutations(item, bind(this, 'onItemMutated'));
 					this._itemSubscriptionIds[args.id] = subId;
 					this.sendFrame('ITEM_SNAPSHOT', item.asObject());
 				}));
 				break;
-			case 'ITEM_UNSUBSCRIBE':
-				for (var i=0, unsub; unsub = args.unsubscriptions[i]; i++) {
-					var subId = this._itemSubscriptionIds[unsub.itemId];
-					delete this._itemSubscriptionIds[unsub.itemId];
-					this.server.unsubscribeFromItemMutations(subId, unsub.itemId);
-				}
-				break;
-			case 'ITEM_MUTATION':
-				for (var i=0, mutation; mutation = args.mutations[i]; i++) {
-					this.server.queueMutation(mutation);
-				}
+			case 'ITEM_MUTATING':
+				this.server.handleMutation(args.mutation);
 				break;
 			case 'LABEL_GET_ITEMS':
 				var itemIds = this.server.getItemIdsForLabel(args.label);
@@ -56,20 +43,12 @@ exports = Class(RTJPProtocol, function(supr) {
 		}
 	}
 	
-	// Unused
-	this.onItemMutation = function(mutation) {
-		this.sendFrame('ITEM_MUTATION', mutation);
-	}
-	
-	this.onItemPropertyUpdated = function(itemId, propertyName, propertyValue) {
-		this.sendFrame('ITEM_PROPERTY_UPDATED', { id: itemId, name: propertyName, value: propertyValue });
+	this.onItemMutated = function(mutation) {
+		this.sendFrame('ITEM_MUTATED', { mutation: mutation });
 	}
 	
 	this.connectionLost = function() {
 		logger.info('connectionLost');
-		for (var itemId in this._itemSubscriptionIds) {
-			this.server.unsubscribeFromItemMutations(itemId, this._itemSubscriptionIds[itemId]);
-		}
 	}
 
 })

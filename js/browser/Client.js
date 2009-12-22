@@ -42,9 +42,8 @@ exports = Class(RTJPProtocol, function(supr) {
 		this.sendFrame('LABEL_GET_ITEMS', { label: label });
 	}
 	
-	/* Private */
 	this._onItemCreated = function(item) {
-		item.subscribe('PropertySet', bind(this, 'onItemPropertySet', item.getId()));
+		item.subscribe('Mutating', bind(this, 'onItemMutating'));
 		this.subscribeToItem(item);
 	}
 	
@@ -56,9 +55,8 @@ exports = Class(RTJPProtocol, function(supr) {
 		this._isConnected = false;
 	}
 	
-	/* Browser event handling */
-	this.onItemPropertySet = function(itemId, propertyName, propertyValue) {
-		this.sendFrame('ITEM_PROPERTY_SET', { id: itemId, name: propertyName, value: propertyValue });
+	this.onItemMutating = function(mutation) {
+		this.sendFrame('ITEM_MUTATING', { mutation: mutation });
 	}
 	
 	/* Server event handling */
@@ -71,11 +69,12 @@ exports = Class(RTJPProtocol, function(supr) {
 				this._onConnectedCallback(args.labels);
 				break;
 			case 'ITEM_SNAPSHOT':
-				setTimeout(function(){ common.itemFactory.loadItemSnapshot(args); });
+				setTimeout(bind(common.itemFactory, 'loadItemSnapshot', args), 0);
 				break;
-			case 'ITEM_PROPERTY_UPDATED':
-				var item = common.itemFactory.getItem(args.id);
-				setTimeout(function(){ item.updateProperty(args.name, args.value); });
+			case 'ITEM_MUTATED':
+				var mutation = args.mutation;
+				var item = common.itemFactory.getItem(args.mutation.id);
+				setTimeout(bind(item, 'applyMutation', args.mutation, false), 0);
 				break;
 			case 'LABEL_ITEMS':
 				var callback = this._labelCallbacks[args.label];

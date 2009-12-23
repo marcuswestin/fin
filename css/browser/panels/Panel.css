@@ -1,4 +1,5 @@
 .Panel {
+	position: absolute;
 	border: 3px solid #a0a0a0;
 	border-radius: 7px;
 	-moz-border-radius: 7px;

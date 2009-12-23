@@ -21,13 +21,14 @@ gPanelManager = new browser.PanelManager();
 
 gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", function(labels){
 	document.body.removeChild(document.getElementById('connecting'));
-	document.body.appendChild(gDrawer.getElement());
 	document.body.appendChild(gPanelManager.getElement());
+	document.body.appendChild(gDrawer.getElement());
 	
 	function onResize() {
 		var size = dimensions.getSize(window);
 		var drawerSize = gDrawer.resize();
-		gPanelManager.position(drawerSize.width + 50, drawerSize.top, size.width - drawerSize.width - 100, size.height + 20);
+		gPanelManager.position(drawerSize.width + 50, drawerSize.top, 
+			size.width - drawerSize.width - 100, size.height - 80);
 	}
 	
 	gDrawer.subscribe('LabelClick', bind(gPanelManager, 'showLabel'));

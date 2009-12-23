@@ -13,7 +13,7 @@ exports.create = function(params) {
 exports.setStyle = function(el, styles) {
 	for (var key in styles) {
 		var value = styles[key];
-		if (!isNaN(value)) {
+		if (!isNaN(value) && key != 'zIndex') {
 			value = value + 'px';
 		} else if (key == 'float') {
 			key = 'cssFloat';

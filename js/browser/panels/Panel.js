@@ -22,9 +22,8 @@ exports = Class(browser.UIComponent, function(supr) {
 			className: 'panelLabel', html: (this._label + 's').split('').join('<br />') });
 	}
 	
-	this.resize = function(width, height) {
-		dom.setStyle(this._element, { width: width, height: height });
-		dom.setStyle(this._labelEl, { height: height - 4 });
+	this.position = function(left, top, width, height) {
+		dom.setStyle(this._element, { left: left, top: top, width: width, height: height });
 	}
 	
 	this.getLabel = function() { return this._label; }

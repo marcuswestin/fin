@@ -1,9 +1,16 @@
+List
+	- make templates have views
+	- split panels
+	- button for creating new item
+	- make template lists
+
 alpha
 	(?) templates should say the type of item references, also possibly which template to use to render it
-	split panels
 	animate planels
 	keystroke handling
 	email + password => labels
+	
+	
 
 storage
 	User => labels

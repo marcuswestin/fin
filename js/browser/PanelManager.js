@@ -40,7 +40,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		} else {
 			this._panels[itemOrLabel] = new browser.panels.ItemPanel(this, itemOrLabel);
 		}
-		this._panelOrder.unshift(itemOrLabel);
+		this._panelOrder.push(itemOrLabel);
 		return this._panels[itemOrLabel];
 	}
 	

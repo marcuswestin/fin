@@ -10,4 +10,4 @@ clean:
 	rm js/jsio
 
 run:
-	cd js/server; node start_with_node.js
+	cd js/server; node app.js

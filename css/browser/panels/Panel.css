@@ -4,6 +4,7 @@
 	border-radius: 7px;
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;
+	background: #fff;
 }
 
 .Panel .spinner {
@@ -13,10 +14,10 @@
 }
 
 .Panel .panelLabel {
-	border: 1px solid #888;
-	padding: 0 3px;
+	border: 2px solid #a0a0a0;
+	padding: 4px;
 	position: absolute;
 	top: 10px;
-	right: 10px;
+	right: -22px;
 	background: #eee;
 }

@@ -12,6 +12,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		supr(this, 'init');
 		this._manager = manager;
 		this._item = item;
+		this._label = typeof item == 'string' ? item : item.getType();
 	}
 	
 	this.createContent = function() {
@@ -19,11 +20,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._loading = dom.create({ parent: this._element, className: 'spinner', 
 			text: 'Loading...', style: {display: 'none'} });
 		this._labelEl = dom.create({ type: 'td', parent: this._element,
-			className: 'panelLabel', html: (this._label + 's').split('').join('<br />') });
-	}
-	
-	this.position = function(left, top, width, height) {
-		dom.setStyle(this._element, { left: left, top: top, width: width, height: height });
+			className: 'panelLabel', html: (this._label).split('').join('<br />') });
 	}
 	
 	this.getLabel = function() { return this._label; }

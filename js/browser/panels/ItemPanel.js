@@ -15,9 +15,4 @@ exports = Class(Panel, function(supr) {
 		var itemView = new browser.ItemView(this._item, this._item.getType(), 'panel');
 		this._element.appendChild(itemView.getElement());
 	}
-	
-	// this.resize = function(width, height) {
-	// 	supr(this, 'resize', arguments);
-	// 	dom.setStyle(this._itemList, { width: width - 10, height: height - 10 });
-	// }
 })

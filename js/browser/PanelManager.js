@@ -18,18 +18,17 @@ exports = Class(browser.UIComponent, function(supr) {
 		this.addClassName('PanelManager');
 		this._panels = {};
 		this._panelOrder = [];
+		this._minPanelWidth = 300;
 	}
 	
 	this.showLabel = function(label) {
 		var panel = this._getPanel(label);
-		this._element.appendChild(panel.getElement());
 		gClient.getItemsForLabel(label, bind(this, '_onLabelItemsReceived'));
 		this._positionPanels();
 	}
 	
 	this.showItem = function(item) {
 		var panel = this._getPanel(item);
-		this._element.appendChild(panel.getElement());
 		this._positionPanels();
 	}
 	
@@ -53,21 +52,31 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.position = function(offsetLeft, offsetTop, width, height) {
 		dom.setStyle(this._element, { left: offsetLeft, top: offsetTop, width: width, height: height });
-		for (var id in this._panels) {
-			this._panels[id].position(0, 0, width, height);
-		}
 		this._positionPanels();
 	}
 	
 	this._positionPanels = function() {
 		var size = dimensions.getSize(this._element);
+		var panelWidth = this._minPanelWidth;
 		var numPanels = this._panelOrder.length;
-		var margin = 10;
-		var panelWidth = Math.floor(size.width / this._panelOrder.length) - numPanels * margin;
+		var margin = 30;
 		var offset = 0;
+		var stackedPanelWidth = 23;
 		for (var i=0, panelId; panelId = this._panelOrder[i]; i++) {
-			this._panels[panelId].position(offset, 0, panelWidth, size.height);
-			offset += panelWidth + margin;
+			var panelEL = this._panels[panelId].getElement();
+			this._element.insertBefore(panelEL, this._element.firstChild);
+			var remainingPanels = numPanels - i - 1;
+			if (offset + panelWidth + margin + (remainingPanels * stackedPanelWidth) > size.width) {
+				// doesn't fit - stack it
+				panelEL.style.left = null;
+				dom.setStyle(panelEL, { right: remainingPanels * stackedPanelWidth,
+					width: panelWidth, height: size.height });
+			} else {
+				// fits
+				dom.setStyle(panelEL, { left: offset, width: panelWidth, 
+					height: size.height });
+				offset += panelWidth + margin;
+			}
 		}
 	}
 })

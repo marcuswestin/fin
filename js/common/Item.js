@@ -38,6 +38,7 @@ exports = Class(Publisher, function(supr) {
 	
 	this.getId = function() { return this._id; }
 	this.getProperty = function(propertyName) { return this._properties[propertyName] }
+	this.getType = function() { return this._type; }
 
 	this.setSnapshot = function(snapshot) {
 		this._type = snapshot.type;
@@ -50,5 +51,9 @@ exports = Class(Publisher, function(supr) {
 	
 	this.asObject = function() {
 		return { _id: this._id, _rev: this._rev, type: this._type, properties: this._properties };
+	}
+	
+	this.toString = function() {
+		return this._id;
 	}
 })

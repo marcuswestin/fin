@@ -1,0 +1,11 @@
+.ListPanel .itemList {
+	overflow: auto;
+}
+
+
+.ListPanel .itemList .itemView-line {
+	padding: 5px;
+	border: 1px solid #a0a0a0;
+	margin: 3px;
+	cursor: pointer;
+}

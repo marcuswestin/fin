@@ -68,6 +68,7 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 		if (!this._holdForSnapshot) { logger.warn("Got snapshot set twice!") }
 		for (var propertyName in this._holdForSnapshot) {
 			var propertyValue = this._item.getProperty(propertyName);
+			if (!propertyValue) { propertyValue = propertyName; }
 			for (var i=0, viewElement; viewElement = this._holdForSnapshot[propertyName][i]; i++) {
 				if (propertyValue.type) { // the property is an item reference
 					this._createReferenceView(propertyValue.id, propertyValue.type, viewElement);

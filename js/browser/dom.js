@@ -13,7 +13,12 @@ exports.create = function(params) {
 exports.setStyle = function(el, styles) {
 	for (var key in styles) {
 		var value = styles[key];
-		el.style[key] = value + (!isNaN(value) ? 'px' : '');
+		if (!isNaN(value)) {
+			value = value + 'px';
+		} else if (key == 'float') {
+			key = 'cssFloat';
+		}
+		el.style[key] = value;
 	}
 }
 

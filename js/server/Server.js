@@ -47,27 +47,33 @@ exports = Class(Server, function(supr) {
 		}
 		if (item._mutationCount++ % this._databaseWriteFrequency == 0) {
 			logger.log('store item changes to database for item', item.getId(), JSON.stringify(item._properties));
-			this._database.storeItemData(item.asObject(), bind(this, '_onItemStored', item, null));
+			this._database.storeItemData(item.asObject(), bind(this, '_handleItemRevision', item));
+		}
+	}
+
+	this._handleItemRevision = function(item, response, error) {
+		if (error) {
+			logger.warn('could not store item', item.getId(), JSON.stringify(error));
+		} else {
+			logger.log('stored item', item.getId());
+			item._rev = response._rev;
 		}
 	}
 	
 	this.createItem = function(type, callback) {
-		this._database.createUUID(function(uuid){
-			var item = common.itemFactory.getItem(uuid);
-			item._type = type;
-			this._database.storeItemData(item.asObject(), bind(this, '_onItemStored', item, callback));
+		this._database.createItem(type, function(response, error) {
+			if (error) {
+				logger.warn('could not create item', type, JSON.stringify(error));
+			} else {
+				var item = common.itemFactory.getItem(response._id);
+				item._type = type;
+				item._rev = response._rev;
+				logger.log('created item', type, response._id);
+				callback(item);
+			}
 		});
 	}
 	
-	this._onItemStored = function(item, callback, response, error) {
-		if (error) {
-			logger.warn('could not store item', item.getId(), JSON.stringify(error));
-		} else {
-			logger.log('stored item', item.getId(), JSON.stringify(response));
-			item._rev = response._rev;
-			if (callback) { callback(item); }
-		}
-	}
 	
 	this.getItem = function(id, callback) {
 		if (common.itemFactory.hasItem(id)) {

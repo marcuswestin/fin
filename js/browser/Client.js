@@ -12,7 +12,14 @@ exports = Class(RTJPProtocol, function(supr) {
 		this._isConnected = false;
 		this._subscribedItems = {};
 		this._labelCallbacks = {};
-		common.itemFactory.subscribe('ItemCreated', bind(this, '_onItemCreated'));
+		this._itemCreationCallbacks = {};
+		common.itemFactory.subscribe('ItemCreated', bind(this, '_onItemCreatedInFactory'));
+	}
+	
+	this.createItem = function(type, callback) {
+		if (this._itemCreationCallbacks[type]) { return; } // already in process of creating an item of this type
+		this._itemCreationCallbacks[type] = callback;
+		this.sendFrame('REQUEST_CREATE_ITEM', { type: type })
 	}
 	
 	this.connect = function(transport, url, onConnectedCallback) {
@@ -42,7 +49,7 @@ exports = Class(RTJPProtocol, function(supr) {
 		this.sendFrame('LABEL_GET_ITEMS', { label: label });
 	}
 	
-	this._onItemCreated = function(item) {
+	this._onItemCreatedInFactory = function(item) {
 		item.subscribe('Mutating', bind(this, 'onItemMutating'));
 		this.subscribeToItem(item);
 	}
@@ -85,6 +92,16 @@ exports = Class(RTJPProtocol, function(supr) {
 					items.push(item);
 				}
 				setTimeout(function(){ callback(args.label, items); });
+				break;
+			case 'ITEM_CREATED':
+				var callback = this._itemCreationCallbacks[args.type];
+				delete this._itemCreationCallbacks[args.type];
+				var item = common.itemFactory.getItem(args._id);
+				item._type = args.type;
+				callback(item);
+				break;
+			default:
+				logger.warn('Unknown frame type received', id, name, JSON.stringify(args));
 				break;
 		}
 	}

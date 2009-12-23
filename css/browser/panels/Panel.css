@@ -5,9 +5,17 @@
 	-webkit-border-radius: 7px;
 }
 
+.Panel .spinner {
+	position: absolute;
+	top: 50px;
+	left: 50px;
+}
+
 .Panel .panelLabel {
-	display: table-cell; 
-	vertical-align: middle;
 	border: 1px solid #888;
 	padding: 0 3px;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: #eee;
 }

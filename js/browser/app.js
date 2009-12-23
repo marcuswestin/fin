@@ -11,6 +11,8 @@ jsio('import browser.dimensions as dimensions');
 jsio('import browser.events as events');
 jsio('import browser.css as css');
 
+jsio('import browser.Meebo as Meebo');
+
 css.loadStyles('browser.app');
 
 gClient = new browser.Client();
@@ -25,13 +27,19 @@ gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", f
 	function onResize() {
 		var size = dimensions.getSize(window);
 		var drawerSize = gDrawer.resize();
-		gPanelManager.position(drawerSize.width + 50, drawerSize.top, size.width - drawerSize.width, size.height + 20);
+		gPanelManager.position(drawerSize.width + 50, drawerSize.top, size.width - drawerSize.width - 100, size.height + 20);
 	}
 	
-	gDrawer.subscribe('LabelClick', bind(gPanelManager, 'openLabel'));
+	gDrawer.subscribe('LabelClick', bind(gPanelManager, 'showLabel'));
 	events.add(window, 'resize', onResize);
 	
 	gDrawer.addLabels(labels);
+	
+	Meebo('addButton', { label: 'Create item', onClick: function() {
+		var type = prompt('What type of item should I create? (user, bug)');
+		gClient.createItem(type, bind(gPanelManager, 'showItem'));
+	} })
+	
 	onResize();
 });
 

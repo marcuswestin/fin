@@ -10,8 +10,8 @@ exports = Class(function() {
 		this._db = new CouchDB.db('items', port, host);
 	}
 	
-	this.createItem = function(itemData, callback) {
-		this._db.saveDoc(itemData, { success: callback, error: bind(this, callback, false) });
+	this.createItem = function(type, callback) {
+		this._db.saveDoc({ type: type }, { success: callback, error: bind(this, callback, false) });
 	}
 	
 	this.getItemData = function(itemId, callback) {

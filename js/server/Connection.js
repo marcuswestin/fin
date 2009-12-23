@@ -38,6 +38,10 @@ exports = Class(RTJPProtocol, function(supr) {
 					this.sendFrame('LABEL_ITEMS', { label: args.label, itemIds: itemIds });
 				}));
 				break;
+			case 'REQUEST_CREATE_ITEM':
+				this.server.createItem(args.type, bind(this, function(item){
+					this.sendFrame('ITEM_CREATED', item.asObject());
+				}))
 			default:
 				logger.warn('Unknown frame type received', id, name, JSON.stringify(args));
 				break;

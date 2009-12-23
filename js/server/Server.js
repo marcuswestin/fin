@@ -4,17 +4,17 @@ jsio('import .Connection');
 jsio('import .Database');
 jsio('import common.itemFactory');
 
-var logger = logging.getLogger('Server');
+var logger = logging.getLogger('server.Server');
 logger.setLevel(0);
 
 exports = Class(Server, function(supr) {
 
-	this.init = function(http) {
+	this.init = function(database) {
 		supr(this, 'init', [Connection]);
 		this._mutationSubscriptions = {};
 		this._uniqueId = 0;
-		
-		this._database = new Database(http);
+		this._database = database;
+		this._databaseWriteFrequency = 1; // write on every update
 	}
 
 	this.getLabelsForUser = function(username) {
@@ -23,9 +23,9 @@ exports = Class(Server, function(supr) {
 
 	this.getItemIdsForLabel = function(label) {
 		if (label == 'user') {
-			return ['6e1295ed6c29495e54cc05947f18c8af'];
+			return ['31c49d47c1e4af6656b9b0b44cf53ac8'];
 		} else if (label == 'bug') {
-			return ['b7b3bf9667db2a4c923b882136002fda'];
+			return ['329264458e6687515a1cc16342bf4604'];
 		}
 	}
 
@@ -39,36 +39,52 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this.handleMutation = function(mutation) {
-		var item = common.itemFactory.getItem(mutation.id);
-		logger.log('handleMutation', mutation.id, JSON.stringify(mutation));
+		var item = common.itemFactory.getItem(mutation._id);
+		logger.log('handleMutation', mutation._id, JSON.stringify(mutation));
 		item.applyMutation(mutation, true);
 		var subs = this._mutationSubscriptions[item.getId()];
 		for (var key in subs) {
 			subs[key](mutation);
+		}
+		if (item._mutationCount++ % this._databaseWriteFrequency == 0) {
+			logger.log('store item changes to database for item', item.getId(), JSON.stringify(item._properties));
+			this._database.storeItemData(item.asObject(), bind(this, '_onItemStored', item, null));
+		}
+	}
+	
+	this.createItem = function(type, callback) {
+		this._database.createUUID(function(uuid){
+			var item = common.itemFactory.getItem(uuid);
+			item._type = type;
+			this._database.storeItemData(item.asObject(), bind(this, '_onItemStored', item, callback));
+		});
+	}
+	
+	this._onItemStored = function(item, callback, response, error) {
+		if (error) {
+			logger.warn('could not store item', item.getId(), JSON.stringify(error));
+		} else {
+			logger.log('stored item', item.getId(), JSON.stringify(response));
+			item._rev = response._rev;
+			if (callback) { callback(item); }
 		}
 	}
 	
 	this.getItem = function(id, callback) {
 		if (common.itemFactory.hasItem(id)) {
 			var item = common.itemFactory.getItem(id)
-			logger.log('getItem', id, 'from memory', JSON.stringify(item.getProperties()));
+			logger.log('get item from memory', id, JSON.stringify(item._properties));
 			var item = common.itemFactory.getItem(id);
 			callback(item);
 		} else {
-			logger.log('getItem', id, 'from database');
-			this._database.getItemData(id, function(properties) {
-				
-				var id = properties._id;
-				var revision = properties._rev;
-				var type = properties.type;
-				delete properties._id;
-				delete properties._rev;
-				delete properties.type;
-				
-				var item = common.itemFactory.getItem(id);
-				item.setType(type);
-				item.setRevision(revision);
-				item.setProperties(properties);
+			logger.log('get item from database', id);
+			this._database.getItemData(id, function(data) {
+				logger.log('retrieved item from database', JSON.stringify(data));
+				var item = common.itemFactory.getItem(data._id);
+				item._type = data.type;
+				item._rev = data._rev;
+				item._properties = data.properties;
+				item._mutationCount = 0;
 				callback(item);
 			});
 		}

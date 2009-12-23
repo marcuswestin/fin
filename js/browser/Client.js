@@ -73,7 +73,7 @@ exports = Class(RTJPProtocol, function(supr) {
 				break;
 			case 'ITEM_MUTATED':
 				var mutation = args.mutation;
-				var item = common.itemFactory.getItem(args.mutation.id);
+				var item = common.itemFactory.getItem(args.mutation._id);
 				setTimeout(bind(item, 'applyMutation', args.mutation, false), 0);
 				break;
 			case 'LABEL_ITEMS':

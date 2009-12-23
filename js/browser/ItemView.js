@@ -128,7 +128,7 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 		browser.input.showAt(el, bind(this, function(mutation, value){
 			el.innerHTML = value; // set the value of the element beneath the input early, so that its size updates correctly
 			mutation.property = propertyName;
-			mutation.id = this._item.getId();
+			mutation._id = this._item.getId();
 			this._item.mutate(mutation);
 		}));
 	}

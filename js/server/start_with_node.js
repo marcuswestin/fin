@@ -13,7 +13,11 @@ jsio('import logging');
 //logging.getLogger('DelimitedProtocol').setLevel(0);
 //logging.getLogger('world.server').setLevel(1);
 
+var CouchDB = require('./nodecouch').CouchDB;
+
+jsio("import .Database");
+var database = new Database(CouchDB);
+
 jsio("import .Server");
-var http = require('http');
-server = new Server(http);
+server = new Server(database);
 net.listen(server, 'csp', {port: 5555});

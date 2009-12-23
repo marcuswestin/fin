@@ -14,7 +14,7 @@ exports = Singleton(common.Publisher, function(supr) {
 	
 	this.loadItemSnapshot = function(snapshot, callback) {
 		logger.log('Loading snapshot for item', snapshot);
-		var item = this.getItem(snapshot.id);
+		var item = this.getItem(snapshot._id);
 		item.setSnapshot(snapshot);
 	}
 	

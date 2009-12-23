@@ -21,12 +21,11 @@ exports = Class(Server, function(supr) {
 		return ['user', 'bug'];
 	}
 
-	this.getItemIdsForLabel = function(label) {
-		if (label == 'user') {
-			return ['31c49d47c1e4af6656b9b0b44cf53ac8'];
-		} else if (label == 'bug') {
-			return ['329264458e6687515a1cc16342bf4604'];
-		}
+	this.getItemIdsForLabel = function(label, callback) {
+		this._database.getList(label, function(response){
+			var itemIds = map(response.rows, function(row) { return row.value });
+			callback(itemIds);
+		});
 	}
 
 	this.subscribeToItemMutations = function(item, callback) {

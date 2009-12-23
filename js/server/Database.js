@@ -21,5 +21,10 @@ exports = Class(function() {
 	this.storeItemData = function(itemData, callback) {
 		logger.log('store item data', JSON.stringify(itemData))
 		this._db.saveDoc(itemData, { success: callback, error: bind(this, callback, false) });
-	}	
+	}
+	
+	this.getList = function(type, callback) {
+		logger.log('get list for', type)
+		this._db.view('lists/' + type, { success: callback, error: bind(this, callback, false) });
+	}
 })

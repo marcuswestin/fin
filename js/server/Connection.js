@@ -34,8 +34,9 @@ exports = Class(RTJPProtocol, function(supr) {
 				this.server.handleMutation(args.mutation);
 				break;
 			case 'LABEL_GET_ITEMS':
-				var itemIds = this.server.getItemIdsForLabel(args.label);
-				this.sendFrame('LABEL_ITEMS', { label: args.label, itemIds: itemIds });
+				this.server.getItemIdsForLabel(args.label, bind(this, function(itemIds) {
+					this.sendFrame('LABEL_ITEMS', { label: args.label, itemIds: itemIds });
+				}));
 				break;
 			default:
 				logger.warn('Unknown frame type received', id, name, JSON.stringify(args));

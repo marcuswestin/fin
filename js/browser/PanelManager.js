@@ -32,6 +32,19 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._positionPanels();
 	}
 	
+	this.focusPanel = function(panel) {
+		if (panel == this._panelOrder[0] || panel == this._panelOrder[1]) { return; }
+		for (var i=0; i < this._panelOrder.length; i++) {
+			if (panel != this._panels[this._panelOrder[i]]) { continue; }
+			var movedPanel = this._panelOrder.splice(i, 1)[0];
+			var dockedPanel = this._panelOrder.shift();
+			this._panelOrder.unshift(movedPanel);
+			this._panelOrder.unshift(dockedPanel);
+			break;
+		}
+		this._positionPanels();
+	}
+	
 	this._getPanel = function(itemOrLabel) {
 		if (this._panels[itemOrLabel]) { return this._panels[itemOrLabel]; }
 		if (typeof itemOrLabel == 'string') {

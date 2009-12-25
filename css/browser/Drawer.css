@@ -7,13 +7,8 @@
 	-webkit-border-radius: 0 7px 7px 0;
 }
 
-.Drawer .header {
-	font-style: italic;
-	margin: 4px 7px 10px 7px;
-}
-
 .Drawer .label {
 	cursor: pointer;
-	margin: 3px 0 0 15px;
+	margin: 4px 0 0 15px;
 	display: block;
 }

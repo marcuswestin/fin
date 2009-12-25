@@ -28,13 +28,13 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.showLabel = function(label) {
 		var panel = this._addPanel(label);
+		this.focusPanel(panel);
 		gClient.getItemsForLabel(label, bind(this, '_onLabelItemsReceived'));
-		this._positionPanels();
 	}
 	
 	this.showItem = function(item) {
 		var panel = this._addPanel(item);
-		this._positionPanels();
+		this.focusPanel(panel);
 	}
 	
 	this.focusPanel = function(panel) {
@@ -45,7 +45,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		var movedPanel = this._extractPanelFromOrder(panel);
 		var dockedPanel = this._panelOrder.shift();
 		this._panelOrder.unshift(movedPanel);
-		this._panelOrder.unshift(dockedPanel);
+		if (dockedPanel) { this._panelOrder.unshift(dockedPanel); }
 		
 		this._positionPanels();
 	}
@@ -110,7 +110,6 @@ exports = Class(browser.UIComponent, function(supr) {
 			this._panels[panelId]._currentOffset = dimensions.getDimensions(panelEl).left - managerSize.left || 0;
 		}
 		this._panelAnimation.animate();
-		window.top.console.debug(this._panelOrder);
 	}
 	
 	this._animatePanels = function(n) {

@@ -1,5 +1,4 @@
 List
-	- Animate panels when clicking them
 	- make templates have views
 	- make template lists
 
@@ -28,3 +27,4 @@ Done
 	X create db
 	X split panels
 	X button for creating new item
+	X Animate panels when clicking them

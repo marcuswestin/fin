@@ -36,14 +36,13 @@ exports = Singleton(function(){
 	}
 	
 	this._resize = function() {
-		var position = browser.dimensions.getPosition(this._targetDom);
-		var size = browser.dimensions.getSize(this._targetDom);
+		var dimensions = browser.dimensions.getDimensions(this._targetDom);
 		
 		var inputOffset = 0; // to make the text inside the input line up with text it overlays
-		this._input.style.top = position.top - PADDING - inputOffset + 'px';
-		this._input.style.left = position.left - PADDING + 'px';
-		this._input.style.width = size.width + PADDING * 2 + 30 + 'px';
-		this._input.style.height = size.height + PADDING * 2 + 'px';
+		this._input.style.top = dimensions.top - PADDING - inputOffset + 'px';
+		this._input.style.left = dimensions.left - PADDING + 'px';
+		this._input.style.width = dimensions.width + PADDING * 2 + 30 + 'px';
+		this._input.style.height = dimensions.height + PADDING * 2 + 'px';
 	}
 	
 	this.hide = function() {

@@ -20,10 +20,13 @@ exports = Class(browser.UIComponent, function(supr) {
 		this.addClassName('Panel');
 		this._loading = dom.create({ parent: this._element, className: 'spinner', 
 			text: 'Loading...', style: {display: 'none'} });
-		this._labelEl = dom.create({ type: 'td', parent: this._element,
-			className: 'panelLabel', html: (this._label).split('').join('<br />') });
+		this._labelEl = dom.create({ parent: this._element, className: 'panelLabel', 
+			html: (this._label).split('').join('<br />') });
+		var closeButton = dom.create({ parent: this._labelEl, className: 'closeButton', html: '[x]'});
 		events.add(this._labelEl, 'click', bind(this._manager, 'focusPanel', this));
+		events.add(closeButton, 'click', bind(this._manager, 'removePanel', this));
 	}
 	
 	this.getLabel = function() { return this._label; }
+	this.toString = function() { return this._item.toString(); }
 })

@@ -18,7 +18,7 @@ exports.getSize = function(element) {
  * Date: 2009-02-19 17:34:21 -0500 (Thu, 19 Feb 2009)
  * Revision: 6246
  */
-exports.getPosition = function(elem) {
+exports.getDimensions = function(elem) {
 	var win = window;
 
 	if (elem.getBoundingClientRect) {

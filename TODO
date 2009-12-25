@@ -1,3 +1,21 @@
+Need to be able to
+	Create new item
+	(Create new label-list ?)
+	Reorder items in label-list
+	List items in a view
+	Have views for
+		Users
+			Bug list
+			Task list
+		Bugs
+			User
+			Milestone
+		Tasks
+			Milestone
+		Milestones
+			Bugs
+			Tasks
+
 List
 	- make templates have views
 	- make template lists

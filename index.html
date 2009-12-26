@@ -46,6 +46,10 @@
 				<span class="name">{{name}}</span>
 				<span class="milestone">({{milestone}})</span>
 			</div>
+			<div id="task-line-template">
+				<div style="font-size: 1.2em;">{{title}}</div>
+				<div style="font-weight: bold;">{{status}}</div>
+			</div>
 			
 			<!-- 
 				Full panel templates 
@@ -70,6 +74,12 @@
 				<div style="padding: 5px 10px;"> milestone: {{milestone}}</div>
 				<br /><div style="margin: 4px; font-size: .9em; padding: 5px 20px">{{task}}</div>
 			</div>
+			<div id="task-panel-template">
+				<div style="font-size: 1.2em; margin: 10px;">{{title}}</div>
+				<div style="margin: 5px;">Status: <span style="font-weight: bold;">{{status}}</span></div>
+				<div style="margin: 10px 5px 0;">Description: <span style="font-style: italic;">{{description}}</span></div>
+			</div>
+			
 			
 			<!-- 
 				Reference templates 

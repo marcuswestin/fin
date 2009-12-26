@@ -92,14 +92,14 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 	this._createValueView = function(propertyName, propertyValue, viewElement) {
 		if (!this._valueViews[propertyName]) { this._valueViews[propertyName] = []; }
 		this._valueViews[propertyName].push(viewElement);
-		viewElement.innerHTML = propertyValue;
+		this._setValue(viewElement, propertyValue);
 		this._connectEvents(propertyName, viewElement);
 	}
 	
 	this._updateValueViews = function(propertyName, propertyValue) {
 		if (!this._valueViews[propertyName]) { return; }
 		for (var i=0, viewElement; viewElement = this._valueViews[propertyName][i]; i++) {
-			viewElement.innerHTML = propertyValue;
+			this._setValue(viewElement, propertyValue);
 		}
 	}
 	
@@ -127,10 +127,14 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 		logger.log('_makeEditable', this._item.getId(), this._item.getProperty(propertyName));
 		browser.input.setValue(this._item.getProperty(propertyName) || '');
 		browser.input.showAt(el, bind(this, function(mutation, value){
-			el.innerHTML = value; // set the value of the element beneath the input early, so that its size updates correctly
+			this._setValue(el, value); // set the value of the element beneath the input early, so that its size updates correctly
 			mutation.property = propertyName;
 			mutation._id = this._item.getId();
 			this._item.mutate(mutation);
 		}));
+	}
+	
+	this._setValue = function(el, value) {
+		el.innerHTML = value.replace(/\n/g, '<br />');
 	}
 })

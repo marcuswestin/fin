@@ -51,13 +51,13 @@ exports = Singleton(function(){
 	
 	this.onKeyPress = function(e) {
 		// TODO: Deal with pasting
-		if (e.metaKey) { return; }
+		if (e.metaKey && e.keyCode != browser.events.KEY_ENTER) { return; }
 		
 		var position = browser.caret.getPosition(this._input);
 		var selectionLength = position.end - position.start;
 		var mutation = { position: position.caret - selectionLength };
 		
-		if (e.keyCode == browser.events.KEY_ENTER || e.keyCode == browser.events.KEY_ESCAPE) {
+		if (e.keyCode == browser.events.KEY_ESCAPE || (e.metaKey && browser.events.KEY_ENTER)) {
 			this._input.blur();
 			browser.events.cancel(e);
 			return;
@@ -67,6 +67,11 @@ exports = Singleton(function(){
 			} else {
 				mutation.position -= 1;
 				mutation.deletion = 1;
+			}
+		} else if (e.keyCode == browser.events.KEY_ENTER) {
+			mutation.addition = "\n";
+			if (selectionLength) {
+				mutation.deletion = selectionLength;
 			}
 		} else if (e.charCode) {
 			mutation.addition = String.fromCharCode(e.charCode);

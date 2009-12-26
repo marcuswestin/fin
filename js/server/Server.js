@@ -18,7 +18,7 @@ exports = Class(Server, function(supr) {
 	}
 
 	this.getLabelsForUser = function(username) {
-		return ['user', 'bug'];
+		return ['user', 'bug', 'task'];
 	}
 
 	this.getItemIdsForLabel = function(label, callback) {

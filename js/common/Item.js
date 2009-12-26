@@ -15,7 +15,7 @@ exports = Class(Publisher, function(supr) {
 	}
 	
 	this.mutate = function(mutation) {
-		this.publish('Mutating', mutation);
+		this._publish('Mutating', mutation);
 	}
 	
 	this.applyMutation = function(mutation, silent) {
@@ -32,7 +32,7 @@ exports = Class(Publisher, function(supr) {
 		this._properties[mutation.property] = value;
 		if (!silent) {
 			logger.log('publish PropertyUpdated', mutation.property, value);
-			this.publish('PropertyUpdated', mutation.property, value);
+			this._publish('PropertyUpdated', mutation.property, value);
 		}
 	}
 	
@@ -46,7 +46,7 @@ exports = Class(Publisher, function(supr) {
 		for (var key in snapshot.properties) {
 			this._properties[key] = snapshot.properties[key];
 		}
-		this.publish('SnapshotSet');
+		this._publish('SnapshotSet');
 	}
 	
 	this.asObject = function() {

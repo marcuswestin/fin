@@ -16,8 +16,8 @@ jsio('import browser.Meebo as Meebo');
 css.loadStyles('browser.app');
 
 gClient = new browser.Client();
-gDrawer = new browser.Drawer();
 gPanelManager = new browser.PanelManager();
+gDrawer = new browser.Drawer();
 
 gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", function(labels){
 	document.body.removeChild(document.getElementById('connecting'));

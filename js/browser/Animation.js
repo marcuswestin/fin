@@ -2,10 +2,10 @@ jsio('from common.javascript import Class, bind');
 
 exports = Class(function(){
 	
-	this.init = function(animateFn) {
+	this.init = function(animateFn, duration) {
 		this._animateFn = animateFn;
 		this._delta = 40;
-		this._duration = 500;
+		this._duration = duration || 500;
 	}
 	
 	this.animate = function() {

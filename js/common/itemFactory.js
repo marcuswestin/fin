@@ -21,7 +21,7 @@ exports = Singleton(common.Publisher, function(supr) {
 	this.getItem = function(id) {
 		if (this._items[id]) { return this._items[id]; }
 		this._items[id] = new common.Item(id);
-		this.publish('ItemCreated', this._items[id]);
+		this._publish('ItemCreated', this._items[id]);
 		return this._items[id];
 	}
 	

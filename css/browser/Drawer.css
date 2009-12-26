@@ -1,14 +1,31 @@
 .Drawer {
 	position: fixed;
 	left: 0px;
-	border: 3px solid #a0a0a0;
-	border-radius: 0 7px 7px 0;
-	-moz-border-radius: 0 7px 7px 0;
-	-webkit-border-radius: 0 7px 7px 0;
 }
 
-.Drawer .label {
+.Drawer .content {
+	position: absolute;
+	border: 3px solid #a0a0a0;
+	border-radius: 0 0 7px 0;
+	-moz-border-radius: 0 0 7px 0;
+	-webkit-border-radius: 0 0 7px 0;
+}
+
+.Drawer .content .label {
 	cursor: pointer;
 	margin: 4px 0 0 15px;
 	display: block;
 }
+
+.Drawer .panelHolder {
+	position: absolute;
+	top: 0px;
+}
+
+.Drawer .panelHolder .Panel {
+	width: 100%;
+	border-radius-topleft: 0;
+	-moz-border-radius-topleft: 0;
+	-webkit-border-top-left-radius: 0;
+}
+.Drawer .panelHolder .Panel .panelLabel { display: none; }

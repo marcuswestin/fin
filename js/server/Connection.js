@@ -42,6 +42,7 @@ exports = Class(RTJPProtocol, function(supr) {
 				this.server.createItem(args.type, bind(this, function(item){
 					this.sendFrame('ITEM_CREATED', item.asObject());
 				}))
+				break;
 			default:
 				logger.warn('Unknown frame type received', id, name, JSON.stringify(args));
 				break;

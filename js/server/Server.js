@@ -39,7 +39,7 @@ exports = Class(Server, function(supr) {
 	
 	this.handleMutation = function(mutation) {
 		var item = common.itemFactory.getItem(mutation._id);
-		logger.log('handleMutation', mutation._id, JSON.stringify(mutation));
+		logger.log('handleMutation', mutation._id, item._mutationCount, JSON.stringify(mutation));
 		item.applyMutation(mutation, true);
 		var subs = this._mutationSubscriptions[item.getId()];
 		for (var key in subs) {
@@ -61,25 +61,20 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this.createItem = function(type, callback) {
-		this._database.createItem(type, function(response, error) {
+		this._database.createItem(type, bind(this, function(response, error) {
 			if (error) {
 				logger.warn('could not create item', type, JSON.stringify(error));
 			} else {
-				var item = common.itemFactory.getItem(response._id);
-				item._type = type;
-				item._rev = response._rev;
 				logger.log('created item', type, response._id);
-				callback(item);
+				this.getItem(response._id, callback);
 			}
-		});
+		}));
 	}
-	
 	
 	this.getItem = function(id, callback) {
 		if (common.itemFactory.hasItem(id)) {
-			var item = common.itemFactory.getItem(id)
-			logger.log('get item from memory', id, JSON.stringify(item._properties));
 			var item = common.itemFactory.getItem(id);
+			logger.log('get item from memory', id, JSON.stringify(item._properties));
 			callback(item);
 		} else {
 			logger.log('get item from database', id);

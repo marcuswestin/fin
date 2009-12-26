@@ -11,7 +11,7 @@ exports = Class(function() {
 	}
 	
 	this.createItem = function(type, callback) {
-		this._db.saveDoc({ type: type }, { success: callback, error: bind(this, callback, false) });
+		this._db.saveDoc({ type: type, properties: {} }, { success: callback, error: bind(this, callback, false) });
 	}
 	
 	this.getItemData = function(itemId, callback) {

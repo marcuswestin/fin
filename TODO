@@ -1,8 +1,8 @@
 Need to be able to
-	Create new item
 	(Create new label-list ?)
 	Reorder items in label-list
 	List items in a view
+	Label views should be different, and only one open at a time...
 	Have views for
 		Users
 			Bug list
@@ -44,3 +44,4 @@ Done
 	X split panels
 	X button for creating new item
 	X Animate panels when clicking them
+	X Create new item

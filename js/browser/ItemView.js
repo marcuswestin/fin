@@ -45,7 +45,7 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 	}
 	
 	this._createView = function(propertyName, viewElement) {
-		var propertyValue = this._item.getProperty(propertyName);
+		var propertyValue = this._item.getProperty(propertyName) || '';
 		
 		// If snapshot hasn't loaded, we need to create a placeholder in waiting for snapshot. When snapshot loads, we need to determine if it is a reference or a regular value
 		// If snapshot has loaded and property is a reference, we need to create a reference item view
@@ -55,12 +55,12 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 			if (!this._holdForSnapshot[propertyName]) { this._holdForSnapshot[propertyName] = []; }
 			this._holdForSnapshot[propertyName].push(viewElement);
 			viewElement.innerHTML = 'loading...';
+		}
+		
+		if (propertyValue.type) { // the property is an item reference
+			this._createReferenceView(propertyName, propertyValue.id, propertyValue.type, viewElement);
 		} else {
-			if (propertyValue.type) { // the property is an item reference
-				this._createReferenceView(propertyName, propertyValue.id, propertyValue.type, viewElement);
-			} else { // the propery is
-				this._createValueView(propertyName, propertyValue, viewElement)
-			}
+			this._createValueView(propertyName, propertyValue, viewElement)
 		}
 	}
 	
@@ -125,7 +125,7 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 	
 	this._makeEditable = function(propertyName, el) {
 		logger.log('_makeEditable', this._item.getId(), this._item.getProperty(propertyName));
-		browser.input.setValue(this._item.getProperty(propertyName));
+		browser.input.setValue(this._item.getProperty(propertyName) || '');
 		browser.input.showAt(el, bind(this, function(mutation, value){
 			el.innerHTML = value; // set the value of the element beneath the input early, so that its size updates correctly
 			mutation.property = propertyName;

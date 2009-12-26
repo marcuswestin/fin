@@ -20,7 +20,7 @@ exports = Class(Publisher, function(supr) {
 	
 	this.applyMutation = function(mutation, silent) {
 		logger.log('apply mutation', mutation._id, mutation.property);
-		var value = this._properties[mutation.property];
+		var value = this._properties[mutation.property] || '';
 		if (mutation.deletion) {
 			var startDelete = mutation.position;
 			var endDelete = mutation.position + mutation.deletion;

@@ -10,10 +10,7 @@ exports = Class(RTJPProtocol, function(supr) {
 		logger.log('connectionMade');
 		this._itemSubscriptionIds = {};
 		logger.log('Retrieve labels for user')
-		this.server.getLabelsForUser('hardcoded', bind(this, function(labels){
-			logger.log('Received labels! Send welcome')
-			this.sendFrame('WELCOME', { labels: labels });	
-		}));
+		this.sendFrame('DEMAND_AUTHENTICATION');
 	}
 	
 	this.sendFrame = function(name, args) {
@@ -44,6 +41,18 @@ exports = Class(RTJPProtocol, function(supr) {
 			case 'REQUEST_CREATE_ITEM':
 				this.server.createItem(args.type, bind(this, function(item){
 					this.sendFrame('ITEM_CREATED', item.asObject());
+				}))
+				break;
+			case 'AUTHENTICATE':
+				this.server.authenticate(args.email, args.password, bind(this, function(authenticated, message) {
+					if (!authenticated) {
+						this.sendFrame('DEMAND_AUTHENTICATION', { message: message });
+						return;
+					}
+					this.server.getLabelsForUser(args.email, bind(this, function(labels) {
+						logger.log('Received labels! Send welcome');
+						this.sendFrame('WELCOME', { labels: labels });
+					}));
 				}))
 				break;
 			default:

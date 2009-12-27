@@ -71,8 +71,15 @@ exports = Class(RTJPProtocol, function(supr) {
 		logger.log('frameReceived', id, name, JSON.stringify(args));
 		
 		switch(name) {
+			case 'DEMAND_AUTHENTICATION':
+				var callback = bind(this, function(email, password) {
+					this.sendFrame('AUTHENTICATE', { email: email, password: password });
+				});
+				gAccountManager.requestAuthentication(callback, args.message);
+				break;
 			case 'WELCOME':
 				logger.log('Connected!')
+				gAccountManager.hide();
 				this._onConnectedCallback(args.labels);
 				break;
 			case 'ITEM_SNAPSHOT':

@@ -1,0 +1,53 @@
+.AccountManager {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+}
+
+.AccountManager .overlay {
+	background-color: #333;
+	opacity: .89;
+	position: absolute;
+}
+
+.AccountManager .loginBox {
+	position: absolute;
+	text-align: center;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border: 8px solid #ddd;
+	background-color: #ddd;
+}
+
+.AccountManager .loginBox input {
+	border: 1px solid #666;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	padding: 5px;
+	width: 300px;
+	text-align: center;
+}
+.AccountManager .loginBox input.defaultValue {
+	font-style: italic;
+	color: #333;
+}
+.AccountManager .loginBox .email {
+	margin-top: 0;
+}
+.AccountManager .loginBox .password {
+	margin: 3px 0 0 0;
+}
+
+.AccountManager .loginBox .message {
+	font-size: 13px;
+	color: #883333;
+	font-style: italic;
+	width: 150px;
+}
+
+.AccountManager .loginBox .message .innerMessage {
+	margin-bottom: 7px;
+}

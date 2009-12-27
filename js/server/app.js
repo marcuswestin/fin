@@ -1,5 +1,4 @@
 require('../../lib/js.io/packages/jsio');
-jsio.path.__default__.unshift('packages');
 
 jsio.path.common = '../'
 jsio.path.server = '../'

@@ -16,7 +16,28 @@ exports = Class(Server, function(supr) {
 		this._database = database;
 		this._databaseWriteFrequency = 1; // write on every update
 	}
-
+	
+	// this.createUser = function(email, password, name, callback) {
+	// 	var userData = {
+	// 		email: email,
+	// 		name: name,
+	// 		password: this._hashPassword(password)
+	// 	}
+	// 	this._db.saveDoc(userData, { success: callback, error: bind(this, callback, false) });
+	// }
+	
+	this.authenticate = function(email, password, callback) {
+		this._database.getItemData(email, function(response, error){
+			if (error) {
+				callback(false, 'That email is not in our database');
+			} else if (response.password != password) {
+				callback(false, 'That password isn\'t correct');
+			} else {
+				callback(true);
+			}
+		})
+	}
+	
 	this.getLabelsForUser = function(username, callback) {
 		this._database.getItemTypes(function(response, error) { 
 			if (error) {

@@ -1,6 +1,6 @@
 exports.addClassName = function(element, className) {
 	if (!(' ' + element.className + ' ').match(' ' + className + ' ')) {
-		element.className += className + ' ';
+		element.className += ' ' + className + ' ';
 	}
 }
 
@@ -11,6 +11,10 @@ exports.removeClassName = function(element, className) {
 	if (index != -1) {
 		element.className = current.slice(0, index) + current.slice(index + className.length);
 	}
+}
+
+exports.hasClassName = function(element, className) {
+	return !!element.className.match(' ' + className + ' ');
 }
 
 var base = 'css/';

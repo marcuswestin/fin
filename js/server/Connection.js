@@ -43,6 +43,11 @@ exports = Class(RTJPProtocol, function(supr) {
 					this.sendFrame('ITEM_CREATED', item.asObject());
 				}))
 				break;
+			case 'REQUEST_CREATE_LABEL':
+				this.server.createLabel(args.label, args.map, args.filter, bind(this, function(label) {
+					this.sendFrame('LABELS', { labels: [label] });
+				}))
+				break;
 			case 'AUTHENTICATE':
 				this.server.authenticate(args.email, args.password, bind(this, function(userLabels, errorMessage) {
 					if (!userLabels) {
@@ -51,7 +56,8 @@ exports = Class(RTJPProtocol, function(supr) {
 					}
 					this._authenticatedEmail = args.email;
 					logger.log('Received labels! Send welcome');
-					this.sendFrame('WELCOME', { labels: userLabels });
+					this.sendFrame('WELCOME');
+					this.sendFrame('LABELS', { labels: userLabels });
 				}));
 				break;
 			default:

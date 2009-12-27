@@ -14,6 +14,9 @@ jsio('import browser.Drawer');
 jsio('import browser.PanelManager');
 jsio('import browser.AccountManager');
 jsio('import browser.resizeManager');
+jsio('import browser.LabelCreator');
+
+jsio('import browser.overlay');
 
 jsio('import browser.Meebo as Meebo');
 
@@ -41,8 +44,11 @@ gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", f
 	} });
 
 	Meebo('addButton', { label: 'Create label', onClick: function() {
-		
-		gClient.createItem(type, bind(gPanelManager, 'showItem'));
+		var labelCreator = new browser.LabelCreator(function(labelName){
+			gDrawer.addLabel(labelName);
+			browser.overlay.hide();
+		});
+		browser.overlay.show(labelCreator.getElement());
 	} });
 });
 

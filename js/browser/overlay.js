@@ -3,6 +3,7 @@ jsio('from common.javascript import Singleton, bind');
 jsio('import browser.dimensions as dimensions');
 jsio('import browser.dom as dom');
 jsio('import browser.css as css');
+jsio('import browser.events as events');
 
 jsio('import browser.resizeManager');
 
@@ -21,13 +22,13 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this.addClassName('Overlay');
 		this._underlay = dom.create({ parent: this._element, className: 'underlay' });
 		this._content = dom.create({ parent: this._element, className: 'content' });
+		events.add(this._underlay, 'click', bind(this, 'hide'));
 	}
 	
 	this.show = function(content) {
-		this.getElement();
+		document.body.appendChild(this.getElement());
 		this._content.innerHTML = '';
 		this._content.appendChild(content);
-		document.body.appendChild(this.getElement());
 		browser.resizeManager.onWindowResize(this._resizeCallback);
 	}
 	
@@ -38,6 +39,8 @@ exports = Singleton(browser.UIComponent, function(supr) {
 	
 	this.onWindowResize = function(size) {
 		dom.setStyle(this._underlay, size);
-		dom.setStyle(this._content, size);
+		var contentSize = dimensions.getSize(this._content.firstChild);
+		dom.setStyle(this._content, { left: (size.width / 2) - (contentSize.width / 2),
+			top: (size.height / 2) - (contentSize.height / 2) });
 	}
 })

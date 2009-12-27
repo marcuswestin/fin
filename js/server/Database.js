@@ -23,9 +23,9 @@ exports = Class(function() {
 		this._db.saveDoc(itemData, { success: callback, error: bind(this, callback, false) });
 	}
 	
-	this.getList = function(type, callback) {
-		logger.log('get list for', type)
-		this._db.view('lists/' + type, { success: callback, error: bind(this, callback, false) });
+	this.getList = function(label, callback) {
+		logger.log('get list for', label)
+		this._db.view(label + '/label', { success: callback, error: bind(this, callback, false) });
 	}
 	
 	this.getItemTypes = function(callback) {

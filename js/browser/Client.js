@@ -2,6 +2,7 @@ jsio('from common.javascript import Class, bind');
 jsio('from net.protocols.rtjp import RTJPProtocol');
 jsio('import net, logging');
 jsio('import common.itemFactory');
+jsio('import browser.overlay');
 
 var logger = logging.getLogger('common.Client');
 logger.setLevel(0);
@@ -20,6 +21,10 @@ exports = Class(RTJPProtocol, function(supr) {
 		if (this._itemCreationCallbacks[type]) { return; } // already in process of creating an item of this type
 		this._itemCreationCallbacks[type] = callback;
 		this.sendFrame('REQUEST_CREATE_ITEM', { type: type })
+	}
+	
+	this.createLabel = function(label, mapCode, filterCode) {
+		this.sendFrame('REQUEST_CREATE_LABEL', { label: label, map: mapCode, filter: filterCode });
 	}
 	
 	this.connect = function(transport, url, onConnectedCallback) {
@@ -75,11 +80,13 @@ exports = Class(RTJPProtocol, function(supr) {
 				var callback = bind(this, function(email, password) {
 					this.sendFrame('AUTHENTICATE', { email: email, password: password });
 				});
+				
+				browser.overlay.show(gAccountManager.getElement()); 
 				gAccountManager.requestAuthentication(callback, args.message);
 				break;
 			case 'WELCOME':
 				logger.log('Connected!')
-				gAccountManager.hide();
+				browser.overlay.hide();
 				this._onConnectedCallback(args.labels);
 				break;
 			case 'ITEM_SNAPSHOT':
@@ -89,6 +96,9 @@ exports = Class(RTJPProtocol, function(supr) {
 				var mutation = args.mutation;
 				var item = common.itemFactory.getItem(args.mutation._id);
 				setTimeout(bind(item, 'applyMutation', args.mutation, false), 0);
+				break;
+			case 'LABELS':
+				setTimeout(bind(gDrawer, 'addLabels', args.labels), 0);
 				break;
 			case 'LABEL_LIST':
 				var callback = this._labelCallbacks[args.label];

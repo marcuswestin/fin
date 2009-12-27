@@ -88,6 +88,15 @@ exports = Class(Server, function(supr) {
 		}));
 	}
 	
+	this.createLabel = function(labelName, mapCode, filterCode, callback) {
+		var views = { label: { map: mapCode } };
+		var filters = { label: filterCode };
+		var id = '_design/' + labelName;
+		this._database.storeItemData({ _id: id, views: views, filters: filters }, function(respone){
+			callback([labelName]);
+		});
+	}
+	
 	this.getItem = function(id, callback) {
 		if (common.itemFactory.hasItem(id)) {
 			var item = common.itemFactory.getItem(id);

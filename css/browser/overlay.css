@@ -16,4 +16,9 @@
 	position: absolute;
 	top: 0px;
 	left: 0px;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border: 8px solid #ddd;
+	background-color: #ddd;
 }

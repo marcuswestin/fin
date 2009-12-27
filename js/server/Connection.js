@@ -9,7 +9,9 @@ exports = Class(RTJPProtocol, function(supr) {
 	this.connectionMade = function() {
 		logger.log('connectionMade');
 		this._itemSubscriptionIds = {};
-		this.server.getLabelsForUser(bind(this, function(labels){
+		logger.log('Retrieve labels for user')
+		this.server.getLabelsForUser('hardcoded', bind(this, function(labels){
+			logger.log('Received labels! Send welcome')
 			this.sendFrame('WELCOME', { labels: labels });	
 		}));
 	}

@@ -18,11 +18,20 @@ exports = Class(Server, function(supr) {
 	}
 
 	this.getLabelsForUser = function(username, callback) {
-		this._database.getItemTypes(callback);
+		this._database.getItemTypes(function(response, error) { 
+			if (error) {
+				logger.warn("Error getting labels for user from database", JSON.stringify(error));
+				callback([]);
+			}
+			var labels = [];
+			var labelsObject = response.rows[0].value;
+			for (var key in labelsObject) { labels.push(key); }
+			callback(labels);
+		});
 	}
 
 	this.getItemIdsForLabel = function(label, callback) {
-		this._database.getList(label, function(response){
+		this._database.getList(label, function(response) {
 			var itemIds = map(response.rows, function(row) { return row.value });
 			callback(itemIds);
 		});

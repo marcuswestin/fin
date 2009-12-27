@@ -1,9 +1,8 @@
-require('../jsio/packages/jsio');
+require('../../lib/js.io/packages/jsio');
 jsio.path.__default__.unshift('packages');
 
-jsio.path.common = '..'
-jsio.path.server = '..'
-jsio.path.world = '.';
+jsio.path.common = '../'
+jsio.path.server = '../'
 
 jsio('import net');
 jsio('import logging');
@@ -13,7 +12,7 @@ jsio('import logging');
 //logging.getLogger('DelimitedProtocol').setLevel(0);
 //logging.getLogger('world.server').setLevel(1);
 
-var CouchDB = require('./nodecouch').CouchDB;
+var CouchDB = require('../../lib/node-couch/module/node-couch').CouchDB;
 
 jsio("import .Database");
 var database = new Database(CouchDB);

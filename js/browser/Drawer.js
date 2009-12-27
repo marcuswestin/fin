@@ -28,7 +28,6 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.createContent = function() {
 		this.addClassName('Drawer');
 		this._drawerEl = dom.create({ parent: this._element, className: 'content' })
-		this._panelEl = dom.create({ parent: this._element, className: 'panelHolder' });
 		this.resize();
 	}
 	
@@ -37,7 +36,10 @@ exports = Class(browser.UIComponent, function(supr) {
 		var height = Math.max(minHeight, size.height - margin*2);
 		var panelWidth = 320;
 		dom.setStyle(this._drawerEl, { height: height, top: margin, width: width });
-		dom.setStyle(this._panelEl, { height: height, top: margin, width: panelWidth, left: width + 3 });
+		if (this._panel) {
+			dom.setStyle(this._panel.getElement(), { height: height, 
+				top: margin, width: panelWidth + 2, left: width + 3 });
+		}
 		return { width: width + panelWidth - 20, height: height, top: margin };
 	}
 	
@@ -59,8 +61,9 @@ exports = Class(browser.UIComponent, function(supr) {
 
 		gClient.getItemsForLabel(label, bind(this, '_onLabelItemsReceived'));
 		this._panel = new browser.panels.ListPanel(this, label);
-		this._panelEl.appendChild(this._panel.getElement());
+		this._element.appendChild(this._panel.getElement());
 		this._panel.subscribe('ItemClick', this._itemClickCallback);
+		this.resize();
 	}
 	
 	this._onLabelItemsReceived = function(label, items) {

@@ -29,6 +29,7 @@ exports = Class(function() {
 	}
 	
 	this.getItemTypes = function(callback) {
+		logger.log('Get item types')
 		this._db.view('util/types', { success: callback, error: bind(this, callback, false) });
 	}
 })

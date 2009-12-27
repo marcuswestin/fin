@@ -1,13 +1,21 @@
 
-.PHONY: install clean
+.PHONY: install clean jsio node-couch
 
-install:
+install: jsio node-couch
+
+jsio:
 	git clone git://github.com/marcuswestin/js.io.git
-	ln -s ../js.io js/jsio
+	mv js.io lib/
+
+node-couch:
+	git clone git@github.com:marcuswestin/node-couch.git 
+	mv node-couch lib/
 
 clean:
-	rm -rf js.io
-	rm js/jsio
-
+	rm -rf lib/*
+	rm -f js/jsio 					# symbolic link
+	rm -f js/server/node-couch.js
+	touch lib/empty.txt
+	
 run:
 	cd js/server; node app.js

@@ -5,8 +5,6 @@
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;
 	background: #fff;
-	overflow-x: hidden;
-	overflow-y: auto;
 }
 
 .Panel .spinner {

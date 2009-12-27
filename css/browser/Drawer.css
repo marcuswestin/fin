@@ -17,15 +17,11 @@
 	display: block;
 }
 
-.Drawer .panelHolder {
+.Drawer .Panel {
 	position: absolute;
 	top: 0px;
-}
-
-.Drawer .panelHolder .Panel {
-	width: 100%;
 	border-radius-topleft: 0;
 	-moz-border-radius-topleft: 0;
 	-webkit-border-top-left-radius: 0;
 }
-.Drawer .panelHolder .Panel .panelLabel { display: none; }
+.Drawer .Panel .panelLabel { display: none; }

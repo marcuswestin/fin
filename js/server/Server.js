@@ -30,10 +30,10 @@ exports = Class(Server, function(supr) {
 		this._database.getItemData(email, function(userDescription, error){
 			if (error) {
 				callback(false, 'That email is not in our database');
-			} else if (userDescription.password != password) {
+			} else if (userDescription.properties.password != password) {
 				callback(false, 'That password isn\'t correct');
 			} else {
-				callback(userDescription.labels);
+				callback(userDescription.properties.labels);
 			}
 		})
 	}

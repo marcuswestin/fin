@@ -17,8 +17,8 @@ exports = Class(Server, function(supr) {
 		this._databaseWriteFrequency = 1; // write on every update
 	}
 
-	this.getLabelsForUser = function(username) {
-		return ['user', 'bug', 'task'];
+	this.getLabelsForUser = function(username, callback) {
+		this._database.getItemTypes(callback);
 	}
 
 	this.getItemIdsForLabel = function(label, callback) {

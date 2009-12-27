@@ -27,4 +27,8 @@ exports = Class(function() {
 		logger.log('get list for', type)
 		this._db.view('lists/' + type, { success: callback, error: bind(this, callback, false) });
 	}
+	
+	this.getItemTypes = function(callback) {
+		this._db.view('util/types', { success: callback, error: bind(this, callback, false) });
+	}
 })

@@ -5,6 +5,8 @@ jsio('import browser.events as events');
 jsio('import browser.dom as dom');
 jsio('import browser.dimensions as dimensions');
 
+jsio('import browser.overlay');
+
 jsio('import browser.UIComponent');
 
 var logger = logging.getLogger('browser.AccountManager');
@@ -27,7 +29,6 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.resize = function() {
 		var size = dimensions.getSize(window);
-		dom.setStyle(this._overlay, size);
 		var boxSize = dimensions.getSize(this._loginBox);
 		dom.setStyle(this._loginBox, { left: (size.width / 2) - (boxSize.width / 2),
 			top: (size.height / 2) - (boxSize.height / 2) });
@@ -35,7 +36,6 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.createContent = function() {
 		this.addClassName('AccountManager');
-		this._overlay = dom.create({ parent: this._element, className: 'overlay' });
 		this._loginBox = dom.create({ parent: this._element, className: 'loginBox' });
 		this._message = dom.create({ parent: this._loginBox, className: 'message' });
 		this._emailInput = dom.create({ parent: this._loginBox, type: 'input', className: 'email' });
@@ -47,8 +47,12 @@ exports = Class(browser.UIComponent, function(supr) {
 		events.add(this._passwordInput, 'focus', bind(this, 'onInputFocus', this._passwordInput, 'password'));
 		events.add(this._emailInput, 'blur', bind(this, 'onInputBlur', this._emailInput, 'email'));
 		events.add(this._passwordInput, 'blur', bind(this, 'onInputBlur', this._passwordInput, 'password'));
+		this._emailInput.value = 'marcus@meebo-inc.com';
+		this._passwordInput.value = '123123';
 		this.onInputBlur(this._emailInput, 'email');
 		this.onInputBlur(this._passwordInput, 'password');
+
+		this._passwordInput.focus();
 	}
 	
 	this.onInputFocus = function(input, defaultValue) {
@@ -74,8 +78,8 @@ exports = Class(browser.UIComponent, function(supr) {
 		}
 	}
 	
-	this.hide = function() { dom.remove(this._element); }
-	this.show = function() { document.body.appendChild(this.getElement()); }
+	this.hide = function() { browser.overlay.hide(); }
+	this.show = function() { browser.overlay.show(this.getElement()); }
 	
 	this._hashPassword = function(password) {
 		return 'FAKE_HASHED_' + password;

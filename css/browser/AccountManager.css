@@ -5,12 +5,6 @@
 	z-index: 1000;
 }
 
-.AccountManager .overlay {
-	background-color: #333;
-	opacity: .89;
-	position: absolute;
-}
-
 .AccountManager .loginBox {
 	position: absolute;
 	text-align: center;

@@ -45,7 +45,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.addLabels = function(labels) {
 		for (var i=0, label; label = labels[i]; i++) {
-			var el = dom.create({ type: 'a', href: '#', parent: this._drawerEl, className: 'label', text: label + 's' });
+			var el = dom.create({ type: 'a', href: '#', parent: this._drawerEl, className: 'label', text: label });
 			events.add(el, 'click', bind(this, '_onLabelClick', label));
 		}
 	}

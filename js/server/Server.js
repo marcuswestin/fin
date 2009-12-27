@@ -27,34 +27,21 @@ exports = Class(Server, function(supr) {
 	// }
 	
 	this.authenticate = function(email, password, callback) {
-		this._database.getItemData(email, function(response, error){
+		this._database.getItemData(email, function(userDescription, error){
 			if (error) {
 				callback(false, 'That email is not in our database');
-			} else if (response.password != password) {
+			} else if (userDescription.password != password) {
 				callback(false, 'That password isn\'t correct');
 			} else {
-				callback(true);
+				callback(userDescription.labels);
 			}
 		})
 	}
-	
-	this.getLabelsForUser = function(username, callback) {
-		this._database.getItemTypes(function(response, error) { 
-			if (error) {
-				logger.warn("Error getting labels for user from database", JSON.stringify(error));
-				callback([]);
-			}
-			var labels = [];
-			var labelsObject = response.rows[0].value;
-			for (var key in labelsObject) { labels.push(key); }
-			callback(labels);
-		});
-	}
 
-	this.getItemIdsForLabel = function(label, callback) {
+	this.getLabelList = function(label, callback) {
 		this._database.getList(label, function(response) {
-			var itemIds = map(response.rows, function(row) { return row.value });
-			callback(itemIds);
+			var list = map(response.rows, function(row) { return row.value });
+			callback(list);
 		});
 	}
 
@@ -111,7 +98,7 @@ exports = Class(Server, function(supr) {
 			this._database.getItemData(id, function(data) {
 				logger.log('retrieved item from database', JSON.stringify(data));
 				var item = common.itemFactory.getItem(data._id);
-				item._type = data.type;
+				item.setType(data.type);
 				item._rev = data._rev;
 				item._properties = data.properties;
 				item._mutationCount = 0;

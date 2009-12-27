@@ -33,9 +33,9 @@ exports = Class(RTJPProtocol, function(supr) {
 			case 'ITEM_MUTATING':
 				this.server.handleMutation(args.mutation);
 				break;
-			case 'LABEL_GET_ITEMS':
-				this.server.getItemIdsForLabel(args.label, bind(this, function(itemIds) {
-					this.sendFrame('LABEL_ITEMS', { label: args.label, itemIds: itemIds });
+			case 'LABEL_GET_LIST':
+				this.server.getLabelList(args.label, bind(this, function(list) {
+					this.sendFrame('LABEL_LIST', { label: args.label, list: list });
 				}));
 				break;
 			case 'REQUEST_CREATE_ITEM':
@@ -44,16 +44,15 @@ exports = Class(RTJPProtocol, function(supr) {
 				}))
 				break;
 			case 'AUTHENTICATE':
-				this.server.authenticate(args.email, args.password, bind(this, function(authenticated, message) {
-					if (!authenticated) {
-						this.sendFrame('DEMAND_AUTHENTICATION', { message: message });
+				this.server.authenticate(args.email, args.password, bind(this, function(userLabels, errorMessage) {
+					if (!userLabels) {
+						this.sendFrame('DEMAND_AUTHENTICATION', { message: errorMessage });
 						return;
 					}
-					this.server.getLabelsForUser(args.email, bind(this, function(labels) {
-						logger.log('Received labels! Send welcome');
-						this.sendFrame('WELCOME', { labels: labels });
-					}));
-				}))
+					this._authenticatedEmail = args.email;
+					logger.log('Received labels! Send welcome');
+					this.sendFrame('WELCOME', { labels: userLabels });
+				}));
 				break;
 			default:
 				logger.warn('Unknown frame type received', id, name, JSON.stringify(args));

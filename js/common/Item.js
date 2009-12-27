@@ -41,12 +41,18 @@ exports = Class(Publisher, function(supr) {
 	this.getType = function() { return this._type; }
 
 	this.setSnapshot = function(snapshot) {
-		this._type = snapshot.type;
+		this.setType(snapshot.type);
 		this._rev = snapshot._rev;
 		for (var key in snapshot.properties) {
 			this._properties[key] = snapshot.properties[key];
 		}
 		this._publish('SnapshotSet');
+	}
+	this.setType = function(type) {
+		if (this._type && this._type != type) { 
+			throw new Error("Attempting to set type " + type + "for item that already has type" + this._type); 
+		}
+		this._type = type;
 	}
 	
 	this.asObject = function() {

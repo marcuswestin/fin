@@ -46,7 +46,7 @@ exports = Class(RTJPProtocol, function(supr) {
 	
 	this.getItemsForLabel = function(label, callback) {
 		this._labelCallbacks[label] = callback;
-		this.sendFrame('LABEL_GET_ITEMS', { label: label });
+		this.sendFrame('LABEL_GET_LIST', { label: label });
 	}
 	
 	this._onItemCreatedInFactory = function(item) {
@@ -90,12 +90,13 @@ exports = Class(RTJPProtocol, function(supr) {
 				var item = common.itemFactory.getItem(args.mutation._id);
 				setTimeout(bind(item, 'applyMutation', args.mutation, false), 0);
 				break;
-			case 'LABEL_ITEMS':
+			case 'LABEL_LIST':
 				var callback = this._labelCallbacks[args.label];
 				delete this._labelCallbacks[args.label];
 				var items = [];
-				for (var i=0, itemId; itemId = args.itemIds[i]; i++) {
-					var item = common.itemFactory.getItem(itemId);
+				for (var i=0, listItem; listItem = args.list[i]; i++) {
+					var item = common.itemFactory.getItem(listItem.id);
+					item.setType(listItem.type);
 					items.push(item);
 				}
 				setTimeout(function(){ callback(args.label, items); });
@@ -104,7 +105,7 @@ exports = Class(RTJPProtocol, function(supr) {
 				var callback = this._itemCreationCallbacks[args.type];
 				delete this._itemCreationCallbacks[args.type];
 				var item = common.itemFactory.getItem(args._id);
-				item._type = args.type;
+				item.setType(args.type);
 				callback(item);
 				break;
 			default:

@@ -21,7 +21,7 @@ exports = Class(Panel, function(supr) {
 	}
 	
 	this.addItem = function(item) {
-		var lineView = new browser.ItemView(item, this._label, 'line');
+		var lineView = new browser.ItemView(item, item.getType(), 'line');
 		this._itemList.appendChild(lineView.getElement());
 		events.add(lineView.getElement(), 'click', bind(this, '_publish', 'ItemClick', item), true);
 	}

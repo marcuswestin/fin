@@ -1,5 +1,19 @@
 .Overlay {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+}
+
+.Overlay .underlay {
 	background-color: #333;
 	opacity: .89;
 	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+.Overlay .content {
+	position: absolute;
+	top: 0px;
+	left: 0px;
 }

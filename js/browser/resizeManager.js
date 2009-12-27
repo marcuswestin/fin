@@ -11,7 +11,8 @@ browser.events.add(window, 'resize', function() {
 
 exports = {
 	onWindowResize: function(callback) { 
-		windowResizeCallbacks.push(callback) 
+		callback(exports.getWindowSize());
+		windowResizeCallbacks.push(callback);
 	},
 	
 	cancelWindowResize: function(targetCallback) {

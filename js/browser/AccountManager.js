@@ -1,4 +1,4 @@
-jsio('from common.javascript import Class');
+jsio('from common.javascript import Class, bind');
 
 jsio('import browser.css as css');
 jsio('import browser.events as events');
@@ -6,6 +6,7 @@ jsio('import browser.dom as dom');
 jsio('import browser.dimensions as dimensions');
 
 jsio('import browser.overlay');
+jsio('import browser.resizeManager');
 
 jsio('import browser.UIComponent');
 
@@ -15,23 +16,21 @@ css.loadStyles(jsio.__path);
 
 exports = Class(browser.UIComponent, function(supr) {
 	
+	this.init = function() {
+		supr(this, 'init');
+		this._resizeCallback = bind(this, 'onWindowResize');
+	}
+	
 	this.requestAuthentication = function(submitCallback, message) {
 		this._onSubmit = submitCallback;
 		this.show();
+
 		if (message) {
 			this._message.innerHTML = '<div class="innerMessage">' + message + '</div>';
 			this._message.style.display = 'inline';
 		} else {
 			this._message.style.display = 'none';
 		}
-		this.resize();
-	}
-	
-	this.resize = function() {
-		var size = dimensions.getSize(window);
-		var boxSize = dimensions.getSize(this._loginBox);
-		dom.setStyle(this._loginBox, { left: (size.width / 2) - (boxSize.width / 2),
-			top: (size.height / 2) - (boxSize.height / 2) });
 	}
 	
 	this.createContent = function() {
@@ -78,8 +77,22 @@ exports = Class(browser.UIComponent, function(supr) {
 		}
 	}
 	
-	this.hide = function() { browser.overlay.hide(); }
-	this.show = function() { browser.overlay.show(this.getElement()); }
+	this.hide = function() { 
+		browser.overlay.hide();
+		browser.resizeManager.cancelWindowResize(this._resizeCallback);
+	}
+	
+	this.show = function() { 
+		browser.overlay.show(this.getElement()); 
+		browser.resizeManager.onWindowResize(this._resizeCallback);
+	}
+	
+	this.onWindowResize = function(size) {
+		var boxSize = dimensions.getSize(this._loginBox);
+		dom.setStyle(this._loginBox, { left: (size.width / 2) - (boxSize.width / 2),
+			top: (size.height / 2) - (boxSize.height / 2) });
+	}
+	
 	
 	this._hashPassword = function(password) {
 		return 'FAKE_HASHED_' + password;

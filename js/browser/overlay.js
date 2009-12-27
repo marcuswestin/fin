@@ -29,7 +29,6 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._content.appendChild(content);
 		document.body.appendChild(this.getElement());
 		browser.resizeManager.onWindowResize(this._resizeCallback);
-		this._resizeCallback(browser.resizeManager.getWindowSize());
 	}
 	
 	this.hide = function() {

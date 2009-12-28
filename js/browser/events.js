@@ -12,10 +12,10 @@ if (typeof exports != 'undefined') { exports = events };
 		
 		if (element.addEventListener) {
 			element.addEventListener(eventName, normalizeEvent, false);
-			return true;
 		} else if (element.attachEvent){
-			return element.attachEvent("on"+eventName, normalizeEvent);
+			element.attachEvent("on"+eventName, normalizeEvent);
 		}
+		return handler;
 	}
 
 	events.remove = function(element, eventName, handler) {

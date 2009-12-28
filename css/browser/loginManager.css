@@ -1,8 +1,8 @@
-.AccountManager {
+.LoginManager {
 	text-align: center;
 }
 
-.AccountManager input {
+.LoginManager input {
 	border: 1px solid #666;
 	border-radius: 3px;
 	-moz-border-radius: 3px;
@@ -11,24 +11,24 @@
 	width: 300px;
 	text-align: center;
 }
-.AccountManager input.defaultValue {
+.LoginManager input.defaultValue {
 	font-style: italic;
 	color: #333;
 }
-.AccountManager .email {
+.LoginManager .email {
 	margin-top: 0;
 }
-.AccountManager .password {
+.LoginManager .password {
 	margin: 3px 0 0 0;
 }
 
-.AccountManager .message {
+.LoginManager .message {
 	font-size: 13px;
 	color: #883333;
 	font-style: italic;
 	width: 150px;
 }
 
-.AccountManager .message .innerMessage {
+.LoginManager .message .innerMessage {
 	margin-bottom: 7px;
 }

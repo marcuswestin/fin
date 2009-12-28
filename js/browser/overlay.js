@@ -22,10 +22,9 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this.addClassName('Overlay');
 		this._underlay = dom.create({ parent: this._element, className: 'underlay' });
 		this._content = dom.create({ parent: this._element, className: 'content' });
-		events.add(this._underlay, 'click', bind(this, 'hide'));
 	}
 	
-	this.show = function(content) {
+	this.show = function(content, notDismissable) {
 		document.body.appendChild(this.getElement());
 		this._content.innerHTML = '';
 		this._content.appendChild(content);
@@ -35,6 +34,7 @@ exports = Singleton(browser.UIComponent, function(supr) {
 	this.hide = function() {
 		dom.remove(this._element);
 		browser.resizeManager.cancelWindowResize(this._resizeCallback);
+		events.remove(this._underlay, 'click', this._clickHandler);
 	}
 	
 	this.onWindowResize = function(size) {

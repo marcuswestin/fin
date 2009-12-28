@@ -12,7 +12,6 @@ exports = Singleton(function(){
 		this._input = document.createElement('textarea');
 		this._input.style.position = 'absolute';
 		this._input.style.padding = '1px 0 0 3px'
-		browser.events.add(this._input, 'keypress', bind(this, 'onKeyPress'))
 		browser.events.add(this._input, 'blur', bind(this, 'hide'))
 	}
 	
@@ -33,6 +32,8 @@ exports = Singleton(function(){
 			document.body.appendChild(this._input); 
 			this._input.focus();
 		}
+		
+		this._keystrokeHandler = browser.keystrokeManager.requestFocus(bind(this, 'onKeyPress'));
 	}
 	
 	this._resize = function() {
@@ -46,6 +47,7 @@ exports = Singleton(function(){
 	}
 	
 	this.hide = function() {
+		browser.keystrokeManager.releaseFocus(this._keystrokeHandler);
 		document.body.removeChild(this._input);
 	}
 	

@@ -3,6 +3,7 @@ jsio('import common.Publisher');
 jsio('import browser.css')
 
 exports = Class(common.Publisher, function(supr) {
+	
 	this.getElement = function() {
 		if (!this._element) { 
 			this._element = document.createElement('div');
@@ -22,4 +23,6 @@ exports = Class(common.Publisher, function(supr) {
 	
 	this.show = function() { this.getElement().style.display = 'block'; }
 	this.hide = function() { this.getElement().style.display = 'none'; }
+	
+	this.appendTo = function(element) { element.appendChild(this.getElement()); }
 })

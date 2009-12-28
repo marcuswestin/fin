@@ -2,7 +2,7 @@ jsio('from common.javascript import Class, bind')
 jsio('import common.itemFactory')
 jsio('import browser.events as events')
 jsio('import browser.dom as dom')
-jsio('import browser.input')
+jsio('import browser.editable')
 jsio('import browser.templateFactory')
 jsio('import browser.UIComponent')
 
@@ -125,8 +125,8 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 	
 	this._makeEditable = function(propertyName, el) {
 		logger.log('_makeEditable', this._item.getId(), this._item.getProperty(propertyName));
-		browser.input.setValue(this._item.getProperty(propertyName) || '');
-		browser.input.showAt(el, bind(this, function(mutation, value){
+		browser.editable.setValue(this._item.getProperty(propertyName) || '');
+		browser.editable.showAt(el, bind(this, function(mutation, value){
 			this._setValue(el, value); // set the value of the element beneath the input early, so that its size updates correctly
 			mutation.property = propertyName;
 			mutation._id = this._item.getId();

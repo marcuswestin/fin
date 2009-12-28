@@ -3,6 +3,7 @@ jsio('from net.protocols.rtjp import RTJPProtocol');
 jsio('import net, logging');
 jsio('import common.itemFactory');
 jsio('import browser.overlay');
+jsio('import browser.loginManager');
 
 var logger = logging.getLogger(jsio.__path);
 logger.setLevel(0);
@@ -81,8 +82,8 @@ exports = Class(RTJPProtocol, function(supr) {
 					this.sendFrame('AUTHENTICATE', { email: email, password: password });
 				});
 				
-				browser.overlay.show(gAccountManager.getElement()); 
-				gAccountManager.requestAuthentication(callback, args.message);
+				browser.overlay.show(browser.loginManager.getElement()); 
+				browser.loginManager.requestAuthentication(callback, args.message);
 				break;
 			case 'WELCOME':
 				logger.log('Connected!')

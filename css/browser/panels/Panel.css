@@ -5,6 +5,9 @@
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;
 	background: #fff;
+	box-shadow: 7px 7px 11px #444;
+	-moz-box-shadow: 7px 7px 11px #444;
+	-webkit-box-shadow: 7px 7px 11px #444
 }
 
 .Panel .spinner {
@@ -21,6 +24,9 @@
 	right: -22px;
 	background: #eee;
 	cursor: pointer;
+	box-shadow: 7px 7px 11px #444;
+	-moz-box-shadow: 7px 7px 11px #444;
+	-webkit-box-shadow: 7px 7px 11px #444
 }
 
 .Panel .panelLabel {

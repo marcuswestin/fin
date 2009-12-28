@@ -22,7 +22,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._panels = {};
 		this._panelOrder = [];
 		this._minPanelWidth = 300;
-		this._panelAnimationDuration = 650;
+		this._panelAnimationDuration = 850;
 		this._panelAnimation = new browser.Animation(bind(this, '_animatePanels'), 
 				this._panelAnimationDuration);
 	}

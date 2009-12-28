@@ -28,8 +28,10 @@ exports = Class(browser.UIComponent, function(supr) {
 		events.add(submitButton, 'click', bind(this, '_submit'))
 		
 		this._addCriteriumInput();
-		this._nameInput.focus();
-		this._nameInput.select();
+		setTimeout(bind(this, function(){
+			this._nameInput.focus();
+			this._nameInput.select();
+		}))
 	}
 	
 	this._addCriteriumInput = function() {

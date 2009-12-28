@@ -14,11 +14,11 @@ css.loadStyles(jsio.__path);
 
 exports = Class(browser.UIComponent, function(supr) {
 	
-	var margin = 40;
+	var margin = { top: 10, bottom: 40 };
 	var padding = 3;
 	var handleWidth = 10;
 	var minHeight = 100;
-	var width = 100;
+	var width = 200;
 	
 	this.init = function() {
 		supr(this, 'init');
@@ -33,14 +33,14 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.resize = function() {
 		var size = dimensions.getSize(window);
-		var height = Math.max(minHeight, size.height - margin*2);
+		var height = Math.max(minHeight, size.height - margin.top - margin.bottom);
 		var panelWidth = 320;
-		dom.setStyle(this._drawerEl, { height: height, top: margin, width: width });
+		dom.setStyle(this._drawerEl, { height: height, top: margin.top, width: width });
 		if (this._panel) {
 			this._panel.resize({ width: panelWidth + 2, height: height });
-			dom.setStyle(this._panel.getElement(), { top: margin, left: width + 3 });
+			dom.setStyle(this._panel.getElement(), { top: margin.top, left: width + 3 });
 		}
-		return { width: width + panelWidth - 20, height: height, top: margin };
+		return { width: width + panelWidth - 20, height: height, top: margin.top };
 	}
 	
 	this.addLabels = function(labels) {

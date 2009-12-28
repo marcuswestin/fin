@@ -82,7 +82,7 @@ exports = Class(RTJPProtocol, function(supr) {
 					this.sendFrame('AUTHENTICATE', { email: email, password: password });
 				});
 				
-				browser.overlay.show(browser.loginManager.getElement()); 
+				browser.overlay.show(browser.loginManager.getElement(), true); 
 				browser.loginManager.requestAuthentication(callback, args.message);
 				break;
 			case 'WELCOME':

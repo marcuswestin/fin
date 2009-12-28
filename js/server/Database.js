@@ -1,6 +1,6 @@
 jsio('from common.javascript import Class, bind');
 
-var logger = logging.getLogger('server.Database');
+var logger = logging.getLogger(jsio.__path);
 logger.setLevel(0);
 
 

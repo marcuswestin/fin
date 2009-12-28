@@ -2,7 +2,7 @@ jsio('from common.javascript import Singleton, Publisher, bind');
 jsio('import common.Publisher');
 jsio('import common.Item');
 
-var logger = logging.getLogger('common.itemFactory');
+var logger = logging.getLogger(jsio.__path);
 logger.setLevel(0);
 
 exports = Singleton(common.Publisher, function(supr) {

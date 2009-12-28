@@ -8,7 +8,7 @@ jsio('import browser.dom as dom');
 jsio('import browser.UIComponent');
 jsio('import browser.panels.ListPanel');
 
-var logger = logging.getLogger('browser.Drawer');
+var logger = logging.getLogger(jsio.__path);
 
 css.loadStyles(jsio.__path);
 

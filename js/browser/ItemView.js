@@ -6,7 +6,7 @@ jsio('import browser.input')
 jsio('import browser.templateFactory')
 jsio('import browser.UIComponent')
 
-var logger = logging.getLogger('browser.ItemView');
+var logger = logging.getLogger(jsio.__path);
 logger.setLevel(0);
 
 var ItemView = exports = Class(browser.UIComponent, function(supr) {

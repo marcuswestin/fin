@@ -3,7 +3,7 @@ jsio('import browser.dom as dom');
 
 jsio('import browser.UIComponent');
 
-var logger = logging.getLogger('browser.LabelCreator');
+var logger = logging.getLogger(jsio.__path);
 
 css.loadStyles(jsio.__path);
 

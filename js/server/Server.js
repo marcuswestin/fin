@@ -4,7 +4,7 @@ jsio('import .Connection');
 jsio('import .Database');
 jsio('import common.itemFactory');
 
-var logger = logging.getLogger('server.Server');
+var logger = logging.getLogger(jsio.__path);
 logger.setLevel(0);
 
 exports = Class(Server, function(supr) {
@@ -16,15 +16,6 @@ exports = Class(Server, function(supr) {
 		this._database = database;
 		this._databaseWriteFrequency = 1; // write on every update
 	}
-	
-	// this.createUser = function(email, password, name, callback) {
-	// 	var userData = {
-	// 		email: email,
-	// 		name: name,
-	// 		password: this._hashPassword(password)
-	// 	}
-	// 	this._db.saveDoc(userData, { success: callback, error: bind(this, callback, false) });
-	// }
 	
 	this.authenticate = function(email, password, callback) {
 		this._database.getItemData(email, function(userDescription, error){

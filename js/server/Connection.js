@@ -1,7 +1,7 @@
 jsio('from common.javascript import Class, bind');
 jsio('from net.protocols.rtjp import RTJPProtocol');
 
-var logger = logging.getLogger('server.Connection');
+var logger = logging.getLogger(jsio.__path);
 logger.setLevel(0);
 
 exports = Class(RTJPProtocol, function(supr) {

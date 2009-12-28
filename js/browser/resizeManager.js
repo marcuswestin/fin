@@ -1,5 +1,7 @@
 jsio('import browser.events')
 
+var logger = logging.getLogger(jsio.__path);
+
 var windowResizeCallbacks = [];
 
 browser.events.add(window, 'resize', function() {

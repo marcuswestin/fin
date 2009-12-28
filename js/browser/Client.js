@@ -4,7 +4,7 @@ jsio('import net, logging');
 jsio('import common.itemFactory');
 jsio('import browser.overlay');
 
-var logger = logging.getLogger('common.Client');
+var logger = logging.getLogger(jsio.__path);
 logger.setLevel(0);
 
 exports = Class(RTJPProtocol, function(supr) {

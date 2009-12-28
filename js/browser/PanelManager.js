@@ -11,7 +11,7 @@ jsio('import browser.UIComponent');
 jsio('import browser.panels.ItemPanel');
 
 
-var logger = logging.getLogger('browser.PanelManager');
+var logger = logging.getLogger(jsio.__path);
 
 css.loadStyles(jsio.__path);
 

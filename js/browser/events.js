@@ -19,6 +19,7 @@ if (typeof exports != 'undefined') { exports = events };
 	}
 
 	events.remove = function(element, eventName, handler) {
+		if (!handler) { return; }
 		if (element.removeEventListener) {
 			element.removeEventListener(eventName, handler);
 			return true;

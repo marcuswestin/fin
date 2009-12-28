@@ -32,6 +32,16 @@ exports = Class(browser.UIComponent, function(supr) {
 		this.resize();
 	}
 	
+	this.focusPanel = function() {
+		if (!this._panel) { return; }
+	}
+	this.removePanel = function() {
+		if (!this._panel) { return; }
+		this._panel.unsubscribe('ItemClick', this._itemClickCallback);
+		dom.remove(this._panel.getElement());
+		this._panel = null;
+	}
+	
 	this.resize = function() {
 		var size = dimensions.getSize(window);
 		var height = Math.max(minHeight, size.height - margin.top - margin.bottom);
@@ -41,7 +51,7 @@ exports = Class(browser.UIComponent, function(supr) {
 			this._panel.resize({ width: panelWidth + 2, height: height });
 			dom.setStyle(this._panel.getElement(), { top: margin.top, left: width + 3 });
 		}
-		return { width: width + panelWidth - 20, height: height, top: margin.top };
+		return { width: width + panelWidth, height: height, top: margin.top };
 	}
 	
 	this.addLabels = function(labels) {
@@ -51,14 +61,12 @@ exports = Class(browser.UIComponent, function(supr) {
 		}
 	}
 	
+	
 	this._onLabelClick = function(label, e) {
 		events.cancel(e);
 		if (this._panel && this._panel.getLabel() == label) { return; }
 		
-		if (this._panel) {
-			this._panel.unsubscribe('ItemClick', this._itemClickCallback);
-			dom.remove(this._panel.getElement());
-		}
+		this.removePanel();
 
 		gClient.getItemsForLabel(label, bind(this, '_onLabelItemsReceived'));
 		this._panel = new browser.panels.ListPanel(this, label);

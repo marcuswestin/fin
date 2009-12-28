@@ -3,6 +3,7 @@ jsio('import browser.dimensions')
 jsio('import browser.dom')
 jsio('import browser.events')
 jsio('import browser.caret')
+jsio('import browser.keystrokeManager');
 
 exports = Singleton(function(){
 	
@@ -47,7 +48,7 @@ exports = Singleton(function(){
 	}
 	
 	this.hide = function() {
-		browser.keystrokeManager.releaseFocus(this._keystrokeHandler);
+		browser.keystrokeManager.release(this._keystrokeHandler);
 		document.body.removeChild(this._input);
 	}
 	

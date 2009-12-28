@@ -1,13 +1,10 @@
 .Panel {
 	position: absolute;
+	background: #fff;
 	border: 3px solid #a0a0a0;
 	border-radius: 7px;
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;
-	background: #fff;
-	box-shadow: 7px 7px 11px #444;
-	-moz-box-shadow: 7px 7px 11px #444;
-	-webkit-box-shadow: 7px 7px 11px #444
 }
 
 .Panel .spinner {
@@ -16,32 +13,47 @@
 	left: 50px;
 }
 
+.Panel .content {
+	margin: 4px;
+}
+
+
 .Panel .panelLabel {
 	display: block;
 	cursor: pointer;
-	margin: 4px 0 0 15px;
 	border: 2px solid #a0a0a0;
+	border-left: 4px solid #fff;
 	padding: 4px;
 	position: absolute;
 	top: 10px;
 	right: -22px;
-	background: #eee;
-	box-shadow: 7px 7px 11px #444;
-	-moz-box-shadow: 7px 7px 11px #444;
-	-webkit-box-shadow: 7px 7px 11px #444
+	background: #fff;
+	border-radius: 0 6px 6px 0;
+	-moz-border-radius: 0 6px 6px 0;
+	-webkit-border-radius: 0 6px 6px 0;
 }
 
 .Panel .panelLabel .closeButton {
 	font-size: 12px;
 	position: absolute;
-	right: 1px;
-	top: 0;
+	right: 3px;
+	top: 2px;
 	width: 16px;
 	height: 16px;
 	background: transparent url(../../../img/export/close.png) repeat scroll -4px -1px;
 }
 
 .Panel .panelLabel .labelText {
+	-moz-transform: rotate(90deg);
 	margin-top: 13px;
-	line-height: 12px;
+	position: absolute;
+	letter-spacing: 1px;
+	white-space: nowrap;
 }
+
+.Panel.focused, .Panel.focused .panelLabel {
+	box-shadow: 7px 7px 11px #444;
+	-moz-box-shadow: 7px 7px 11px #444;
+	-webkit-box-shadow: 7px 7px 11px #444
+}
+

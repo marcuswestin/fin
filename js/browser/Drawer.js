@@ -28,18 +28,20 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.createContent = function() {
 		this.addClassName('Drawer');
-		this._drawerEl = dom.create({ parent: this._element, className: 'content' })
+		this._drawerEl = dom.create({ parent: this._element, className: 'labelList' })
 		this.resize();
 	}
 	
 	this.focusPanel = function() {
 		if (!this._panel) { return; }
+		this._panel.focus();
 	}
 	this.removePanel = function() {
 		if (!this._panel) { return; }
 		this._panel.unsubscribe('ItemClick', this._itemClickCallback);
 		dom.remove(this._panel.getElement());
 		this._panel = null;
+		this.resize();
 	}
 	
 	this.resize = function() {
@@ -72,6 +74,8 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._panel = new browser.panels.ListPanel(this, label);
 		this._element.appendChild(this._panel.getElement());
 		this._panel.subscribe('ItemClick', this._itemClickCallback);
+		
+		this.focusPanel();
 		browser.resizeManager.fireResize()
 	}
 	

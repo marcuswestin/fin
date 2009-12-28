@@ -3,7 +3,7 @@
 	left: 0px;
 }
 
-.Drawer .content {
+.Drawer .labelList {
 	position: absolute;
 	border: 3px solid #a0a0a0;
 	border-radius: 0 0 7px 0;
@@ -14,7 +14,7 @@
 	-webkit-box-shadow: 7px 7px 11px #444
 }
 
-.Drawer .content .label {
+.Drawer .labelList .label {
 	cursor: pointer;
 	margin: 4px 0 0 15px;
 	display: block;
@@ -26,4 +26,9 @@
 	border-radius-topleft: 0;
 	-moz-border-radius-topleft: 0;
 	-webkit-border-top-left-radius: 0;
+}
+
+.Drawer .Panel .panelLabel .labelText {
+	right: -11px;
+	top: 19px;
 }

@@ -8,7 +8,7 @@ dom.setStyle(bar, {
 	width: '100%',
 	height: '26px',
 	background: "#aaa",
-	zIndex: 100
+	zIndex: 1
 });
 
 var commands = {};

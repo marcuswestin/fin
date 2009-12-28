@@ -1,7 +1,6 @@
-.ListPanel .itemList {
+.ListPanel .content {
 	overflow: auto;
 }
-
 
 .ListPanel .itemList .itemView-line {
 	padding: 5px;

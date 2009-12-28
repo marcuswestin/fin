@@ -17,17 +17,12 @@ exports = Class(Panel, function(supr) {
 	this.createContent = function() {
 		supr(this, 'createContent');
 		this.addClassName('ListPanel');
-		this._itemList = dom.create({ parent: this._element, className: 'itemList' });
+		this._itemList = dom.create({ parent: this._content, className: 'itemList' });
 	}
 	
 	this.addItem = function(item) {
 		var lineView = new browser.ItemView(item, item.getType(), 'line');
-		this._itemList.appendChild(lineView.getElement());
+		lineView.appendTo(this._itemList);
 		events.add(lineView.getElement(), 'click', bind(this, '_publish', 'ItemClick', item), true);
-	}
-	
-	this.resize = function(size) {
-		supr(this, 'resize', arguments);
-		dom.setStyle(this._itemList, size);
-	}
+	}	
 })

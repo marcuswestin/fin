@@ -18,24 +18,40 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.createContent = function() {
 		this.addClassName('Panel');
-		this._loading = dom.create({ parent: this._element, className: 'spinner', 
+		this._content = dom.create({ parent: this._element, className: 'content' });
+		this._loading = dom.create({ parent: this._content, className: 'spinner', 
 				text: 'Loading...', style: {display: 'none'} });
 		
 		this._labelEl = dom.create({ parent: this._element, className: 'panelLabel' });
 		var closeButton = dom.create({ parent: this._labelEl, className: 'closeButton' });
-		var label = dom.create({ parent: this._labelEl, className: 'labelText', 
-				html: (this._label).split('').join('<br />') });
+		this._labelText = dom.create({ parent: this._labelEl, className: 'labelText', text: this._label });
+		setTimeout(bind(this, 'sizeLabel'));
 		
 		events.add(this._labelEl, 'click', bind(this._manager, 'focusPanel', this));
 		events.add(closeButton, 'click', bind(this._manager, 'removePanel', this));
 	}
+	
+	this.sizeLabel = function() {
+		var textSize = dimensions.getSize(this._labelText);
+		dom.setStyle(this._labelEl, { width: 8, height: textSize.width + 18 }) // rotated by 90 deg
+		dom.setStyle(this._labelText, { right: (-textSize.width / 2) + 10, top: textSize.width / 2 })
+	}
 
 	this.resize = function(size) {
-		dom.setStyle(this._element, size);
+		dom.setStyle(this._element, { width: size.width, height: size.height });
+		dom.setStyle(this._content, { width: size.width - 8, height: size.height - 8 });
 	}
 	
 	this.getDimensions = function() { return dimensions.getDimensions(this._element); }
 	
 	this.getLabel = function() { return this._label; }
 	this.toString = function() { return this._item.toString(); }
+	
+	this.focus = function() { this.addClassName('focused'); }
+	this.blur = function() { this.removeClassName('focused'); }
+	
+	this.show = function() {
+		supr(this, 'show');
+		this.sizeLabel();
+	}
 })

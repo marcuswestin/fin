@@ -35,6 +35,10 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.focusPanel = function(panel) {
 		if (!(panel in this._panels)) { return; }
 		
+		if (this._focusedPanel) { this._focusedPanel.blur(); }
+		this._focusedPanel = panel;
+		this._focusedPanel.focus();
+		
 		var movedPanel = this._extractPanelFromOrder(panel);
 		this._panelOrder.unshift(movedPanel);
 		
@@ -45,6 +49,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		var panelId = this._extractPanelFromOrder(panel);
 		delete this._panels[panelId];
 		this._element.removeChild(panel.getElement());
+		if (panel == this._focusedPanel) { this.focusPanel(this._panels[this._panelOrder[0]]); }
 		this._positionPanels();
 	}
 	

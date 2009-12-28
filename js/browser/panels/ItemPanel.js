@@ -13,6 +13,6 @@ exports = Class(Panel, function(supr) {
 		supr(this, 'createContent');
 		this.addClassName('ListPanel');
 		var itemView = new browser.ItemView(this._item, this._item.getType(), 'panel');
-		this._element.appendChild(itemView.getElement());
+		itemView.appendTo(this._content);
 	}
 })

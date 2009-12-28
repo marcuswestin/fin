@@ -25,4 +25,9 @@ exports = Class(Panel, function(supr) {
 		this._itemList.appendChild(lineView.getElement());
 		events.add(lineView.getElement(), 'click', bind(this, '_publish', 'ItemClick', item), true);
 	}
+	
+	this.resize = function(size) {
+		supr(this, 'resize', arguments);
+		dom.setStyle(this._itemList, size);
+	}
 })

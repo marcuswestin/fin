@@ -23,9 +23,8 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._onBlur();
 	}
 	
-	this.getValue = function() {
-		return this._element.value;
-	}
+	this.getValue = function() { return this._element.value; }
+	this.focus = function() { this.getElement().focus(); }
 	
 	this._onFocus = function() {
 		this._keystrokeHandler = browser.keystrokeManager.requestFocus(bind(this, '_onKeystroke'));

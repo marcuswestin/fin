@@ -37,8 +37,8 @@ exports = Class(browser.UIComponent, function(supr) {
 		var panelWidth = 320;
 		dom.setStyle(this._drawerEl, { height: height, top: margin, width: width });
 		if (this._panel) {
-			dom.setStyle(this._panel.getElement(), { height: height, 
-				top: margin, width: panelWidth + 2, left: width + 3 });
+			this._panel.resize({ width: panelWidth + 2, height: height });
+			dom.setStyle(this._panel.getElement(), { top: margin, left: width + 3 });
 		}
 		return { width: width + panelWidth - 20, height: height, top: margin };
 	}

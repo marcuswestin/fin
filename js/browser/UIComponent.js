@@ -25,4 +25,5 @@ exports = Class(common.Publisher, function(supr) {
 	this.hide = function() { this.getElement().style.display = 'none'; }
 	
 	this.appendTo = function(element) { element.appendChild(this.getElement()); }
+	this.prependTo = function(element) { element.insertBefore(this.getElement(), element.firstChild); }
 })

@@ -40,6 +40,8 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._passwordInput.addClassName('password');
 		this._passwordInput.subscribe('Keystroke', bind(this, '_onKeystroke'));
 		
+		setTimeout(bind(this._emailInput, 'focus'));
+		
 		this._emailInput.getElement().value = 'marcus@meebo-inc.com';
 		this._passwordInput.getElement().value = '123123';
 	}

@@ -79,23 +79,23 @@ exports = Class(browser.UIComponent, function(supr) {
 		var offset = 0;
 		var stackedPanelWidth = 23;
 		var stackPanels = false;
-		for (var i=0, panelId; panelId = this._panelOrder[i]; i++) {
-			var panelEl = this._panels[panelId].getElement();
-			this._element.insertBefore(panelEl, this._element.firstChild);
-			dom.setStyle(panelEl, { width: panelWidth, height: managerSize.height });
+		for (var i=0, panel; panel = this._panels[this._panelOrder[i]]; i++) {
+			panel.prependTo(this._element);
+			
+			panel.resize({ width: panelWidth, height: managerSize.height });
 			var remainingPanels = numPanels - i - 1;
-
+			
 			if (offset + panelWidth + (remainingPanels * stackedPanelWidth) > managerSize.width) {
 				stackPanels = true;
 			}
 			if (stackPanels) {
 				var fromRight = remainingPanels * stackedPanelWidth;
-				this._panels[panelId]._targetOffset = managerSize.width - panelWidth - fromRight;
+				panel._targetOffset = managerSize.width - panelWidth - fromRight;
 			} else {
-				this._panels[panelId]._targetOffset = offset;
+				panel._targetOffset = offset;
 				offset += panelWidth + margin;
 			}
-			this._panels[panelId]._currentOffset = dimensions.getDimensions(panelEl).left - managerSize.left || 0;
+			panel._currentOffset = panel.getDimensions().left - managerSize.left || 0;
 		}
 		this._panelAnimation.animate();
 	}

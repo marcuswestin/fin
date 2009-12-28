@@ -29,6 +29,12 @@ exports = Class(browser.UIComponent, function(supr) {
 		events.add(this._labelEl, 'click', bind(this._manager, 'focusPanel', this));
 		events.add(closeButton, 'click', bind(this._manager, 'removePanel', this));
 	}
+
+	this.resize = function(size) {
+		dom.setStyle(this._element, size);
+	}
+	
+	this.getDimensions = function() { return dimensions.getDimensions(this._element); }
 	
 	this.getLabel = function() { return this._label; }
 	this.toString = function() { return this._item.toString(); }

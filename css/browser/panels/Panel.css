@@ -17,22 +17,18 @@
 }
 
 .Panel .panelLabel {
+	display: block;
+	cursor: pointer;
+	margin: 4px 0 0 15px;
 	border: 2px solid #a0a0a0;
 	padding: 4px;
 	position: absolute;
 	top: 10px;
 	right: -22px;
 	background: #eee;
-	cursor: pointer;
 	box-shadow: 7px 7px 11px #444;
 	-moz-box-shadow: 7px 7px 11px #444;
 	-webkit-box-shadow: 7px 7px 11px #444
-}
-
-.Panel .panelLabel {
-	cursor: pointer;
-	margin: 4px 0 0 15px;
-	display: block;
 }
 
 .Panel .panelLabel .closeButton {
@@ -40,8 +36,12 @@
 	position: absolute;
 	right: 1px;
 	top: 0;
+	width: 16px;
+	height: 16px;
+	background: transparent url(../../../img/export/close.png) repeat scroll -4px -1px;
 }
 
 .Panel .panelLabel .labelText {
 	margin-top: 13px;
+	line-height: 12px;
 }

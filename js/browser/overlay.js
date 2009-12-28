@@ -13,6 +13,8 @@ css.loadStyles(jsio.__path);
 
 exports = Singleton(browser.UIComponent, function(supr) {
 	
+	var barSize = 40;
+	
 	this.init = function() {
 		supr(this, 'init');
 		this._resizeCallback = bind(this, 'onWindowResize');
@@ -44,6 +46,6 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		dom.setStyle(this._underlay, size);
 		var contentSize = dimensions.getSize(this._content.firstChild);
 		dom.setStyle(this._content, { left: (size.width / 2) - (contentSize.width / 2),
-			top: (size.height / 2) - (contentSize.height / 2) });
+			top: (size.height / 2) - (contentSize.height / 2) - barSize });
 	}
 })

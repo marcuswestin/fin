@@ -22,7 +22,7 @@ exports = Class(browser.UIComponent, function(supr) {
 				text: 'Loading...', style: {display: 'none'} });
 		
 		this._labelEl = dom.create({ parent: this._element, className: 'panelLabel' });
-		var closeButton = dom.create({ parent: this._labelEl, className: 'closeButton', html: '[x]'});
+		var closeButton = dom.create({ parent: this._labelEl, className: 'closeButton' });
 		var label = dom.create({ parent: this._labelEl, className: 'labelText', 
 				html: (this._label).split('').join('<br />') });
 		

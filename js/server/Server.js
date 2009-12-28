@@ -19,6 +19,7 @@ exports = Class(Server, function(supr) {
 	
 	this.authenticate = function(email, password, callback) {
 		this._database.getItemData(email, function(userDescription, error){
+			logger.log("Checking credentials for", email, "found", JSON.stringify(userDescription));
 			if (error) {
 				callback(false, 'That email is not in our database');
 			} else if (userDescription.properties.password != password) {

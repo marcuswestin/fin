@@ -15,6 +15,10 @@ exports = Class(function() {
 	}
 	
 	this.getItemData = function(itemId, callback) {
+		if (!itemId) { 
+			logger.warn("getItemData called without an itemId. Refusing to pull all documents."); 
+			return callback(null);
+		}
 		this._db.openDoc(itemId, { success: callback, error: bind(this, callback, false) });
 	}
 	

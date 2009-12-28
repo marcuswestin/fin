@@ -4,12 +4,14 @@ var logger = logging.getLogger(jsio.__path);
 
 var windowResizeCallbacks = [];
 
-browser.events.add(window, 'resize', function() {
+function handleResize() {
 	var size = exports.getWindowSize();
 	for (var i=0, callback; callback = windowResizeCallbacks[i]; i++) {
 		callback(size);
 	}
-});
+}
+
+browser.events.add(window, 'resize', handleResize);
 
 exports = {
 	onWindowResize: function(callback) { 
@@ -27,6 +29,8 @@ exports = {
 	
 	getWindowSize: function() {
 		return { width: window.innerWidth, height: window.innerHeight };
-	}
+	},
+	
+	fireResize: handleResize
 }
 

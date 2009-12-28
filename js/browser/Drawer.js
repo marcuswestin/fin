@@ -5,6 +5,7 @@ jsio('import browser.events as events');
 jsio('import browser.dimensions as dimensions');
 jsio('import browser.dom as dom');
 
+jsio('import browser.resizeManager');
 jsio('import browser.UIComponent');
 jsio('import browser.panels.ListPanel');
 
@@ -18,7 +19,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	var padding = 3;
 	var handleWidth = 10;
 	var minHeight = 100;
-	var width = 200;
+	var width = 170;
 	
 	this.init = function() {
 		supr(this, 'init');
@@ -34,7 +35,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.resize = function() {
 		var size = dimensions.getSize(window);
 		var height = Math.max(minHeight, size.height - margin.top - margin.bottom);
-		var panelWidth = 320;
+		var panelWidth = this._panel ? 320 : 0;
 		dom.setStyle(this._drawerEl, { height: height, top: margin.top, width: width });
 		if (this._panel) {
 			this._panel.resize({ width: panelWidth + 2, height: height });
@@ -63,7 +64,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._panel = new browser.panels.ListPanel(this, label);
 		this._element.appendChild(this._panel.getElement());
 		this._panel.subscribe('ItemClick', this._itemClickCallback);
-		this.resize();
+		browser.resizeManager.fireResize()
 	}
 	
 	this._onLabelItemsReceived = function(label, items) {

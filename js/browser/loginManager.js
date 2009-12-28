@@ -47,7 +47,7 @@ exports = Singleton(browser.UIComponent, function(supr) {
 	this._onKeystroke = function(e) {
 		if (e.keyCode == events.KEY_ENTER) {
 			events.cancel(e);
-			this._onSubmit(this._emailInput.value, this._hashPassword(this._passwordInput.value));
+			this._onSubmit(this._emailInput.getValue(), this._hashPassword(this._passwordInput.getValue()));
 		}
 	}
 	

@@ -29,6 +29,9 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._content.innerHTML = '';
 		this._content.appendChild(content);
 		browser.resizeManager.onWindowResize(this._resizeCallback);
+		if (!notDismissable) {
+			this._clickHandler = events.add(this._underlay, 'click', bind(this, 'hide'));
+		}
 	}
 	
 	this.hide = function() {

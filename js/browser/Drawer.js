@@ -74,17 +74,16 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._selectedLabel = el;
 		if (this._selectedLabel) {
 			this._selectedLabel.appendChild(this._selectedLabelArrow);
+			css.addClassName(this._selectedLabel, 'selected');
 		}
 	}
 	
 	this._onLabelClick = function(label, el, e) {
 		events.cancel(e);
 		if (this._panel && this._panel.getLabel() == label) { return; }
-		this._selectLabelEl(el);
-		
-		css.addClassName(this._selectedLabel, 'selected');
 		
 		this.removePanel();
+		this._selectLabelEl(el);
 		
 		gClient.getItemsForLabel(label, bind(this, '_onLabelItemsReceived'));
 		this._panel = new browser.panels.ListPanel(this, label);

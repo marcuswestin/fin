@@ -5,19 +5,38 @@
 
 .Drawer .labelList {
 	position: absolute;
+	background-color: #fff;
 	border: 3px solid #a0a0a0;
 	border-radius: 0 0 7px 0;
 	-moz-border-radius: 0 0 7px 0;
 	-webkit-border-radius: 0 0 7px 0;
 	box-shadow: 7px 7px 11px #444;
 	-moz-box-shadow: 7px 7px 11px #444;
-	-webkit-box-shadow: 7px 7px 11px #444
+	-webkit-box-shadow: 7px 7px 11px #444;
 }
 
 .Drawer .labelList .label {
 	cursor: pointer;
-	margin: 4px 0 0 15px;
+	padding: 6px 0 0 15px;
 	display: block;
+	position: relative; /* so that selected label arrow is positioned absolutely with respect to each label */
+}
+
+.Drawer .labelList .label:nth-child(2n) { background-color: #f1F1FF; }
+.Drawer .labelList .label:nth-child(2n+1) { background-color: #ffffff; }
+.Drawer .labelList .label.hot { background-color: #e9e9ff; }
+
+.Drawer .labelList .label.selected {
+	background-color: #e9e9ff;
+}
+.Drawer .labelList .label.selected .selectedLabelArrow {
+	background: transparent url(../../img/export/selected-row-arrow.png) repeat scroll -6px -17px;
+	position: absolute;
+	top: 0;
+	right: -3px;
+	width: 5px;
+	height: 20px;
+	z-index: 1;
 }
 
 .Drawer .labelList .addLabelLink {

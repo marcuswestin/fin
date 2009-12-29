@@ -2,9 +2,19 @@
 	overflow: auto;
 }
 
-.ListPanel .itemList .itemView-line {
+.ListPanel .itemList .itemView {
 	padding: 5px;
-	border: 1px solid #a0a0a0;
-	margin: 3px;
+	margin: 0 3px;
 	cursor: pointer;
+	border: 2px solid #ffffff;
+}
+
+.ListPanel .itemList .itemView:nth-child(odd) {
+	background-color: #f0f0ff;
+	border-color: #f0f0ff;
+}
+
+.ListPanel .itemList .itemView.hot {
+	background-color: #e9e9ff;
+	border-color: #e9e9ff;
 }

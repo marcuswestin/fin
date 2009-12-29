@@ -27,7 +27,7 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 	}
 	
 	this.createContent = function() {
-		this.addClassName('itemViewType-' + this._itemType + ' itemView-' + this._viewType);
+		this.addClassName('itemView itemViewType-' + this._itemType + ' itemView-' + this._viewType);
 		
 		var templateId = browser.templateFactory.getTemplateId(this._itemType, this._viewType);
 		var templateHTML = browser.templateFactory.getTemplateHTML(templateId);
@@ -42,6 +42,9 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 				this._createView(propertyName, placeholder)
 			}
 		}
+		
+		events.add(this._element, 'mouseover', bind(css, 'addClassName', this._element, 'hot'));
+		events.add(this._element, 'mouseout', bind(css, 'removeClassName', this._element, 'hot'));
 	}
 	
 	this._createView = function(propertyName, viewElement) {

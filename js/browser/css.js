@@ -5,6 +5,7 @@ exports.addClassName = function(element, className) {
 }
 
 exports.removeClassName = function(element, className) {
+	if (!element) { return; }
 	className += ' ';
 	var current = element.className;
 	var index = current.indexOf(className);

@@ -25,5 +25,5 @@ exports = Class(Panel, function(supr) {
 		lineView.appendTo(this._itemList);
 		events.add(lineView.getElement(), 'click', bind(this, '_publish', 'ItemClick', item), true);
 		this._manager.resize();
-	}	
+	}
 })

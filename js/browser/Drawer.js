@@ -28,7 +28,8 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.createContent = function() {
 		this.addClassName('Drawer');
-		this._drawerEl = dom.create({ parent: this._element, className: 'labelList' })
+		this._drawerEl = dom.create({ parent: this._element, className: 'labelList' });
+		this._selectedLabelArrow = dom.create({ parent: this._drawerEl, className: 'selectedLabelArrow' });
 		this._addLabelLink = dom.create({ parent: this._drawerEl, className: 'addLabelLink', html: '+ add label' });
 		events.add(this._addLabelLink, 'click', gCreateLabelFn);
 		this.resize();
@@ -43,7 +44,8 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._panel.unsubscribe('ItemClick', this._itemClickCallback);
 		dom.remove(this._panel.getElement());
 		this._panel = null;
-		this.resize();
+		browser.resizeManager.fireResize();
+		this._selectLabelEl(null)
 	}
 	
 	this.resize = function() {
@@ -61,24 +63,36 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.addLabels = function(labels) {
 		for (var i=0, label; label = labels[i]; i++) {
 			var el = dom.create({ type: 'a', href: '#', parent: this._drawerEl, className: 'label', text: label });
-			events.add(el, 'click', bind(this, '_onLabelClick', label));
+			events.add(el, 'click', bind(this, '_onLabelClick', label, el));
+			events.add(el, 'mouseover', bind(css, 'addClassName', el, 'hot'));
+			events.add(el, 'mouseout', bind(css, 'removeClassName', el, 'hot'));
 		}
 	}
 	
+	this._selectLabelEl = function(el) {
+		css.removeClassName(this._selectedLabel, 'selected');
+		this._selectedLabel = el;
+		if (this._selectedLabel) {
+			this._selectedLabel.appendChild(this._selectedLabelArrow);
+		}
+	}
 	
-	this._onLabelClick = function(label, e) {
+	this._onLabelClick = function(label, el, e) {
 		events.cancel(e);
 		if (this._panel && this._panel.getLabel() == label) { return; }
+		this._selectLabelEl(el);
+		
+		css.addClassName(this._selectedLabel, 'selected');
 		
 		this.removePanel();
-
+		
 		gClient.getItemsForLabel(label, bind(this, '_onLabelItemsReceived'));
 		this._panel = new browser.panels.ListPanel(this, label);
 		this._element.appendChild(this._panel.getElement());
 		this._panel.subscribe('ItemClick', this._itemClickCallback);
 		
 		this.focusPanel();
-		browser.resizeManager.fireResize()
+		browser.resizeManager.fireResize();
 	}
 	
 	this._onLabelItemsReceived = function(label, items) {

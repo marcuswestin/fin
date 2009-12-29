@@ -19,6 +19,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.createContent = function() {
 		this.addClassName('PanelManager');
+		this._offset = 0;
 		this._panels = {};
 		this._panelOrder = [];
 		this._minPanelWidth = 300;
@@ -26,6 +27,8 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._panelAnimation = new browser.Animation(bind(this, '_animatePanels'), 
 				this._panelAnimationDuration);
 	}
+	
+	this.setOffset = function(offset) { this._offset = offset; }
 	
 	this.showItem = function(item) {
 		var panel = this._addPanel(item);
@@ -53,8 +56,8 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._positionPanels();
 	}
 	
-	this.position = function(offsetLeft, offsetTop, width, height) {
-		dom.setStyle(this._element, { left: offsetLeft, top: offsetTop, width: width, height: height });
+	this.resize = function(size) {
+		dom.setStyle(this._element, size);
 		this._positionPanels();
 	}
 
@@ -68,10 +71,6 @@ exports = Class(browser.UIComponent, function(supr) {
 	this._addPanel = function(item) {
 		if (this._panels[item]) { return this._panels[item]; }
 		this._panels[item] = new browser.panels.ItemPanel(this, item);
-		if (this._panelOrder.length) {
-			this._panels[item].hide();
-			setTimeout(bind(this._panels[item], 'show'), this._panelAnimationDuration);			
-		}
 		this._panelOrder.push(item);
 		return this._panels[item];
 	}
@@ -81,21 +80,22 @@ exports = Class(browser.UIComponent, function(supr) {
 		var panelWidth = this._minPanelWidth;
 		var numPanels = this._panelOrder.length;
 		var margin = 30;
-		var offset = 0;
+		var offset = this._offset;
 		var stackedPanelWidth = 23;
 		var stackPanels = false;
+		var panelLabelWidth = stackedPanelWidth + 4;
 		for (var i=0, panel; panel = this._panels[this._panelOrder[i]]; i++) {
 			panel.prependTo(this._element);
 			
 			panel.resize({ width: panelWidth, height: managerSize.height });
 			var remainingPanels = numPanels - i - 1;
 			
-			if (offset + panelWidth + (remainingPanels * stackedPanelWidth) > managerSize.width) {
+			if (offset + panelWidth + panelLabelWidth + (remainingPanels * stackedPanelWidth) > managerSize.width) {
 				stackPanels = true;
 			}
 			if (stackPanels) {
 				var fromRight = remainingPanels * stackedPanelWidth;
-				panel._targetOffset = managerSize.width - panelWidth - fromRight;
+				panel._targetOffset = managerSize.width - panelWidth - panelLabelWidth - fromRight;
 			} else {
 				panel._targetOffset = offset;
 				offset += panelWidth + margin;

@@ -1,5 +1,6 @@
 .PanelManager {
 	position: fixed;
+	top: 10px;
 }
 
 .PanelManager .panelStack {

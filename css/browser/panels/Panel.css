@@ -44,7 +44,9 @@
 }
 
 .Panel .panelLabel .labelText {
+	transform: rotate(90deg);
 	-moz-transform: rotate(90deg);
+	-webkit-transform: rotate(90deg);
 	margin-top: 13px;
 	position: absolute;
 	letter-spacing: 1px;

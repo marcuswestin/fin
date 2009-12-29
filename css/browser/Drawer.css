@@ -20,6 +20,15 @@
 	display: block;
 }
 
+.Drawer .labelList .addLabelLink {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	margin: 0 5px 2px 5px;
+	cursor: pointer;
+	text-decoration: underline;
+}
+
 .Drawer .Panel {
 	position: absolute;
 	top: 0px;

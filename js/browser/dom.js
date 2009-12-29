@@ -31,5 +31,6 @@ exports.getStyle = function(el, styleProp) {
 }
 
 exports.remove = function(el) {
+	if (!el || !el.parentNode) { return; }
 	el.parentNode.removeChild(el);
 }

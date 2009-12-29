@@ -24,6 +24,13 @@ css.loadStyles('browser.app');
 gClient = new browser.Client();
 gPanelManager = new browser.PanelManager();
 gDrawer = new browser.Drawer();
+gCreateLabelFn = function() {
+	var labelCreator = new browser.LabelCreator(function(labelName){
+		gDrawer.addLabel(labelName);
+		browser.overlay.hide();
+	});
+	browser.overlay.show(labelCreator.getElement());
+}
 
 gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", function(){
 
@@ -42,12 +49,6 @@ gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", f
 		gClient.createItem(type, bind(gPanelManager, 'showItem'));
 	} });
 
-	Meebo('addButton', { label: 'Create label', onClick: function() {
-		var labelCreator = new browser.LabelCreator(function(labelName){
-			gDrawer.addLabel(labelName);
-			browser.overlay.hide();
-		});
-		browser.overlay.show(labelCreator.getElement());
-	} });
+	Meebo('addButton', { label: 'Create label', onClick: gCreateLabelFn });
 });
 

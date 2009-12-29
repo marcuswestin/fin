@@ -21,7 +21,7 @@ if (typeof exports != 'undefined') { exports = events };
 	events.remove = function(element, eventName, handler) {
 		if (!handler) { return; }
 		if (element.removeEventListener) {
-			element.removeEventListener(eventName, handler);
+			element.removeEventListener(eventName, handler, false);
 			return true;
 		} else if (element.detachEvent) {
 			return element.detachEvent("on"+eventName, handler);

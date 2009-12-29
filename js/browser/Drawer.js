@@ -29,6 +29,8 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.createContent = function() {
 		this.addClassName('Drawer');
 		this._drawerEl = dom.create({ parent: this._element, className: 'labelList' })
+		this._addLabelLink = dom.create({ parent: this._drawerEl, className: 'addLabelLink', html: '+ add label' });
+		events.add(this._addLabelLink, 'click', gCreateLabelFn);
 		this.resize();
 	}
 	

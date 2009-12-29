@@ -24,5 +24,6 @@ exports = Class(Panel, function(supr) {
 		var lineView = new browser.ItemView(item, item.getType(), 'line');
 		lineView.appendTo(this._itemList);
 		events.add(lineView.getElement(), 'click', bind(this, '_publish', 'ItemClick', item), true);
+		this._manager.resize();
 	}	
 })

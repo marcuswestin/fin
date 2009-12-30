@@ -47,6 +47,9 @@ var ItemView = exports = Class(browser.UIComponent, function(supr) {
 		events.add(this._element, 'mouseout', bind(css, 'removeClassName', this._element, 'hot'));
 	}
 	
+	this.focus = function() { this.addClassName('focused'); }
+	this.blur = function() { this.removeClassName('focused'); }
+	
 	this._createView = function(propertyName, viewElement) {
 		var propertyValue = this._item.getProperty(propertyName) || '';
 		

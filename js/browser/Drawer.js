@@ -41,7 +41,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	}
 	this.removePanel = function() {
 		if (!this._panel) { return; }
-		this._panel.unsubscribe('ItemClick', this._itemClickCallback);
+		this._panel.unsubscribe('ItemSelected', this._itemClickCallback);
 		dom.remove(this._panel.getElement());
 		this._panel = null;
 		browser.resizeManager.fireResize();
@@ -88,7 +88,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		gClient.getItemsForLabel(label, bind(this, '_onLabelItemsReceived'));
 		this._panel = new browser.panels.ListPanel(this, label);
 		this._element.appendChild(this._panel.getElement());
-		this._panel.subscribe('ItemClick', this._itemClickCallback);
+		this._panel.subscribe('ItemSelected', this._itemClickCallback);
 		
 		this.focusPanel();
 		browser.resizeManager.fireResize();

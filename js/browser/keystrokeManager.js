@@ -18,9 +18,23 @@ exports = Singleton(function(){
 		this._keystrokeHandler = null;
 	}
 	
+	this.handleKeys = function(keyMap) {
+		return this.requestFocus(bind(this, function(e) {
+			var code;
+			if (e.charCode != 0) {
+				code = String.fromCharCode(e.charCode);
+			} else if (e.keyCode != 0) {
+				code = events.keyCodeMap[e.keyCode];
+			}
+			if (keyMap[code]) {
+				keyMap[code]();
+				events.cancel(e);
+			}
+		}));
+	}
+
 	this._onKeyPress = function(e) {
 		if (!this._keystrokeHandler) { return; }
 		this._keystrokeHandler(e);
 	}
 })
-

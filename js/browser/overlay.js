@@ -24,6 +24,8 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this.addClassName('Overlay');
 		this._underlay = dom.create({ parent: this._element, className: 'underlay' });
 		this._content = dom.create({ parent: this._element, className: 'content' });
+		this._closeButton = dom.create({ parent: this._element, className: 'closeButton' });
+		events.add(this._closeButton, 'click', bind(this, 'hide'));
 	}
 	
 	this.show = function(content, notDismissable) {
@@ -31,7 +33,10 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._content.innerHTML = '';
 		this._content.appendChild(content);
 		browser.resizeManager.onWindowResize(this._resizeCallback);
-		if (!notDismissable) {
+		if (notDismissable) {
+			this._closeButton.style.display = 'none';
+		} else {
+			this._closeButton.style.display = 'block';
 			this._clickHandler = events.add(this._underlay, 'click', bind(this, 'hide'));
 		}
 	}
@@ -47,5 +52,7 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		var contentSize = dimensions.getSize(this._content.firstChild);
 		dom.setStyle(this._content, { left: (size.width / 2) - (contentSize.width / 2),
 			top: (size.height / 2) - (contentSize.height / 2) - barSize });
+		dom.setStyle(this._closeButton, { left: (size.width / 2) + (contentSize.width / 2) - 7,
+			top: (size.height / 2) - (contentSize.height / 2) - barSize + 7 });
 	}
 })

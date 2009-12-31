@@ -1,0 +1,38 @@
+.ItemFocus, .ItemFocus .piece {
+	position: absolute;
+}
+
+.ItemFocus .piece {
+	opacity: .7;
+	border-color: #ccf;
+	border-style: solid;
+}
+
+.ItemFocus .left {
+	border-width: 0 0 0 7px;
+}
+
+.ItemFocus .right {
+	border-width: 0 7px 0 0;
+	border-radius: 0 7px 7px 0;
+	-moz-border-radius: 0 7px 7px 0;
+	-webkit-border-radius: 0 7px 7px 0;
+}
+
+.ItemFocus .top {
+	border-width: 7px 0 0 0;
+	border-radius: 7px 0 0 0;
+	-moz-border-radius: 7px 0 0 0;
+	-webkit-border-radius: 7px 0 0 0;
+}
+
+.ItemFocus .bottom {
+	border-width: 0 0 7px 0;
+	border-radius: 0 0 0 7px;
+	-moz-border-radius: 0 0 0 7px;
+	-webkit-border-radius: 0 0 0 7px;
+}
+
+.ItemFocus .right, .ItemFocus .bottom {
+	-moz-box-shadow: 4px 7px 3px #444444;
+}

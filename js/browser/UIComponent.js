@@ -4,9 +4,11 @@ jsio('import browser.css')
 
 exports = Class(common.Publisher, function(supr) {
 	
+	this._domType = 'div';
+	
 	this.getElement = function() {
 		if (!this._element) { 
-			this._element = document.createElement('div');
+			this._element = document.createElement(this._domType);
 			this.createContent();
 		}
 		return this._element;

@@ -1,5 +1,7 @@
 jsio('from common.javascript import Class, bind, map');
 
+jsio('import common.ItemReference')
+
 jsio('import browser.css as css');
 jsio('import browser.events as events');
 jsio('import browser.dom as dom');
@@ -25,12 +27,13 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._minPanelWidth = 300;
 		this._panelAnimationDuration = 850;
 		this._panelAnimation = new browser.Animation(bind(this, '_animatePanels'), 
-				this._panelAnimationDuration);
+			this._panelAnimationDuration);
 	}
 	
 	this.setOffset = function(offset) { this._offset = offset; }
 	
 	this.showItem = function(item) {
+		if (item instanceof common.ItemReference) { item = item.getReferencedItem(); }
 		var panel = this._addPanel(item);
 		this.focusPanel(panel);
 	}

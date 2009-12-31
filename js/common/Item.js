@@ -11,9 +11,11 @@ exports = Class(Publisher, function(supr) {
 		this._type = null;
 		this._rev = null;
 		this._properties = properties || {};
+		this._propertySubscriptions = {};
 	}
 	
 	this.mutate = function(mutation) {
+		mutation._id = this._id;
 		this._publish('Mutating', mutation);
 	}
 	
@@ -42,16 +44,26 @@ exports = Class(Publisher, function(supr) {
 	this.setSnapshot = function(snapshot) {
 		this.setType(snapshot.type);
 		this._rev = snapshot._rev;
-		for (var key in snapshot.properties) {
-			this._properties[key] = snapshot.properties[key];
+		for (var propertyName in snapshot.properties) {
+			var newValue = snapshot.properties[propertyName];
+			this._properties[propertyName] = newValue;
+			this._publish('PropertyUpdated', propertyName, newValue);
+			var propertySubscribers = this._propertySubscriptions[propertyName];
+			if (!propertySubscribers) { continue; }
+			for (var i=0, callback; callback = propertySubscribers[i]; i++) {
+				callback(newValue);
+			}
 		}
-		this._publish('SnapshotSet');
 	}
 	this.setType = function(type) {
 		if (this._type && this._type != type) { 
 			throw new Error("Attempting to set type " + type + "for item that already has type" + this._type); 
 		}
 		this._type = type;
+	}
+	this.subscribeToProperty = function(property, callback) {
+		if (!this._propertySubscriptions[property]) { this._propertySubscriptions[property] = []; }
+		this._propertySubscriptions[property].push(callback);
 	}
 	
 	this.asObject = function() {

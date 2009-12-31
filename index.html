@@ -2,11 +2,11 @@
 	<head>
 		<title>fin</title>
 		<style type="text/css">
-			html, body {
+			html, body, input {
 				margin: 0;
 				padding: 0;
 				font-family: Helvetica, Tahoma;
-				color: #333;
+				color: #885533;
 				font-size: 13px;
 			}
 			a { 
@@ -61,7 +61,7 @@
 				<div style="font-size: 1.2em;">Title:</div>
 				<div style="margin: 5px 5px 10px 10px;">{{title}}</div>
 				<div style="font-size: 1.2em;">User:</div>
-				<div style="margin: 5px 5px 10px 10px;">{{user}}</div>
+				<div style="margin: 5px 5px 10px 10px;">{{user:user}}</div>
 				<div style="font-size: 1.2em;">Description:</div> 
 				<div style="margin: 5px 5px 10px 10px;">{{description}}</div>
 			</div>
@@ -83,8 +83,8 @@
 			<div id="user-reference-template">
 				<div style="float: left; width: 45px; height: 45px; background-color: #ddd; margin-right: 10px"></div>
 				<div>{{name}}</div>
-				<divstyle="color: #555; font-size: .9em;">{{email}}</div>
-				<div style="clear: both"></div>
+				<div style="color: #555; font-size: .9em;">{{email}}</div>
+				<div style="clear: both;"></div>
 			</div>
 		</div>
 	</body>

@@ -52,7 +52,7 @@ exports = Class(RTJPProtocol, function(supr) {
 	
 	this.getItemsForLabel = function(label, callback) {
 		this._labelCallbacks[label] = callback;
-		this.sendFrame('LABEL_GET_LIST', { label: label });
+		this.sendFrame('LABEL_GET_LIST', { label: label.toString() });
 	}
 	
 	this._onItemCreatedInFactory = function(item) {

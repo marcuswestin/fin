@@ -13,7 +13,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		supr(this, 'init');
 		this._manager = manager;
 		this._item = item;
-		this._label = typeof item == 'string' ? item : item.getType();
+		this._label = typeof item == 'string' ? item : item.getType ? item.getType() : item.toString();
 	}
 	
 	this.createContent = function() {

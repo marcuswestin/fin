@@ -37,7 +37,7 @@ if (typeof exports != 'undefined') { exports = events };
 	events.KEY_BACKSPACE = 8;
 	events.KEY_ESCAPE = 27;
 	
-	events.keyCodeMap = {
+	events.keyCodes = {
 		8: 'backspace', 
 		9: 'tab',
 		13: 'enter',
@@ -52,9 +52,9 @@ if (typeof exports != 'undefined') { exports = events };
 		35: 'end',
 		36: 'home',
 		37: 'left arrow',
-		38: 'up arrow',
+		38: 'down arrow',
 		39: 'right arrow',
-		40: 'down arrow',
+		40: 'up arrow',
 		45: 'insert',
 		46: 'delete',
 		48: '0',
@@ -136,5 +136,11 @@ if (typeof exports != 'undefined') { exports = events };
 		220: 'back slash',
 		221: 'close braket',
 		222: 'single quote'
+	}
+	
+	// allow reverse lookup
+	for (var key in events.keyCodes) {
+		var value = events.keyCodes[key];
+		events.keyCodes[value] = key;
 	}
 })()

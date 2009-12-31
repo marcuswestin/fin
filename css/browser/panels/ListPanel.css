@@ -1,35 +1,18 @@
 .ListPanel .content {
-	overflow: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
-.ListPanel .itemList .itemView {
-	padding: 5px;
-	margin: 0 3px;
+.ListPanel .listItem {
+	padding: 5px 3px;
 	cursor: pointer;
-	border: 2px solid #ffffff;
 	position: relative;
 }
 
-.ListPanel .itemList .itemView:nth-child(odd) {
-	background-color: #f0f0ff;
-	border-color: #f0f0ff;
-}
 
-.ListPanel .itemList .itemView.hot {
-	background-color: #e9e9ff;
-	border-color: #e9e9ff;
-}
+.ListPanel .listItem:nth-child(2n) { background-color: #f1F1FF; }
+.ListPanel .listItem:nth-child(2n+1) { background-color: #ffffff; }
 
-.ListPanel .itemList .itemView.focused {
-	border-color: #cde;
-}
-
-.ListPanel .itemList .itemView.focused:before {
-	content: "";
-	position: absolute;
-	left: -10px;
-	top: 0px;
-	height: 100%;
-	width: 10px;
-	background: #cde;
+.ListPanel .listItem.selected {
+	background: #e9e9ff;
 }

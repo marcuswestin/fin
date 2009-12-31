@@ -24,7 +24,7 @@ exports = Singleton(function(){
 			if (e.charCode != 0) {
 				code = String.fromCharCode(e.charCode);
 			} else if (e.keyCode != 0) {
-				code = events.keyCodeMap[e.keyCode];
+				code = events.keyCodes[e.keyCode];
 			}
 			if (keyMap[code]) {
 				keyMap[code]();

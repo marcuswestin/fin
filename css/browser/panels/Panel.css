@@ -1,7 +1,7 @@
 .Panel {
 	position: absolute;
 	background: #fff;
-	border: 3px solid #a0a0a0;
+	border: 2px solid #a0a0a0;
 	border-radius: 7px;
 	-moz-border-radius: 7px;
 	-webkit-border-radius: 7px;
@@ -34,13 +34,12 @@
 }
 
 .Panel .panelLabel .closeButton {
-	font-size: 12px;
 	position: absolute;
 	right: 3px;
-	top: 2px;
-	width: 16px;
-	height: 16px;
-	background: transparent url(../../../img/export/close.png) repeat scroll -4px -1px;
+	top: 3px;
+	width: 14px;
+	height: 14px;
+	background: transparent url(../../../img/export/close.png) repeat scroll 0 0;
 }
 
 .Panel .panelLabel .labelText {

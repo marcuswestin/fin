@@ -1,9 +1,9 @@
 
 exports.bind = function(context, method/*, args... */) {
 	var args = Array.prototype.slice.call(arguments, 2);
-	return function(){
-		method = (typeof method == 'string' ? context[method] : method);
-		return method.apply(context, args.concat(Array.prototype.slice.call(arguments, 0)))
+	return function() {
+		fn = (typeof method == 'string' ? context[method] : method);
+		return fn.apply(context, args.concat(Array.prototype.slice.call(arguments, 0)))
 	}
 }
 

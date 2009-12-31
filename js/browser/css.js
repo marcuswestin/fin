@@ -1,4 +1,5 @@
 exports.addClassName = function(element, className) {
+	if (!element) { return; }
 	if (!(' ' + element.className + ' ').match(' ' + className + ' ')) {
 		element.className += ' ' + className + ' ';
 	}

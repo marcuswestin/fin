@@ -26,3 +26,13 @@
 	-moz-box-shadow: 7px 7px 9px #333;
 	-webkit-box-shadow: 7px 7px 9px #333;
 }
+
+.Overlay .closeButton {
+	position: absolute;
+	right: 3px;
+	top: 3px;
+	width: 14px;
+	height: 14px;
+	background: transparent url(../../img/export/close.png) repeat scroll 0 0;
+	cursor: pointer;
+}

@@ -3,60 +3,47 @@
 	left: 0px;
 }
 
-.Drawer .labelList {
-	position: absolute;
-	background-color: #fff;
-	border: 3px solid #a0a0a0;
-	border-radius: 0 0 7px 0;
-	-moz-border-radius: 0 0 7px 0;
-	-webkit-border-radius: 0 0 7px 0;
-	box-shadow: 7px 7px 11px #444;
-	-moz-box-shadow: 7px 7px 11px #444;
-	-webkit-box-shadow: 7px 7px 11px #444;
+/* Label list panel, the left-most one */
+.Drawer .labelListPanel {
+	border-radius: 0 5px 5px 0;
+	-moz-border-radius: 0 5px 5px 0;
+	-webkit-border-radius: 0 5px 5px 0;
+}
+.Drawer.labelListOpen .labelListPanel  {
+	border-radius: 0 0 0 0;
+	-moz-border-radius: 0 0 0 0;
+	-webkit-border-radius: 0 0 0 0;
 }
 
-.Drawer .labelList .label {
+.Drawer .labelListPanel .panelLabel {
+	display: none;
+}
+
+.Drawer .labelListPanel .addLabelLink {
+	text-decoration: underline;
 	cursor: pointer;
-	padding: 6px 0 0 15px;
-	display: block;
-	position: relative; /* so that selected label arrow is positioned absolutely with respect to each label */
-}
-
-.Drawer .labelList .label:nth-child(2n) { background-color: #f1F1FF; }
-.Drawer .labelList .label:nth-child(2n+1) { background-color: #ffffff; }
-.Drawer .labelList .label.hot { background-color: #e9e9ff; }
-
-.Drawer .labelList .label.selected {
-	background-color: #e9e9ff;
-}
-.Drawer .labelList .label.selected .selectedLabelArrow {
-	background: transparent url(../../img/export/selected-row-arrow.png) repeat scroll -6px -17px;
 	position: absolute;
-	top: 0;
+	bottom: 2px;
+	right: 5px;
+}
+
+.Drawer .labelListPanel .listItem.selected:after {
+	content: "";
+	border-style: solid;
+	border-color: #a0a0a0 #a0a0a0 #a0a0a0 #ddf;
+	border-width: 3px 0 3px 3px;
+	font-size: 1px;
+	line-height: 1px;
+	position: absolute;
 	right: -3px;
-	width: 5px;
-	height: 20px;
+	top: 8px;
 	z-index: 1;
 }
 
-.Drawer .labelList .addLabelLink {
-	position: absolute;
-	bottom: 0px;
-	right: 0px;
-	margin: 0 5px 2px 5px;
-	cursor: pointer;
-	text-decoration: underline;
+/* Label view panel, the right-most one */
+.Drawer .labelViewPanel {
+	border-radius: 0 5px 5px 0;
+	-moz-border-radius: 0 5px 5px 0;
+	-webkit-border-radius: 0 5px 5px 0;
 }
 
-.Drawer .Panel {
-	position: absolute;
-	top: 0px;
-	border-radius-topleft: 0;
-	-moz-border-radius-topleft: 0;
-	-webkit-border-top-left-radius: 0;
-}
-
-.Drawer .Panel .panelLabel .labelText {
-	right: -11px;
-	top: 19px;
-}

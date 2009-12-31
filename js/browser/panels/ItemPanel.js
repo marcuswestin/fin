@@ -15,9 +15,4 @@ exports = Class(Panel, function(supr) {
 		var itemView = new browser.ItemView(this._item, this._item.getType(), 'panel');
 		itemView.appendTo(this._content);
 	}
-	
-	this.focus = function() { 
-		supr(this, 'focus');
-	}
-	
 })

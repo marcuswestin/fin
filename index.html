@@ -38,6 +38,10 @@
 			<div id="bug-line-template">
 				<span class="title">{{title}}</span>
 			</div>
+			<div id="milestone-line-template">
+				<div>{{name}}</div>
+				<div style="color: #555; font-size: .9em;">{{date}}</div>
+			</div>
 			<div id="project-line-template">
 				<span class="name">{{name}}</span>
 				<span class="milestone">({{milestone}})</span>
@@ -62,8 +66,18 @@
 				<div style="margin: 5px 5px 10px 10px;">{{title}}</div>
 				<div style="font-size: 1.2em;">User:</div>
 				<div style="margin: 5px 5px 10px 10px;">{{user:user}}</div>
+				<div style="font-size: 1.2em;">Milestone:</div>
+				<div style="margin: 5px 5px 10px 10px;">{{milestone:milestone}}</div>
+				<div style="font-size: 1.2em;">Priority:</div>
+				<div style="margin: 5px 5px 10px 10px;">{{priority}}</div>
 				<div style="font-size: 1.2em;">Description:</div> 
 				<div style="margin: 5px 5px 10px 10px;">{{description}}</div>
+			</div>
+			<div id="milestone-panel-template">
+				<div style="font-size: 1.2em;">Milestone name:</div>
+			 	<div style="margin: 5px 5px 10px 10px;">{{name}}</div>
+				<div style="font-size: 1.2em;">Date:</div> 
+				<div style="color: #555; font-size: .9em; margin: 5px 5px 10px 10px;">{{date}}</div>
 			</div>
 			<div id="project-panel-template">
 				<div style="font-size: 2em; margin: 4px;">{{name}}</div>
@@ -86,6 +100,11 @@
 				<div style="color: #555; font-size: .9em;">{{email}}</div>
 				<div style="clear: both;"></div>
 			</div>
+			<div id="milestone-reference-template">
+			 	<div style="margin: 5px 5px 0 10px;">{{name}}</div>
+				<div style="color: #555; font-size: .9em; margin: 5px 5px 10px 10px;">{{date}}</div>
+			</div>
+			
 		</div>
 	</body>
 </html>

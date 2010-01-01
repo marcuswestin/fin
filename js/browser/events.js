@@ -7,7 +7,16 @@ if (typeof exports != 'undefined') { exports = events };
 		function normalizeEvent(e) {
 			e = e || event;
 			if (!e.target) { e.target = e.srcElement; }
-			handler(dontIncludeEvent ? null : e);
+			var eventObj = {
+				charCode: e.charCode,
+				keyCode: e.keyCode,
+				metaKey: e.metaKey,
+				__realEventObject: e
+			}
+			if (eventObj.charCode == 13 && eventObj.keyCode == 13) { 
+				eventObj.charCode = 0; // in Webkit, return gives a charCode as well as a keyCode. Should only be a keyCode
+			}
+			handler(dontIncludeEvent ? null : eventObj);
 		}
 		
 		if (element.addEventListener) {
@@ -29,8 +38,9 @@ if (typeof exports != 'undefined') { exports = events };
 	} 
 	
 	events.cancel = function(e) {
-		if (e.preventDefault) { e.preventDefault(); }
-		else { e.returnValue = false; }
+		var realEventObject = e.__realEventObject;
+		if (realEventObject.preventDefault) { realEventObject.preventDefault(); }
+		else { realEventObject.returnValue = false; }
 	}
 	
 	events.keyCodes = {

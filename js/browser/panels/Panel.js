@@ -30,7 +30,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		setTimeout(bind(this, 'sizeLabel'));
 		
 		events.add(this._labelEl, 'click', bind(this._manager, 'focusPanel', this));
-		events.add(closeButton, 'click', bind(this._manager, 'removePanel', this));
+		events.add(closeButton, 'click', bind(this, 'close'));
 	}
 	
 	this.sizeLabel = function() {
@@ -53,13 +53,20 @@ exports = Class(browser.UIComponent, function(supr) {
 		}
 	}
 	
+	this.close = function() {
+		this._manager.removePanel(this);
+	}
+	
 	this.getDimensions = function() { return dimensions.getDimensions(this._element); }
 	
 	this.getItem = function() { return this._item; }
 	this.getLabel = function() { return this._label; }
 	this.toString = function() { return this._item.toString(); }
 	
-	this.focus = function() { this.addClassName('focused'); }
+	this.focus = function() { 
+		this.addClassName('focused'); 
+		gFocusedPanel = this;
+	}
 	this.blur = function() { this.removeClassName('focused'); }
 	this.hasFocus = function() { return this.hasClassName('focused'); }
 	

@@ -56,7 +56,11 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._publish('PanelFocused', panel);
 	}
 	
+	this.hasPanels = function() { return !!this._panelOrder.length; }
+	
 	this.removePanel = function(panel) {
+		if (!this._panels || !(panel in this._panels)) { return; }
+
 		var panelId = this._extractPanelFromOrder(panel);
 		delete this._panels[panelId];
 		this._element.removeChild(panel.getElement());

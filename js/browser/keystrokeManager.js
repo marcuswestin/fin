@@ -50,13 +50,19 @@ exports = Singleton(function(){
 	this._matchGlobals = function(e) {
 		switch(e.keyCode.toString()) {
 			case events.keyCodes['a']:
-				gDrawer.focus();
+				gDrawer.focusLeftmost();
 				break;
 			case events.keyCodes['s']:
-				gDrawer.focusLabelView();
+				gDrawer.focus();
 				break;
 			case events.keyCodes['d']:
 				gPanelManager.focus();
+				break;
+			case events.keyCodes['escape']:
+				gFocusedPanel.close();
+				if (!gPanelManager.hasPanels()) {
+					gDrawer.focus();
+				}
 				break;
 			default:
 				return false; // did not handle the event

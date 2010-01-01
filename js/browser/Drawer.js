@@ -42,29 +42,30 @@ exports = Class(browser.UIComponent, function(supr) {
 		this.layout();
 	}
 	
-	this.focus = function() {
+	this.focusLeftmost = function() {
 		this._labelListPanel.focus();
 	}
-	this.focusLabelView = function() {
+	this.focus = function() {
 		if (this._labelViewPanel) {
 			this._labelViewPanel.focus();
 		} else {
-			this.focus();
+			this._labelListPanel.focus();
 		}
 	}
-	
+
 	this.focusPanel = function() {
 		if (!this._labelViewPanel) { return; }
 		this.addClassName('labelListOpen');
 		this._labelViewPanel.focus();
 	}
-	this.removePanel = function() {
-		if (!this._labelViewPanel) { return; }
+	this.removePanel = function(panel) {
+		if (!panel || panel != this._labelViewPanel) { return; }
 		this.removeClassName('labelListOpen');
 		this._labelViewPanel.unsubscribe('ItemSelected', this._itemViewClickCallback);
 		dom.remove(this._labelViewPanel.getElement());
 		this._labelViewPanel = null;
 		browser.resizeManager.fireResize();
+		this.focus();
 	}
 	
 	this.layout = function() {
@@ -88,7 +89,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	this._onLabelSelected = function(label) {
 		if (this._labelViewPanel && this._labelViewPanel.getLabel() == label) { return; }
 		
-		this.removePanel();
+		this.removePanel(this._labelViewPanel);
 		
 		gClient.getItemsForLabel(label, bind(this, '_onLabelItemsReceived'));
 		this._labelViewPanel = new browser.panels.ListPanel(this, label);

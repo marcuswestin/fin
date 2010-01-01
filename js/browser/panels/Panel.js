@@ -37,9 +37,11 @@ exports = Class(browser.UIComponent, function(supr) {
 		dom.setStyle(this._labelText, { right: (-textSize.width / 2) + 10, top: textSize.width / 2 })
 	}
 
-	this.resize = function(size) {
-		dom.setStyle(this._element, { width: size.width, height: size.height });
-		dom.setStyle(this._content, { width: size.width - 8, height: size.height - 8 });
+	this.layout = function(layout) {
+		this._layout = layout;
+		dom.setStyle(this._element, { left: layout.left, top: layout.top, 
+			width: layout.width, height: layout.height });
+		dom.setStyle(this._content, { width: layout.width - 8, height: layout.height - 8 });
 	}
 	
 	this.getDimensions = function() { return dimensions.getDimensions(this._element); }

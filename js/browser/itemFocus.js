@@ -11,7 +11,7 @@ exports = Singleton(browser.UIComponent, function() {
 	var borderWidth = 7;
 	
 	this.createContent = function() {
-		this._resizeHandler = bind(this, '_resize');
+		this._layoutHandler = bind(this, 'layout');
 		
 		this.addClassName('ItemFocus');
 		this._top = dom.create({ parent: this._element, className: 'piece top' });
@@ -20,13 +20,15 @@ exports = Singleton(browser.UIComponent, function() {
 		this._right = dom.create({ parent: this._element, className: 'piece right' });
 	}
 	
-	this.showAt = function(item) {
-		if (this._focusedItem) { this._focusedItem.unsubscribe(this._resizeHandler); }
+	this.showAt = function(item, preventLayout) {
+		if (this._focusedItem) { this._focusedItem.unsubscribe(this._layoutHandler); }
 		this._focusedItem = item;
-		this._focusedItem.subscribe('Resize', this._resizeHandler);
-		this.getElement(); // to force createContent
-		this._resize();
-		this.appendTo(document.body);
+		this._focusedItem.subscribe('Resize', this._layoutHandler);
+		if (!preventLayout) {
+			this.getElement(); // to force createContent
+			this.layout();
+			this.appendTo(document.body);
+		}
 	}
 	
 	this.removeFrom = function(item) {
@@ -36,7 +38,7 @@ exports = Singleton(browser.UIComponent, function() {
 	}
 	
 	var focusPadding = 2;
-	this._resize = function() {
+	this.layout = function() {
 		var dim = dimensions.getDimensions(this._focusedItem.getElement());
 		dim.width += focusPadding * 2;
 		dim.height += focusPadding * 2;

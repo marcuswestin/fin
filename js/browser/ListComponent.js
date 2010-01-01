@@ -8,8 +8,7 @@ jsio('import browser.itemFocus');
 
 exports = Class(function(supr){
 	
-	this.init = function(itemSelectedCallback) {
-		this._itemSelectedCallback = itemSelectedCallback;
+	this.init = function(itemSelectedCallback, itemFocusedCallback) {
 		this._items = [];
 		this._focusIndex = 0;
 		this._keyMap = { 
@@ -17,8 +16,9 @@ exports = Class(function(supr){
 			'k': bind(this, '_moveFocus', -1),
 			'up arrow': bind(this, '_moveFocus', 1), 
 			'down arrow': bind(this, '_moveFocus', -1),
-			'enter': bind(this, '_selectFocusedItem')
-		}
+	 		'enter': bind(this, '_selectFocusedItem') };
+		this._itemSelectedCallback = itemSelectedCallback;
+		this._itemFocusedCallback = itemFocusedCallback;
 	}
 	
 	this.focus = function() { 
@@ -46,7 +46,8 @@ exports = Class(function(supr){
 	}
 	
 	this._focusOn = function(item) {
-		browser.itemFocus.showAt(item);
+		var preventLayout = this._itemFocusedCallback && this._itemFocusedCallback(item);
+		browser.itemFocus.showAt(item, preventLayout);
 	}
 	
 	this._selectFocusedItem = function() { this._selectItem(this._items[this._focusIndex]); }

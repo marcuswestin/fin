@@ -39,9 +39,9 @@ gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", f
 	
 	gDrawer.subscribe('LabelClick', bind(gPanelManager, 'showLabel'));
 	browser.resizeManager.onWindowResize(function(size) {
-		var drawerSize = gDrawer.resize();
+		var drawerSize = gDrawer.layout();
 		gPanelManager.setOffset(drawerSize.width + 50);
-		gPanelManager.resize({ width: size.width, height: size.height - 100 });
+		gPanelManager.layout({ width: size.width, height: size.height - 100 });
 	});
 	
 	Meebo('addButton', { label: 'Create item', onClick: function() {

@@ -59,7 +59,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._positionPanels();
 	}
 	
-	this.resize = function(size) {
+	this.layout = function(size) {
 		dom.setStyle(this._element, size);
 		this._positionPanels();
 	}
@@ -90,7 +90,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		for (var i=0, panel; panel = this._panels[this._panelOrder[i]]; i++) {
 			panel.prependTo(this._element);
 			
-			panel.resize({ width: panelWidth, height: managerSize.height });
+			panel.layout({ width: panelWidth, height: managerSize.height });
 			var remainingPanels = numPanels - i - 1;
 			
 			if (offset + panelWidth + panelLabelWidth + (remainingPanels * stackedPanelWidth) > managerSize.width) {

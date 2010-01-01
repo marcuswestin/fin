@@ -40,7 +40,7 @@ exports = Class(browser.UIComponent, function(supr) {
 			className: 'addLabelLink', html: '+ add label' });
 		events.add(addLabelLink, 'click', gCreateLabelFn);
 
-		this.resize();
+		this.layout();
 	}
 	
 	this.focusPanel = function() {
@@ -57,14 +57,13 @@ exports = Class(browser.UIComponent, function(supr) {
 		browser.resizeManager.fireResize();
 	}
 	
-	this.resize = function() {
+	this.layout = function() {
 		var size = dimensions.getSize(window);
 		var height = Math.max(minHeight, size.height - margin.top - margin.bottom);
 		var panelWidth = this._labelViewPanel ? 320 : 0;
-		dom.setStyle(this._labelListPanel.getElement(), { height: height, top: margin.top, width: width });
+		this._labelListPanel.layout({ height: height, width: width, top: margin.top });
 		if (this._labelViewPanel) {
-			this._labelViewPanel.resize({ width: panelWidth + 2, height: height });
-			dom.setStyle(this._labelViewPanel.getElement(), { top: margin.top, left: width + 6 });
+			this._labelViewPanel.layout({ width: panelWidth + 2, height: height, top: margin.top, left: width + 6 });
 		}
 		return { width: width + panelWidth, height: height, top: margin.top };
 	}

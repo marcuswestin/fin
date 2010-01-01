@@ -33,10 +33,6 @@ if (typeof exports != 'undefined') { exports = events };
 		else { e.returnValue = false; }
 	}
 	
-	events.KEY_ENTER = 13;
-	events.KEY_BACKSPACE = 8;
-	events.KEY_ESCAPE = 27;
-	
 	events.keyCodes = {
 		8: 'backspace', 
 		9: 'tab',
@@ -142,5 +138,13 @@ if (typeof exports != 'undefined') { exports = events };
 	for (var key in events.keyCodes) {
 		var value = events.keyCodes[key];
 		events.keyCodes[value] = key;
+	}
+	
+	events.charCodes = {};
+	// 128 could be made alot larger to include all the non-english keyboard characters
+	for (var i=0; i<128; i++) { 
+		var character = String.fromCharCode(i);
+		events.charCodes[i] = character;
+		events.charCodes[character] = i;
 	}
 })()

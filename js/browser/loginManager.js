@@ -7,6 +7,7 @@ jsio('import browser.dimensions as dimensions');
 
 jsio('import browser.overlay');
 jsio('import browser.resizeManager');
+jsio('import browser.keystrokeManager')
 
 jsio('import browser.UIComponent');
 jsio('import browser.Input');
@@ -24,6 +25,7 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		} else {
 			this._message.style.display = 'none';
 		}
+		this._emailInput.focus();
 	}
 	
 	this.createContent = function() {
@@ -33,24 +35,20 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._emailInput = new browser.Input('email');
 		this._emailInput.appendTo(this._element);
 		this._emailInput.addClassName('email');
-		this._emailInput.subscribe('Keystroke', bind(this, '_onKeystroke'));
 
 		this._passwordInput = new browser.Input('password', true);
 		this._passwordInput.appendTo(this._element);
 		this._passwordInput.addClassName('password');
-		this._passwordInput.subscribe('Keystroke', bind(this, '_onKeystroke'));
 		
+		browser.keystrokeManager.handleKeys({ 'enter': bind(this, '_submit')}, true);
 		setTimeout(bind(this._emailInput, 'focus'));
 		
 		this._emailInput.getElement().value = 'marcus@meebo-inc.com';
 		this._passwordInput.getElement().value = '123123';
 	}
 	
-	this._onKeystroke = function(e) {
-		if (e.keyCode == events.KEY_ENTER) {
-			events.cancel(e);
-			this._onSubmit(this._emailInput.getValue(), this._hashPassword(this._passwordInput.getValue()));
-		}
+	this._submit = function() {
+		this._onSubmit(this._emailInput.getValue(), this._hashPassword(this._passwordInput.getValue()));
 	}
 	
 	this._hashPassword = function(password) {

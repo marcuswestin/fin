@@ -38,8 +38,12 @@ exports = Class(browser.UIComponent, function(supr) {
 		this.focusPanel(panel);
 	}
 	
+	this.focus = function() {
+		this.focusPanel(this._focusedPanel);
+	}
+	
 	this.focusPanel = function(panel) {
-		if (!(panel in this._panels)) { return; }
+		if (!this._panels || !(panel in this._panels)) { return; }
 		
 		if (this._focusedPanel) { this._focusedPanel.blur(); }
 		this._focusedPanel = panel;

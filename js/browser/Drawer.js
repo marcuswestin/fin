@@ -45,6 +45,13 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.focus = function() {
 		this._labelListPanel.focus();
 	}
+	this.focusLabelView = function() {
+		if (this._labelViewPanel) {
+			this._labelViewPanel.focus();
+		} else {
+			this.focus();
+		}
+	}
 	
 	this.focusPanel = function() {
 		if (!this._labelViewPanel) { return; }

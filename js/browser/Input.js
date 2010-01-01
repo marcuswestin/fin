@@ -3,7 +3,6 @@ jsio('from common.javascript import Class');
 jsio('import browser.events as events');
 
 jsio('import browser.UIComponent');
-jsio('import browser.keystrokeManager');
 
 exports = Class(browser.UIComponent, function(supr) {
 	
@@ -27,7 +26,6 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.focus = function() { this.getElement().focus(); }
 	
 	this._onFocus = function() {
-		this._keystrokeHandler = browser.keystrokeManager.requestFocus(bind(this, '_onKeystroke'));
 		if (this._element.value != this._defaultText) { return; }
 		if (this._isPassword) { this._element.type = 'password'; }
 		this.removeClassName('defaultValue');
@@ -35,14 +33,9 @@ exports = Class(browser.UIComponent, function(supr) {
 	}
 	
 	this._onBlur = function() {
-		browser.keystrokeManager.release(this._keystrokeHandler);
 		if (this._element.value != '') { return; }
 		if (this._isPassword) { this._element.type = 'text'; }
 		this.addClassName('defaultValue');
 		this._element.value = this._defaultText;
-	}
-	
-	this._onKeystroke = function(e) {
-		this._publish('Keystroke', e);
 	}
 })

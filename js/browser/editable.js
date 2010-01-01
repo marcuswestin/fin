@@ -1,7 +1,7 @@
 jsio('from common.javascript import Singleton, bind');
 jsio('import browser.dimensions')
 jsio('import browser.dom')
-jsio('import browser.events')
+jsio('import browser.events as events')
 jsio('import browser.caret')
 jsio('import browser.keystrokeManager');
 
@@ -13,7 +13,7 @@ exports = Singleton(function(){
 		this._input = document.createElement('textarea');
 		this._input.style.position = 'absolute';
 		this._input.style.padding = '1px 0 0 3px'
-		browser.events.add(this._input, 'blur', bind(this, 'hide'))
+		events.add(this._input, 'blur', bind(this, 'hide'))
 	}
 	
 	this.setValue = function(value) {
@@ -35,7 +35,7 @@ exports = Singleton(function(){
 			this._input.focus();
 		}
 		
-		this._keystrokeHandler = browser.keystrokeManager.requestFocus(bind(this, 'onKeyPress'));
+		this._keystrokeHandler = browser.keystrokeManager.requestFocus(bind(this, 'onKeyPress'), true);
 	}
 	
 	this._resize = function() {
@@ -56,26 +56,24 @@ exports = Singleton(function(){
 	
 	this.onKeyPress = function(e) {
 		// TODO: Deal with pasting
-		window.top.console.debug(e);
-
-		if (e.metaKey && e.keyCode != browser.events.KEY_ENTER) { return; }
+		if (e.metaKey && e.keyCode != events.keyCodes['enter']) { return; }
 		
 		var position = browser.caret.getPosition(this._input);
 		var selectionLength = position.end - position.start;
 		var mutation = { position: position.caret - selectionLength };
 		
-		if (e.keyCode == browser.events.KEY_ESCAPE || (e.keyCode == browser.events.KEY_ENTER && !e.metaKey)) {
+		if (e.keyCode == events.keyCodes || (e.keyCode == events.keyCodes['enter'] && !e.metaKey)) {
 			this._input.blur();
-			browser.events.cancel(e);
+			events.cancel(e);
 			return;
-		} else if (e.keyCode == browser.events.KEY_BACKSPACE) {
+		} else if (e.keyCode == events.keyCodes['backspace']) {
 			if (selectionLength) {
 				mutation.deletion = selectionLength;
 			} else {
 				mutation.position -= 1;
 				mutation.deletion = 1;
 			}
-		} else if (e.keyCode == browser.events.KEY_ENTER && e.metaKey) {
+		} else if (e.keyCode == events.keyCodes['enter'] && e.metaKey) {
 			mutation.addition = "\n";
 			if (selectionLength) {
 				mutation.deletion = selectionLength;

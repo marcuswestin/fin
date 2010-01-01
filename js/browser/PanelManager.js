@@ -111,7 +111,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	this._animatePanels = function(n) {
 		for (var i=0, panel; panel = this._panels[this._panelOrder[i]]; i++) {
 			var diff = panel._targetOffset - panel._currentOffset;
-			dom.setStyle(panel.getElement(), { left: panel._currentOffset + (diff * n) });
+			panel.layout({ left: panel._currentOffset + (diff * n) });
 		}
 	}
 })

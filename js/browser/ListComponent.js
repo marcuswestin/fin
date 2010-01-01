@@ -22,7 +22,10 @@ exports = Class(function(supr){
 	}
 	
 	this.focus = function() { 
-		this._keystrokeHandle = browser.keystrokeManager.handleKeys(this._keyMap); 
+		this._keystrokeHandle = browser.keystrokeManager.handleKeys(this._keyMap);
+		if (this._items[this._focusIndex]) {
+			this._focusOn(this._items[this._focusIndex]);
+		}
 	}
 	
 	this.blur = function() { 

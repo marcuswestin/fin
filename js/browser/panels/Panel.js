@@ -1,5 +1,6 @@
 jsio('from common.javascript import Class, bind');
 jsio('import browser.UIComponent');
+jsio('import browser.itemFocus');
 jsio('import browser.css as css');
 jsio('import browser.dom as dom');
 jsio('import browser.dimensions as dimensions');
@@ -14,6 +15,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._manager = manager;
 		this._item = item;
 		this._label = typeof item == 'string' ? item : item.getType ? item.getType() : item.toString();
+		this._layout = {};
 	}
 	
 	this.createContent = function() {
@@ -38,10 +40,17 @@ exports = Class(browser.UIComponent, function(supr) {
 	}
 
 	this.layout = function(layout) {
+		layout.top = layout.top || this._layout.top;
+		layout.left = layout.left || this._layout.left;
+		layout.right = layout.right || this._layout.right;
+		layout.bottom = layout.bottom || this._layout.bottom;
 		this._layout = layout;
 		dom.setStyle(this._element, { left: layout.left, top: layout.top, 
 			width: layout.width, height: layout.height });
 		dom.setStyle(this._content, { width: layout.width - 8, height: layout.height - 8 });
+		if (this.hasFocus()) {
+			browser.itemFocus.layout();
+		}
 	}
 	
 	this.getDimensions = function() { return dimensions.getDimensions(this._element); }
@@ -51,6 +60,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.focus = function() { this.addClassName('focused'); }
 	this.blur = function() { this.removeClassName('focused'); }
+	this.hasFocus = function() { return this.hasClassName('focused'); }
 	
 	this.show = function() {
 		supr(this, 'show');

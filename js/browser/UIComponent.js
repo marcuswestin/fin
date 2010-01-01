@@ -22,6 +22,9 @@ exports = Class(common.Publisher, function(supr) {
 	this.removeClassName = function(className) { 
 		browser.css.removeClassName(this.getElement(), className);
 	}
+	this.hasClassName = function(className) {
+		return browser.css.hasClassName(this.getElement(), className);
+	}
 	
 	this.show = function() { this.getElement().style.display = 'block'; }
 	this.hide = function() { this.getElement().style.display = 'none'; }

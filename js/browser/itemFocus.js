@@ -39,6 +39,7 @@ exports = Singleton(browser.UIComponent, function() {
 	
 	var focusPadding = 2;
 	this.layout = function() {
+		if (!this._focusedItem) { return; }
 		var dim = dimensions.getDimensions(this._focusedItem.getElement());
 		dim.width += focusPadding * 2;
 		dim.height += focusPadding * 2;

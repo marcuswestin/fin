@@ -4,7 +4,7 @@ exports = Class(function(){
 	
 	this.init = function(animateFn, duration) {
 		this._animateFn = animateFn;
-		this._delta = 40;
+		this._delta = 30;
 		this._duration = duration || 500;
 	}
 	

@@ -47,3 +47,8 @@
 	-webkit-border-radius: 0 5px 5px 0;
 }
 
+.Drawer .Panel, .Drawer .Panel .panelLabel {
+	box-shadow: 7px 7px 11px #444;
+	-moz-box-shadow: 7px 7px 11px #444;
+	-webkit-box-shadow: 7px 7px 11px #444
+}

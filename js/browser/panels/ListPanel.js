@@ -24,8 +24,8 @@ exports = Class(Panel, function(supr) {
 	
 	this.addItem = function(item) {
 		item.addClassName('listItem');
-		this._listComponent.addItem(item);
 		this._content.appendChild(item.getElement());
+		this._listComponent.addItem(item);
 		this._manager.resize();
 	}
 	

@@ -33,6 +33,5 @@
 	-webkit-border-radius: 0 0 0 7px;
 }
 
-.ItemFocus .right, .ItemFocus .bottom {
-	-moz-box-shadow: 4px 7px 3px #444444;
-}
+.ItemFocus .bottom { -moz-box-shadow: 4px 7px 3px #444444; }
+.ItemFocus .right { -moz-box-shadow: 3px 6px 3px #444444; }

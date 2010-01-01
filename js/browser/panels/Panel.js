@@ -31,7 +31,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._labelText = dom.create({ parent: this._labelEl, className: 'labelText', text: this._label });
 		setTimeout(bind(this, 'sizeLabel'));
 		
-		events.add(this._labelEl, 'click', bind(this._manager, 'focusPanel', this));
+		events.add(this._element, 'click', bind(this._manager, 'focusPanel', this));
 		events.add(closeButton, 'click', bind(this, 'close'));
 	}
 	

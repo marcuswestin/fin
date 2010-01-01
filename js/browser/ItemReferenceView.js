@@ -23,5 +23,9 @@ exports = Class(browser.UIComponent, function(supr){
 		itemView.appendTo(this._element);
 		events.add(itemView.getElement(), 'click', bind(this, '_publish', 'Click'));
 	}
+	
+	this.getReferencedItem = function() {
+		return this._itemReference.getReferencedItem();
+	}
 })
 

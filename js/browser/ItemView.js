@@ -51,6 +51,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		if (property.type) { // the property is an item reference
 			var itemReference = new common.ItemReference(this._item, property.name);
 			view = new browser.ItemReferenceView(itemReference, property.type);
+			view.subscribe('Click', bind(gPanelManager, 'showItem', itemReference));
 		} else {
 			view = new browser.ItemValueView(this._item, property.name);
 			view.subscribe('DoubleClick', bind(this, 'makeEditable', property.name, view));

@@ -1,6 +1,7 @@
 jsio('from common.javascript import Class, bind, map');
 
 jsio('import common.ItemReference')
+jsio('import browser.ItemReferenceView')
 
 jsio('import browser.css as css');
 jsio('import browser.events as events');
@@ -33,7 +34,9 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.setOffset = function(offset) { this._offset = offset; }
 	
 	this.showItem = function(item) {
-		if (item instanceof common.ItemReference) { item = item.getReferencedItem(); }
+		if (item instanceof common.ItemReference || item instanceof browser.ItemReferenceView) { 
+			item = item.getReferencedItem(); 
+		}
 		var panel = this._addPanel(item);
 		this.focusPanel(panel);
 	}

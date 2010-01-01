@@ -4,6 +4,7 @@ jsio('import browser.events as events');
 jsio('import browser.dom as dom');
 jsio('import browser.css as css');
 jsio('import browser.ItemView');
+jsio('import browser.ItemReferenceView');
 jsio('import browser.ListComponent');
 jsio('import .Panel');
 
@@ -33,7 +34,7 @@ exports = Class(Panel, function(supr) {
 	}
 	
 	this._onItemSelected = function(item) {
-		if (item instanceof common.ItemReference) {
+		if (item instanceof common.ItemReference || item instanceof browser.ItemReferenceView) {
 			gPanelManager.showItem(item);
 		} else {
 			var valueView = this._listComponent.getFocusedItem();

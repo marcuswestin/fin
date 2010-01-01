@@ -35,7 +35,6 @@ exports = Class(function(supr){
 	this.addItem = function(item) {
 		this._items.push(item);
 		var el = item.getElement();
-		if (this._items.length == 1) { this._focusOn(item); }
 		events.add(el, 'click', bind(this, '_selectItem', item));
 	}
 	

@@ -34,13 +34,16 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._labelListPanel.appendTo(this._element);
 		this._labelListPanel.addClassName('labelListPanel')
  		this._labelListPanel.subscribe('ItemSelected', bind(this, '_onLabelSelected'));
-		this._labelListPanel.focus();
 		
 		var addLabelLink = dom.create({ parent: this._labelListPanel.getElement(), 
 			className: 'addLabelLink', html: '+ add label' });
 		events.add(addLabelLink, 'click', gCreateLabelFn);
 
 		this.layout();
+	}
+	
+	this.focus = function() {
+		this._labelListPanel.focus();
 	}
 	
 	this.focusPanel = function() {

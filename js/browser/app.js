@@ -3,7 +3,7 @@ jsio.path.browser = 'js';
 
 jsio('from common.javascript import bind');
 jsio('import net, logging');
-jsio('import common.Item');
+jsio('import common.itemFactory');
 
 jsio('import browser.dimensions as dimensions');
 jsio('import browser.events as events');
@@ -32,6 +32,11 @@ gCreateLabelFn = function() {
 	browser.overlay.show(labelCreator.getElement());
 }
 
+gPanelManager.subscribe('PanelFocused', function(panel) {
+	var item = panel.getItem();
+	document.location.hash = '#/panel/' + item.getType() + '/' + item.getId();
+})
+
 gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", function(){
 
 	document.body.appendChild(gPanelManager.getElement());
@@ -50,5 +55,16 @@ gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", f
 	} });
 
 	Meebo('addButton', { label: 'Create label', onClick: gCreateLabelFn });
+	
+	(function(){
+		var parts = document.location.hash.substr(2).split('/')
+		if (parts[0] == 'panel') {
+			var item = common.itemFactory.getItem(parts[2]);
+			item.setType(parts[1]);
+			gPanelManager.showItem(item);
+		} else {
+			gDrawer.focus();
+		}
+	})()
 });
 

@@ -49,6 +49,7 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._panelOrder.unshift(movedPanel);
 		
 		this._positionPanels();
+		this._publish('PanelFocused', panel);
 	}
 	
 	this.removePanel = function(panel) {

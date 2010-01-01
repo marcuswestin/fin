@@ -33,7 +33,8 @@ exports = Class(Panel, function(supr) {
 			} else {
 				propertyView.subscribe('DoubleClick', bind(this, '_makeEditable', propertyView));
 			}
-		}))
+		}));
+		if (this.hasFocus()) { this._listComponent.focus(); }
 	}
 	
 	this._makeEditable = function(view) {

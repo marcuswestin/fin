@@ -55,6 +55,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.getDimensions = function() { return dimensions.getDimensions(this._element); }
 	
+	this.getItem = function() { return this._item; }
 	this.getLabel = function() { return this._label; }
 	this.toString = function() { return this._item.toString(); }
 	

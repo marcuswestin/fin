@@ -30,6 +30,7 @@ exports = Class(Panel, function(supr) {
 		item.addClassName('listItem');
 		this._content.appendChild(item.getElement());
 		this._listComponent.addItem(item);
+		if (this.hasFocus()) { this._listComponent.focus(); }
 		this._manager.layout();
 	}
 	

@@ -1,4 +1,4 @@
-jsio('from common.javascript import map');
+jsio('from common.javascript import forEach');
 
 exports.itemData = []
 exports.userToLabel = { 
@@ -48,7 +48,7 @@ var itemProperties = {
 var bugUserId = 0;
 var numUsers = itemProperties['user'].length;
 for (var type in itemProperties) {
-	map(itemProperties[type], function(properties){ 
+	forEach(itemProperties[type], function(properties){ 
 		var id = uniqueId++;
 		var item = { type: type, id: id, properties: properties };
 		

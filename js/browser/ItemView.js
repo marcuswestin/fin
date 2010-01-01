@@ -8,7 +8,6 @@ jsio('import browser.templateFactory')
 jsio('import browser.UIComponent')
 jsio('import browser.ItemValueView')
 jsio('import browser.ItemReferenceView')
-jsio('import browser.ListComponent')
 
 var logger = logging.getLogger(jsio.__path);
 logger.setLevel(0);
@@ -23,8 +22,7 @@ exports = Class(browser.UIComponent, function(supr) {
 
 		this._valueViews = {};
 		this._referenceViews = {};
-		
-		this._listComponent = new browser.ListComponent(bind(this, '_onItemSelected'));
+		this._views = [];
 	}
 	
 	this.createContent = function() {
@@ -45,25 +43,25 @@ exports = Class(browser.UIComponent, function(supr) {
 	}
 	
 	this.getItem = function() { return this._item; }
-	this.focus = function() { this.addClassName('focused'); }
-	this.blur = function() { this.removeClassName('focused'); }
+	
+	this.getViews = function() { return this._views; }
 	
 	this._createView = function(property, placeholderElement) {
 		var view;
 		if (property.type) { // the property is an item reference
 			var itemReference = new common.ItemReference(this._item, property.name);
 			view = new browser.ItemReferenceView(itemReference, property.type);
-			view.subscribe('Click', bind(gPanelManager, 'showItem', itemReference));
 		} else {
 			view = new browser.ItemValueView(this._item, property.name);
-			view.subscribe('DoubleClick', bind(this, '_makeEditable', property.name, view));
+			view.subscribe('DoubleClick', bind(this, 'makeEditable', property.name, view));
 		}
-		view.appendTo(placeholderElement);
-		// dom.replace(placeholderElement, view.getElement());
+		dom.replace(placeholderElement, view.getElement());
+		this._views.push(view);
 	}
 	
-	this._makeEditable = function(propertyName, view) {
-		logger.log('_makeEditable', this._item.getId(), this._item.getProperty(propertyName));
+	this.makeEditable = function(view) {
+		var propertyName = view.getPropertyName();
+		logger.log('makeEditable', this._item.getId(), this._item.getProperty(propertyName));
 		browser.editable.setValue(this._item.getProperty(propertyName) || '');
 		browser.editable.showAt(view.getElement(), bind(this, function(mutation, value){
 			view.setValue(value); // set the value of the element beneath the input early, so that its size updates correctly

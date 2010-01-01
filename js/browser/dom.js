@@ -34,3 +34,9 @@ exports.remove = function(el) {
 	if (!el || !el.parentNode) { return; }
 	el.parentNode.removeChild(el);
 }
+
+exports.replace = function(targetElement, newElement) {
+	var parentNode = targetElement.parentNode;
+	parentNode.insertBefore(newElement, targetElement);
+	parentNode.removeChild(targetElement);
+}

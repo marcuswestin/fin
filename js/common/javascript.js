@@ -7,11 +7,13 @@ exports.bind = function(context, method/*, args... */) {
 	}
 }
 
+exports.forEach = function(items, fn) {
+	for (var i=0, item; item = items[i]; i++) { fn(item) }
+}
+
 exports.map = function(items, fn) {
 	var results = [];
-	for (var i=0, item; item = items[i]; i++) {
-		results.push(fn(item));
-	}
+	exports.forEach(items, function(item) { results.push(fn(item)); })
 	return results;
 }
 

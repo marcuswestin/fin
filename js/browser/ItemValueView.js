@@ -12,6 +12,8 @@ exports = Class(browser.UIComponent, function(supr){
 		this._viewElement = viewElement;
 	}
 	
+	this.getPropertyName = function() { return this._propertyName; }
+	
 	this.createContent = function() {
 		var value = this._item.getProperty(this._propertyName);
 		if (value) {

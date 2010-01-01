@@ -22,7 +22,6 @@ exports = Class(function(supr){
 	}
 	
 	this.focus = function() { 
-		if (this._items[this._focusIndex]) { this._items[this._focusIndex].focus(); }
 		this._keystrokeHandle = browser.keystrokeManager.handleKeys(this._keyMap); 
 	}
 	
@@ -36,6 +35,8 @@ exports = Class(function(supr){
 		if (this._items.length == 1) { this._focusOn(item); }
 		events.add(el, 'click', bind(this, '_selectItem', item));
 	}
+	
+	this.getFocusedItem = function() { return this._items[this._focusIndex]; }
 	
 	this._moveFocus = function(steps) {
 		var newFocusIndex = this._focusIndex + steps;

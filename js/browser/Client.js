@@ -6,7 +6,6 @@ jsio('import browser.overlay');
 jsio('import browser.loginManager');
 
 var logger = logging.getLogger(jsio.__path);
-logger.setLevel(0);
 
 exports = Class(RTJPProtocol, function(supr) {
 	this.init = function(playerFactory) {

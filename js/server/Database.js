@@ -1,8 +1,6 @@
 jsio('from common.javascript import Class, bind');
 
 var logger = logging.getLogger(jsio.__path);
-logger.setLevel(0);
-
 
 exports = Class(function() {
 	this.init = function(CouchDB) {

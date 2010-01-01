@@ -13,6 +13,7 @@ jsio('import browser.UIComponent');
 jsio('import browser.Input');
 
 var logger = logging.getLogger(jsio.__path);
+
 css.loadStyles(jsio.__path);
 
 exports = Singleton(browser.UIComponent, function(supr) {

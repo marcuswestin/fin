@@ -1,7 +1,7 @@
-jsio('from common.javascript import Class, bind, map');
+jsio('from common.javascript import Singleton, bind, map');
 
-jsio('import common.ItemReference')
-jsio('import browser.ItemReferenceView')
+jsio('import common.ItemReference');
+jsio('import browser.ItemReferenceView');
 
 jsio('import browser.css as css');
 jsio('import browser.events as events');
@@ -18,7 +18,7 @@ var logger = logging.getLogger(jsio.__path);
 
 css.loadStyles(jsio.__path);
 
-exports = Class(browser.UIComponent, function(supr) {
+exports = Singleton(browser.UIComponent, function(supr) {
 	
 	this.createContent = function() {
 		this.addClassName('PanelManager');

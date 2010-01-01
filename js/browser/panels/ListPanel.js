@@ -7,11 +7,11 @@ jsio('import browser.itemFocus');
 jsio('import browser.ItemView');
 jsio('import browser.ListComponent');
 
-jsio('import .Panel');
+jsio('import browser.panels.Panel');
 
 css.loadStyles(jsio.__path);
 
-exports = Class(Panel, function(supr) {
+exports = Class(browser.panels.Panel, function(supr) {
 	
 	this.init = function() {
 		supr(this, 'init', arguments);

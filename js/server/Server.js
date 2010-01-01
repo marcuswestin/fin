@@ -5,7 +5,6 @@ jsio('import .Database');
 jsio('import common.itemFactory');
 
 var logger = logging.getLogger(jsio.__path);
-logger.setLevel(0);
 
 exports = Class(Server, function(supr) {
 

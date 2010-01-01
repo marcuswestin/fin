@@ -9,7 +9,6 @@ jsio('import browser.ItemValueView')
 jsio('import browser.ItemReferenceView')
 
 var logger = logging.getLogger(jsio.__path);
-logger.setLevel(0);
 
 exports = Class(browser.UIComponent, function(supr) {
 	

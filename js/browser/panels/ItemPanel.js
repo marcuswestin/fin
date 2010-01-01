@@ -23,8 +23,8 @@ exports = Class(Panel, function(supr) {
 		this.addClassName('ItemPanel');
 		this._itemView = new browser.ItemView(this._item, this._item.getType(), 'panel');
 		this._itemView.appendTo(this._content);
-		forEach(this._itemView.getViews(), bind(this, function(view) {
-			this._listComponent.addItem(view);
+		forEach(this._itemView.getPropertyViews(), bind(this, function(propertyView) {
+			this._listComponent.addItem(propertyView);
 		}))
 	}
 	
@@ -35,7 +35,7 @@ exports = Class(Panel, function(supr) {
 	
 	this._onItemSelected = function(item) {
 		if (item instanceof common.ItemReference || item instanceof browser.ItemReferenceView) {
-			gPanelManager.showItem(item);
+			gPanelManager.showItem(item.getReferencedItem());
 		} else {
 			var valueView = this._listComponent.getFocusedItem();
 			this._itemView.makeEditable(valueView);

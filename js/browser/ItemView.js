@@ -22,7 +22,7 @@ exports = Class(browser.UIComponent, function(supr) {
 
 		this._valueViews = {};
 		this._referenceViews = {};
-		this._views = [];
+		this._propertyViews = [];
 	}
 	
 	this.createContent = function() {
@@ -44,20 +44,23 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.getItem = function() { return this._item; }
 	
-	this.getViews = function() { return this._views; }
+	this.getPropertyViews = function() { return this._propertyViews; }
 	
 	this._createView = function(property, placeholderElement) {
 		var view;
 		if (property.type) { // the property is an item reference
 			var itemReference = new common.ItemReference(this._item, property.name);
 			view = new browser.ItemReferenceView(itemReference, property.type);
-			view.subscribe('Click', bind(gPanelManager, 'showItem', itemReference));
+			view.subscribe('Click', bind(this, function() {
+				gPanelManager.showItem(itemReference.getReferencedItem());
+			}));
+				
 		} else {
 			view = new browser.ItemValueView(this._item, property.name);
 			view.subscribe('DoubleClick', bind(this, 'makeEditable', property.name, view));
 		}
 		dom.replace(placeholderElement, view.getElement());
-		this._views.push(view);
+		this._propertyViews.push(view);
 	}
 	
 	this.makeEditable = function(view) {

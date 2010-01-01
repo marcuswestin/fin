@@ -34,9 +34,6 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.setOffset = function(offset) { this._offset = offset; }
 	
 	this.showItem = function(item) {
-		if (item instanceof common.ItemReference || item instanceof browser.ItemReferenceView) { 
-			item = item.getReferencedItem(); 
-		}
 		var panel = this._addPanel(item);
 		this.focusPanel(panel);
 	}

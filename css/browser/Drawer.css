@@ -28,17 +28,20 @@
 }
 
 .Drawer .labelListPanel .listItem.selected:after {
-	content: "";
-	border-style: solid;
-	border-color: #a0a0a0 #a0a0a0 #a0a0a0 #ddf;
-	border-width: 3px 0 3px 3px;
-	font-size: 1px;
-	line-height: 1px;
+	content: ' ';
 	position: absolute;
-	right: -3px;
-	top: 8px;
+	border-style: solid;
+	border-color: #e0ecff #e0ecff #e0ecff #6688ee;
+	border-width: 6px;
+	right: 1px;
+	top: 5px;
 	z-index: 1;
 }
+
+.Drawer .labelListPanel .listItem.selected {
+	background: #e0ecff;
+}
+
 
 /* Label view panel, the right-most one */
 .Drawer .labelViewPanel {

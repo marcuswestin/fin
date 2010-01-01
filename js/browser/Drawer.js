@@ -22,11 +22,13 @@ exports = Class(browser.UIComponent, function(supr) {
 	var handleWidth = 10;
 	var minHeight = 100;
 	var width = 170;
+	var marginLeft = 10;
 	
 	this.init = function() {
 		supr(this, 'init');
 		this._itemViewClickCallback = bind(this, '_onItemViewClick');
 		this._labelListPanel = new browser.panels.ListPanel(this, 'Drawer');
+		this._labelListPanel._contentMargin = 0;
 	}
 	
 	this.createContent = function() {
@@ -72,11 +74,11 @@ exports = Class(browser.UIComponent, function(supr) {
 		var size = dimensions.getSize(window);
 		var height = Math.max(minHeight, size.height - margin.top - margin.bottom);
 		var panelWidth = this._labelViewPanel ? 320 : 0;
-		this._labelListPanel.layout({ height: height, width: width, top: margin.top });
+		this._labelListPanel.layout({ height: height, width: width, top: margin.top, left: marginLeft });
 		if (this._labelViewPanel) {
-			this._labelViewPanel.layout({ width: panelWidth + 2, height: height, top: margin.top, left: width + 6 });
+			this._labelViewPanel.layout({ width: panelWidth + 2, height: height, top: margin.top, left: width + marginLeft + 6 });
 		}
-		return { width: width + panelWidth, height: height, top: margin.top };
+		return { width: width + panelWidth + marginLeft, height: height, top: margin.top };
 	}
 	
 	this.addLabels = function(labels) {

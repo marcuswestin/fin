@@ -4,7 +4,7 @@
 }
 
 .ListPanel .listItem {
-	padding: 5px 3px;
+	padding: 5px;
 	cursor: pointer;
 	position: relative;
 }

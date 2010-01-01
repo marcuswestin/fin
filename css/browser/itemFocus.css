@@ -1,8 +1,10 @@
-.ItemFocus, .ItemFocus .piece {
+.ItemFocus {
 	position: absolute;
+	z-index: 1;
 }
 
 .ItemFocus .piece {
+	position: absolute;
 	opacity: .7;
 	border-color: #C3D9FF;
 	border-style: solid;

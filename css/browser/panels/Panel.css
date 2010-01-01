@@ -13,11 +13,6 @@
 	left: 50px;
 }
 
-.Panel .content {
-	margin: 4px;
-}
-
-
 .Panel .panelLabel {
 	display: block;
 	cursor: pointer;

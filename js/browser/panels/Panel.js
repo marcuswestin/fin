@@ -10,6 +10,8 @@ css.loadStyles(jsio.__path);
 
 exports = Class(browser.UIComponent, function(supr) {
 	
+	this._contentMargin = 4;
+	
 	this.init = function(manager, item) {
 		supr(this, 'init');
 		this._manager = manager;
@@ -47,7 +49,8 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._layout = layout;
 		dom.setStyle(this._element, { left: layout.left, top: layout.top, 
 			width: layout.width, height: layout.height });
-		dom.setStyle(this._content, { width: layout.width - 8, height: layout.height - 8 });
+		dom.setStyle(this._content, { width: layout.width - this._contentMargin * 2, 
+			height: layout.height - this._contentMargin * 2, margin: this._contentMargin });
 		if (this.hasFocus()) {
 			browser.itemFocus.layout();
 		}

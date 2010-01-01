@@ -56,13 +56,15 @@ exports = Singleton(function(){
 	
 	this.onKeyPress = function(e) {
 		// TODO: Deal with pasting
+		window.top.console.debug(e);
+
 		if (e.metaKey && e.keyCode != browser.events.KEY_ENTER) { return; }
 		
 		var position = browser.caret.getPosition(this._input);
 		var selectionLength = position.end - position.start;
 		var mutation = { position: position.caret - selectionLength };
 		
-		if (e.keyCode == browser.events.KEY_ESCAPE || (e.metaKey && browser.events.KEY_ENTER)) {
+		if (e.keyCode == browser.events.KEY_ESCAPE || (e.keyCode == browser.events.KEY_ENTER && !e.metaKey)) {
 			this._input.blur();
 			browser.events.cancel(e);
 			return;
@@ -73,11 +75,20 @@ exports = Singleton(function(){
 				mutation.position -= 1;
 				mutation.deletion = 1;
 			}
-		} else if (e.keyCode == browser.events.KEY_ENTER) {
+		} else if (e.keyCode == browser.events.KEY_ENTER && e.metaKey) {
 			mutation.addition = "\n";
 			if (selectionLength) {
 				mutation.deletion = selectionLength;
 			}
+			
+			void(bind(this, function(){
+				// with the metaKey down, the return does not make it into the input field
+				// This is a ugly-ass way to do it, and would be much nicer by detecting if shift is
+				// pressed down with the enter and use that instead of the metaKey to insert a newline 
+				jsio('import common.Item');
+				this._input.value = common.Item.prototype._applyMutationToValue(mutation, this._input.value);
+			}))();
+			
 		} else if (e.charCode) {
 			mutation.addition = String.fromCharCode(e.charCode);
 			if (selectionLength) {

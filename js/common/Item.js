@@ -21,7 +21,17 @@ exports = Class(Publisher, function(supr) {
 	
 	this.applyMutation = function(mutation, silent) {
 		logger.log('apply mutation', mutation._id, mutation.property);
-		var value = this._properties[mutation.property] || '';
+		var value = this._applyMutationToValue(mutation, this._properties[mutation.property] || '');
+		this._properties[mutation.property] = value;
+		if (!silent) {
+			logger.log('publish PropertyUpdated', mutation.property, value);
+			this._publish('PropertyUpdated', mutation.property, value);
+		}
+	}
+	
+	// This is being used by browser.editable - if editable can't figure out how to do without it,
+	// this function should probably go into a util space.
+	this._applyMutationToValue = function(mutation, value) {
 		if (mutation.deletion) {
 			var startDelete = mutation.position;
 			var endDelete = mutation.position + mutation.deletion;
@@ -30,11 +40,7 @@ exports = Class(Publisher, function(supr) {
 		if (mutation.addition) {
 			value = value.slice(0, mutation.position) + mutation.addition + value.slice(mutation.position);
 		}
-		this._properties[mutation.property] = value;
-		if (!silent) {
-			logger.log('publish PropertyUpdated', mutation.property, value);
-			this._publish('PropertyUpdated', mutation.property, value);
-		}
+		return value;
 	}
 	
 	this.getId = function() { return this._id; }

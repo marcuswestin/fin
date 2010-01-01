@@ -20,9 +20,10 @@ exports = Singleton(function(){
 		this._input.value = value;
 	}
 	
-	this.showAt = function(dom, onMutationCallback) {
+	this.showAt = function(dom, onMutationCallback, onHideCallback) {
 		this._targetDom = dom;
 		this._onMutationCallback = onMutationCallback;
+		this._onHideCallback = onHideCallback;
 		
 		this._input.style.fontSize = browser.dom.getStyle(dom, 'font-size');
 		this._input.style.fontFamily = browser.dom.getStyle(dom, 'font-family');
@@ -50,6 +51,7 @@ exports = Singleton(function(){
 	this.hide = function() {
 		browser.keystrokeManager.release(this._keystrokeHandler);
 		document.body.removeChild(this._input);
+		if (this._onHideCallback) { this._onHideCallback(); }
 	}
 	
 	this.onKeyPress = function(e) {

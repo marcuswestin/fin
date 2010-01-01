@@ -6,18 +6,16 @@ exports = Singleton(function(){
 	
 	this.init = function() {
 		events.add(window, 'keypress', bind(this, '_onKeyPress'));
-		this._handlerStack = [];
 	}
 	
 	this.requestFocus = function(handler) {
-		if (this._keystrokeHandler) { this._handlerStack.push(this._keystrokeHandler); }
 		this._keystrokeHandler = handler;
 		return this._keystrokeHandler;
 	}
 	
 	this.release = function(handler) {
 		if (handler != this._keystrokeHandler) { return; }
-		this._keystrokeHandler = this._handlerStack.pop();
+		this._keystrokeHandler = null;
 	}
 	
 	this.handleKeys = function(keyMap) {

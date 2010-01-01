@@ -28,6 +28,7 @@ exports = Class(browser.UIComponent, function(supr){
 	this.setValue = function(value) {
 		value = value || this._propertyName;
 		this._element.innerHTML = value.replace(/\n/g, '<br />');
+		this._publish('Resize');
 	}
 	
 	this._onPropertyUpdated = function(propertyName, newValue) {

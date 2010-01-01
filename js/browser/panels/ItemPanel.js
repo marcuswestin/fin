@@ -4,6 +4,7 @@ jsio('import browser.events as events');
 jsio('import browser.dom as dom');
 jsio('import browser.css as css');
 jsio('import browser.editable');
+jsio('import browser.panelManager');
 jsio('import browser.ItemView');
 jsio('import browser.ItemReferenceView');
 jsio('import browser.ListComponent');
@@ -28,7 +29,7 @@ exports = Class(browser.panels.Panel, function(supr) {
 			this._listComponent.addItem(propertyView);
 			if (propertyView instanceof browser.ItemReferenceView) {
 				propertyView.subscribe('Click', bind(this, function() {
-					gPanelManager.showItem(propertyView.getReferencedItem());
+					browser.panelManager.showItem(propertyView.getReferencedItem());
 				}));
 			} else {
 				propertyView.subscribe('DoubleClick', bind(this, '_makeEditable', propertyView));
@@ -60,7 +61,7 @@ exports = Class(browser.panels.Panel, function(supr) {
 	
 	this._onItemSelected = function(item) {
 		if (item instanceof common.ItemReference || item instanceof browser.ItemReferenceView) {
-			gPanelManager.showItem(item.getReferencedItem());
+			browser.panelManager.showItem(item.getReferencedItem());
 		} else {
 			var valueView = this._listComponent.getFocusedItem();
 			this._makeEditable(valueView);

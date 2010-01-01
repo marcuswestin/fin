@@ -30,6 +30,7 @@ exports = Class(function(supr){
 	
 	this.blur = function() { 
 		browser.itemFocus.removeFrom(this._items[this._focusIndex]);
+		browser.keystrokeManager.release(this._keystrokeHandle);
 	}
 	
 	this.addItem = function(item) {

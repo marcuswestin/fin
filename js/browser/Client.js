@@ -87,7 +87,7 @@ exports = Class(RTJPProtocol, function(supr) {
 			case 'WELCOME':
 				logger.log('Connected!')
 				browser.overlay.hide();
-				this._onConnectedCallback(args.labels);
+				this._onConnectedCallback();
 				break;
 			case 'ITEM_SNAPSHOT':
 				setTimeout(bind(common.itemFactory, 'loadItemSnapshot', args), 0);

@@ -37,3 +37,20 @@
 
 .ItemFocus .bottom { -moz-box-shadow: 4px 7px 3px #444444; }
 .ItemFocus .right { -moz-box-shadow: 3px 6px 3px #444444; }
+
+.ItemFocus.onReferenceItemView .right:after {
+	content: url(../../img/export/crystal/14/key_enter.png);
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	top: 6px;
+	right: 0px;
+}
+.ItemFocus.onValueItemView .right:after {
+	content: url(../../img/export/crystal/14/edit.png);
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	top: 0px;
+	right: -12px;
+}

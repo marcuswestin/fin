@@ -8,11 +8,13 @@ jsio('import browser.keystrokeManager');
 exports = Singleton(function(){
 	
 	var PADDING = 4;
+	var BORDER = 2;
 
 	this.init = function() {
 		this._input = document.createElement('textarea');
 		this._input.style.position = 'absolute';
 		this._input.style.padding = '1px 0 0 3px'
+		this._input.style.overflow = 'hidden';
 		events.add(this._input, 'blur', bind(this, 'hide'))
 	}
 	
@@ -20,15 +22,17 @@ exports = Singleton(function(){
 		this._input.value = value;
 	}
 	
-	this.showAt = function(dom, onMutationCallback, onHideCallback) {
-		this._targetDom = dom;
+	this.showAt = function(view, onMutationCallback, onHideCallback) {
+		this._view = view;
 		this._onMutationCallback = onMutationCallback;
 		this._onHideCallback = onHideCallback;
 		
-		this._input.style.fontSize = browser.dom.getStyle(dom, 'font-size');
-		this._input.style.fontFamily = browser.dom.getStyle(dom, 'font-family');
+		this._input.style.fontSize = browser.dom.getStyle(view.getElement(), 'font-size');
+		this._input.style.fontFamily = browser.dom.getStyle(view.getElement(), 'font-family');
+		this._input.style.fontWeight = browser.dom.getStyle(view.getElement(), 'font-weight');
 		
-		this._resize();
+		view.subscribe('Resize', bind(this, '_layout'))
+		this._layout();
 		
 		if (!this._input.parentNode) { 
 			document.body.appendChild(this._input); 
@@ -38,14 +42,13 @@ exports = Singleton(function(){
 		this._keystrokeHandler = browser.keystrokeManager.requestFocus(bind(this, 'onKeyPress'), true);
 	}
 	
-	this._resize = function() {
-		var dimensions = browser.dimensions.getDimensions(this._targetDom);
+	this._layout = function() {
+		var dimensions = browser.dimensions.getDimensions(this._view.getElement());
 		
-		var inputOffset = 0; // to make the text inside the input line up with text it overlays
-		this._input.style.top = dimensions.top - PADDING - inputOffset + 'px';
-		this._input.style.left = dimensions.left - PADDING + 'px';
-		this._input.style.width = dimensions.width + PADDING * 2 + 30 + 'px';
-		this._input.style.height = dimensions.height + PADDING * 2 + 'px';
+		this._input.style.top = dimensions.top - PADDING - BORDER / 2 + 'px';
+		this._input.style.left = dimensions.left - PADDING - BORDER / 2 + 'px';
+		this._input.style.width = dimensions.width + PADDING * 2 + BORDER * 2 + 'px';
+		this._input.style.height = dimensions.height + PADDING * 2 + BORDER * 2 + 'px';
 	}
 	
 	this.hide = function() {
@@ -98,7 +101,6 @@ exports = Singleton(function(){
 		if (!mutation.deletion && !mutation.addition) { return; }
 		
 		setTimeout(bind(this, function() {
-			this._resize();
 			this._onMutationCallback(mutation, this._input.value);
 		}), 0);
 	}

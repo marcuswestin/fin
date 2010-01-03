@@ -3,6 +3,8 @@ jsio('import browser.dimensions as dimensions');
 jsio('import browser.dom as dom');
 jsio('import browser.css as css');
 jsio('import browser.UIComponent');
+jsio('import browser.ItemValueView');
+jsio('import browser.ItemReferenceView');
 
 css.loadStyles(jsio.__path);
 
@@ -13,34 +15,41 @@ exports = Singleton(browser.UIComponent, function() {
 	this.createContent = function() {
 		this._layoutHandler = bind(this, 'layout');
 		
-		this.addClassName('ItemFocus');
 		this._top = dom.create({ parent: this._element, className: 'piece top' });
 		this._left = dom.create({ parent: this._element, className: 'piece left' });
 		this._bottom = dom.create({ parent: this._element, className: 'piece bottom' });
 		this._right = dom.create({ parent: this._element, className: 'piece right' });
 	}
 	
-	this.showAt = function(item, preventLayout) {
+	this.showAt = function(itemView, preventLayout) {
 		if (this._focusedItem) { this._focusedItem.unsubscribe(this._layoutHandler); }
-		this._focusedItem = item;
-		this._focusedItem.subscribe('Resize', this._layoutHandler);
+		this._focusedView = itemView;
+		this._focusedView.subscribe('Resize', bind(this, '_layoutHandler'));
 		if (!preventLayout) {
 			this.getElement(); // to force createContent
 			this.layout();
 			this.appendTo(document.body);
 		}
+
+		if (itemView instanceof browser.ItemReferenceView) {
+			this._element.className = 'ItemFocus onReferenceItemView';
+		} else if (itemView instanceof browser.ItemValueView) {
+			this._element.className = 'ItemFocus onValueItemView';
+		} else {
+			this._element.className = 'ItemFocus';
+		}
 	}
 	
-	this.removeFrom = function(item) {
-		if (this._focusedItem == item) { 
+	this.removeFrom = function(itemView) {
+		if (this._focusedView == itemView) { 
 			dom.remove(this._element);
 		}
 	}
 	
 	var focusPadding = 2;
 	this.layout = function() {
-		if (!this._focusedItem) { return; }
-		var dim = dimensions.getDimensions(this._focusedItem.getElement());
+		if (!this._focusedView) { return; }
+		var dim = dimensions.getDimensions(this._focusedView.getElement());
 		dim.width += focusPadding * 2;
 		dim.height += focusPadding * 2;
 		dim.left -= focusPadding;

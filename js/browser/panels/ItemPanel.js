@@ -32,7 +32,9 @@ exports = Class(browser.panels.Panel, function(supr) {
 					gPanelManager.showItem(propertyView.getReferencedItem());
 				}));
 			} else {
-				propertyView.subscribe('DoubleClick', bind(this, '_makeEditable', propertyView));
+				propertyView.subscribe('Click', bind(this, function() {
+					this._makeEditable(propertyView);
+				}));
 			}
 		}));
 		if (this.hasFocus()) { this._listComponent.focus(); }
@@ -40,7 +42,7 @@ exports = Class(browser.panels.Panel, function(supr) {
 	
 	this._makeEditable = function(view) {
 		browser.editable.setValue(this._item.getProperty(view.getPropertyName()) || '');
-		browser.editable.showAt(view.getElement(), bind(this, '_onMutation', view), bind(this, '_onEditableHide'));
+		browser.editable.showAt(view, bind(this, '_onMutation', view), bind(this, '_onEditableHide'));
 	}
 	
 	this._onMutation = function(view, mutation, value) {

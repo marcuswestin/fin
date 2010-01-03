@@ -8,8 +8,6 @@ run:
 
 clean:
 	rm -rf lib/*
-	rm -f js/jsio 					# symbolic link
-	rm -f js/server/node-couch.js
 	touch lib/empty.txt
 
 ### lib dependencies

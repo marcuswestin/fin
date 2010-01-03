@@ -14,7 +14,8 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this.init = function(item, itemType, viewType) {
 		supr(this, 'init');
-		this._item = (item instanceof common.ItemReference ? item.getReferencedItem() : item);
+
+		this._item = item;
 		this._itemType = itemType;
 		this._viewType = viewType;
 
@@ -47,7 +48,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	this._createView = function(property, placeholderElement) {
 		var view;
 		if (property.type) { // the property is an item reference
-			var itemReference = new common.ItemReference(this._item, property.name);
+			var itemReference = new common.ItemReference(this._item, property.type, property.name);
 			view = new browser.ItemReferenceView(itemReference, property.type);
 		} else {
 			view = new browser.ItemValueView(this._item, property.name);

@@ -56,6 +56,7 @@ exports = Class(function(supr){
 	this._selectFocusedItem = function() { this._selectItem(this._items[this._focusIndex]); }
 	this._selectItem = function(item) { 
 		if (this._selectedItem) { this._selectedItem.removeClassName('selected'); }
+		if (!item) { return; }
 		this._selectedItem = item;
 		item.addClassName('selected');
 		this._itemSelectedCallback(item);

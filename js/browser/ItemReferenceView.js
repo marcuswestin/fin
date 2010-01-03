@@ -21,7 +21,12 @@ exports = Class(browser.UIComponent, function(supr){
 		// jsio doesn't support circular imports...
 		var itemView = new window.__gItemViewClass(this._itemReference, this._itemType, 'reference');
 		itemView.appendTo(this._element);
-		events.add(itemView.getElement(), 'click', bind(this, '_publish', 'Click'));
+		events.add(itemView.getElement(), 'click', bind(this, 'onItemViewClick'));
+	}
+	
+	this._onItemViewClick = function(e) {
+		events.cancel(e);
+		this._publish('Click');
 	}
 	
 	this.getReferencedItem = function() {

@@ -51,12 +51,20 @@ exports = Class(Server, function(supr) {
 		item.applyMutation(mutation, true);
 		var subs = this._mutationSubscriptions[item.getId()];
 		for (var key in subs) {
-			subs[key](mutation);
+			try {
+				subs[key](mutation);				
+			} catch (e) {
+				logger.error('Error when handling mutation', JSON.stringify(e));
+			}
 		}
 		if (item._mutationCount++ % this._databaseWriteFrequency == 0) {
 			logger.log('store item changes to database for item', item.getId(), JSON.stringify(item._properties));
 			this._database.storeItemData(item.asObject(), bind(this, '_handleItemRevision', item));
 		}
+	}
+	
+	this.unsubscribeFromItemMutations = function(itemId, subId) {
+		delete this._mutationSubscriptions[itemId][subId];
 	}
 
 	this._handleItemRevision = function(item, response, error) {

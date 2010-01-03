@@ -70,7 +70,10 @@ exports = Class(RTJPProtocol, function(supr) {
 	}
 	
 	this.connectionLost = function() {
-		logger.info('connectionLost');
+		logger.info('connection lost - unsubscribe item mutation subscriptions');
+		for (var itemId in this._itemSubscriptionIds) {
+			this.server.unsubscribeFromItemMutations(itemId, this._itemSubscriptionIds[itemId]);
+		}
 	}
 
 })

@@ -27,7 +27,9 @@ exports = Class(browser.UIComponent, function(supr){
 	
 	this.setValue = function(value) {
 		value = value || this._propertyName;
-		this._element.innerHTML = value.replace(/\n/g, '<br />');
+		value = value.replace(/\n/g, '<br />');
+		value = value.replace(/ $/, '&nbsp;');
+		this._element.innerHTML = value;
 		this._publish('Resize');
 	}
 	

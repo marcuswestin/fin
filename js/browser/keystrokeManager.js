@@ -44,6 +44,7 @@ exports = Singleton(function(){
 	}
 	
 	this._onKeyPress = function(e) {
+		if (!this._keystrokeHandler) { return; }
 		this._keystrokeHandler(e);
 	}
 

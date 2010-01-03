@@ -23,6 +23,7 @@ css.loadStyles('browser.app');
 
 gClient = new browser.Client();
 gDrawer = new browser.Drawer();
+gPanelManager = browser.panelManager;
 gCreateLabelFn = function() {
 	var labelCreator = new browser.LabelCreator(function(labelName){
 		gDrawer.addLabel(labelName);
@@ -31,21 +32,21 @@ gCreateLabelFn = function() {
 	browser.overlay.show(labelCreator.getElement());
 }
 
-browser.panelManager.subscribe('PanelFocused', function(panel) {
+gPanelManager.subscribe('PanelFocused', function(panel) {
 	var item = panel.getItem();
 	document.location.hash = '#/panel/' + item.getType() + '/' + item.getId();
 })
 
 gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", function(){
 
-	document.body.appendChild(browser.panelManager.getElement());
+	document.body.appendChild(gPanelManager.getElement());
 	document.body.appendChild(gDrawer.getElement());
 	
 	gDrawer.subscribe('LabelClick', bind(browser.panelManager, 'showLabel'));
 	browser.resizeManager.onWindowResize(function(size) {
 		var drawerSize = gDrawer.layout();
-		browser.panelManager.setOffset(drawerSize.width + 50);
-		browser.panelManager.layout({ width: size.width, height: size.height - 100 });
+		gPanelManager.setOffset(drawerSize.width + 50);
+		gPanelManager.layout({ width: size.width, height: size.height - 100 });
 	});
 	
 	Meebo('addButton', { label: 'Create item', onClick: function() {
@@ -60,7 +61,7 @@ gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", f
 		if (parts[0] == 'panel') {
 			var item = common.itemFactory.getItem(parts[2]);
 			item.setType(parts[1]);
-			browser.panelManager.showItem(item);
+			gPanelManager.showItem(item);
 		} else {
 			gDrawer.focus();
 		}

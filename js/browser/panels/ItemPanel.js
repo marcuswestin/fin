@@ -29,7 +29,7 @@ exports = Class(browser.panels.Panel, function(supr) {
 			this._listComponent.addItem(propertyView);
 			if (propertyView instanceof browser.ItemReferenceView) {
 				propertyView.subscribe('Click', bind(this, function() {
-					browser.panelManager.showItem(propertyView.getReferencedItem());
+					gPanelManager.showItem(propertyView.getReferencedItem());
 				}));
 			} else {
 				propertyView.subscribe('DoubleClick', bind(this, '_makeEditable', propertyView));
@@ -61,7 +61,7 @@ exports = Class(browser.panels.Panel, function(supr) {
 	
 	this._onItemSelected = function(item) {
 		if (item instanceof common.ItemReference || item instanceof browser.ItemReferenceView) {
-			browser.panelManager.showItem(item.getReferencedItem());
+			gPanelManager.showItem(item.getReferencedItem());
 		} else {
 			var valueView = this._listComponent.getFocusedItem();
 			this._makeEditable(valueView);

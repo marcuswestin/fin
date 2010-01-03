@@ -50,7 +50,6 @@ exports = Singleton(function(){
 	this._matchGlobals = function(e) {
 		// jsio package bug: if this gets imported at top of file, 
 		// browser.keystrokeManager becomes null in ListComponent.
-		jsio('import browser.panelManager');
 
 		switch(e.keyCode.toString()) {
 			case events.keyCodes['a']:
@@ -63,11 +62,11 @@ exports = Singleton(function(){
 				break;
 			case events.keyCodes['d']:
 			case events.keyCodes['3']:
-				browser.panelManager.focus();
+				gPanelManager.focus();
 				break;
 			case events.keyCodes['escape']:
 				gFocusedPanel.close();
-				if (!browser.panelManager.hasPanels()) {
+				if (!gPanelManager.hasPanels()) {
 					gDrawer.focus();
 				}
 				break;

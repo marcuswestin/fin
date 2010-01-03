@@ -5,24 +5,29 @@ var logger = logging.getLogger(jsio.__path);
 
 exports = Class(RTJPProtocol, function(supr) {
 	
+	this._log = function() {
+		var args = Array.prototype.slice.call(arguments);
+		args.unshift(this.transport._socket._session.key);
+		logger.log.apply(this, args);
+	}
+	
 	this.connectionMade = function() {
-		logger.log('connectionMade');
+		this._log('connectionMade');
 		this._itemSubscriptionIds = {};
-		logger.log('Retrieve labels for user')
 		this.sendFrame('DEMAND_AUTHENTICATION');
 	}
 	
 	this.sendFrame = function(name, args) {
-		logger.log('sendFrame', name, JSON.stringify(args));
+		this._log('sendFrame', name, JSON.stringify(args));
 		supr(this, 'sendFrame', arguments);
 	}
 	
 	this.frameReceived = function(id, name, args) {
-		logger.log('frameReceived', id, name, JSON.stringify(args));
+		this._log('frameReceived', id, name, JSON.stringify(args));
 		
 		switch(name) {
 			case 'ITEM_SUBSCRIBE':
-				logger.log('subscribing to item', args.id);
+				this._log('subscribing to item', args.id);
 				this.server.getItem(args.id, bind(this, function(item){
 					var subId = this.server.subscribeToItemMutations(item, bind(this, 'onItemMutated'));
 					this._itemSubscriptionIds[args.id] = subId;
@@ -54,7 +59,6 @@ exports = Class(RTJPProtocol, function(supr) {
 						return;
 					}
 					this._authenticatedEmail = args.email;
-					logger.log('Received labels! Send welcome');
 					this.sendFrame('WELCOME');
 					this.sendFrame('LABELS', { labels: userLabels });
 				}));
@@ -70,10 +74,9 @@ exports = Class(RTJPProtocol, function(supr) {
 	}
 	
 	this.connectionLost = function() {
-		logger.info('connection lost - unsubscribe item mutation subscriptions');
+		logger._log('connection lost - unsubscribing from item mutation subscriptions');
 		for (var itemId in this._itemSubscriptionIds) {
 			this.server.unsubscribeFromItemMutations(itemId, this._itemSubscriptionIds[itemId]);
 		}
 	}
-
 })

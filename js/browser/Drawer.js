@@ -74,10 +74,14 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.layout = function() {
 		var size = dimensions.getSize(window);
 		var height = Math.max(minHeight, size.height - margin.top - margin.bottom);
-		var panelWidth = this._labelViewPanel ? 320 : 0;
+		var panelWidth = 0;
+		if (this._labelViewPanel) {
+			panelWidth = this._labelViewPanel.isMinimized() ? 30 : 320;
+		}
 		this._labelListPanel.layout({ height: height, width: width, top: margin.top, left: marginLeft });
 		if (this._labelViewPanel) {
-			this._labelViewPanel.layout({ width: panelWidth + 2, height: height, top: margin.top, left: width + marginLeft + 6 });
+			this._labelViewPanel.layout({ width: panelWidth + 2, height: height, 
+				top: margin.top, left: width + marginLeft + 6 });
 		}
 		return { width: width + panelWidth + marginLeft, height: height, top: margin.top };
 	}
@@ -99,6 +103,14 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._labelViewPanel.appendTo(this._element);
 		this._labelViewPanel.addClassName('labelViewPanel');
 		this._labelViewPanel.subscribe('ItemSelected', this._itemViewClickCallback);
+		this._labelViewPanel.close = bind(this, function(){
+			if (this._labelViewPanel.isMinimized()) {
+				this._labelViewPanel.maximize();
+			} else {
+				this._labelViewPanel.minimize();
+			}
+			this._labelViewPanel.focus();
+		});
 		
 		this.focusPanel();
 		browser.resizeManager.fireResize();

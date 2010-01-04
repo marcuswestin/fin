@@ -34,7 +34,7 @@
 	top: 3px;
 	width: 14px;
 	height: 14px;
-	background: transparent url(../../../img/export/close.png) repeat scroll 0 0;
+	background: transparent url(../../../img/close.png) repeat scroll 0 0;
 }
 
 .Panel .panelLabel .labelText {
@@ -53,3 +53,5 @@
 	-webkit-box-shadow: 7px 7px 11px #444
 }
 
+
+.Panel.minimized .content { display: none; }

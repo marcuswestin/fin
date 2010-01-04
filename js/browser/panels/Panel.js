@@ -1,10 +1,12 @@
 jsio('from common.javascript import Class, bind');
 jsio('import browser.UIComponent');
+jsio('import browser.keystrokeManager');
 jsio('import browser.itemFocus');
 jsio('import browser.css as css');
 jsio('import browser.dom as dom');
 jsio('import browser.dimensions as dimensions');
 jsio('import browser.events as events');
+
 
 css.loadStyles(jsio.__path);
 
@@ -42,10 +44,10 @@ exports = Class(browser.UIComponent, function(supr) {
 	}
 
 	this.layout = function(layout) {
-		layout.top = layout.top || this._layout.top;
-		layout.left = layout.left || this._layout.left;
-		layout.width = layout.width || this._layout.width;
-		layout.height = layout.height || this._layout.height;
+		layout.top = typeof layout.top == 'undefined' ? this._layout.top : layout.top;
+		layout.left = typeof layout.left == 'undefined' ? this._layout.left : layout.left;
+		layout.width = typeof layout.width == 'undefined' ? this._layout.width : layout.width;
+		layout.height = typeof layout.height == 'undefined' ? this._layout.height : layout.height;
 		this._layout = layout;
 		dom.setStyle(this._element, { left: layout.left, top: layout.top, 
 			width: layout.width, height: layout.height });
@@ -69,6 +71,16 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.focus = function() { 
 		this.addClassName('focused'); 
 		gFocusedPanel = this;
+		if (this.isMinimized()) {
+			var labelEl = this._labelEl;
+			var fakeView = { subscribe: function(){}, getElement: function(){ return labelEl; } }
+			browser.itemFocus.showAt(fakeView);
+			var onEnter = bind(this, function(){
+				this.maximize();
+				this.focus();
+			})
+			browser.keystrokeManager.handleKeys({ 'enter': onEnter });
+		}
 	}
 	this.blur = function() { this.removeClassName('focused'); }
 	this.hasFocus = function() { return this.hasClassName('focused'); }
@@ -76,5 +88,19 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.show = function() {
 		supr(this, 'show');
 		this.sizeLabel();
+	}
+	
+	this.isMinimized = function() { return this.hasClassName('minimized'); }
+	this.maximize = function() { 
+		if (!this.isMinimized()) { return; }
+		this.removeClassName('minimized'); 
+		this.layout(this._maximizedLayout);
+	}
+	
+	this.minimize = function() { 
+		if (this.isMinimized()) { return; }
+		this.addClassName('minimized');
+		this._maximizedLayout = this._layout;
+		this.layout({ width: 0 });
 	}
 })

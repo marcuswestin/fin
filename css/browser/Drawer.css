@@ -55,3 +55,10 @@
 	-moz-box-shadow: 7px 7px 11px #444;
 	-webkit-box-shadow: 7px 7px 11px #444
 }
+
+.Drawer .labelViewPanel .panelLabel .closeButton {
+	background: transparent url(../../img/minimize.png)  repeat scroll 0 0;
+}
+.Drawer .labelViewPanel.minimized .panelLabel .closeButton {
+	background: transparent url(../../img/maximize.png) repeat scroll 0 0;
+}

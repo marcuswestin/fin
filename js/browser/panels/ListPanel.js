@@ -36,6 +36,7 @@ exports = Class(browser.panels.Panel, function(supr) {
 	
 	this.focus = function() {
 		supr(this, 'focus');
+		if (this.isMinimized()) { return; }
 		this._listComponent.focus();
 	}
 	

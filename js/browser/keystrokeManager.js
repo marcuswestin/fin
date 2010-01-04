@@ -5,8 +5,9 @@ jsio('import browser.events as events');
 exports = Singleton(function(){
 	
 	this.init = function() {
-		events.add(window, 'keypress', bind(this, '_onKeyPress'));
 		events.add(window, 'keydown', bind(this, '_onKeyDown'));
+		events.add(window, 'keyup', bind(this, '_onKeyUp'));
+		events.add(window, 'keypress', bind(this, '_onKeyPress'));
 	}
 	
 	this.requestFocus = function(handler, muteGlobals) {
@@ -38,9 +39,16 @@ exports = Singleton(function(){
 		}
 	}
 
+	this.shiftIsDown = function() { return this._shiftIsDown; }
+	
 	this._onKeyDown = function(e) {
+		if (e.keyCode == events.keyCodes['shift']) { this._shiftIsDown = true; }
 		if (this._muteGlobals) { return; }
 		this._matchGlobals(e);
+	}
+	
+	this._onKeyUp = function(e) {
+		if (e.keyCode == events.keyCodes['shift']) { this._shiftIsDown = false; }
 	}
 	
 	this._onKeyPress = function(e) {

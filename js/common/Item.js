@@ -29,8 +29,6 @@ exports = Class(Publisher, function(supr) {
 		}
 	}
 	
-	// This is being used by browser.editable - if editable can't figure out how to do without it,
-	// this function should probably go into a util space.
 	this._applyMutationToValue = function(mutation, value) {
 		if (mutation.deletion) {
 			var startDelete = mutation.position;

@@ -65,7 +65,7 @@ exports = Singleton(function(){
 		var selectionLength = position.end - position.start;
 		var mutation = { position: position.caret - selectionLength };
 		
-		if (e.keyCode == events.keyCodes || (e.keyCode == events.keyCodes['enter'] && !e.metaKey)) {
+		if (e.keyCode == events.keyCodes['enter'] && !browser.keystrokeManager.shiftIsDown()) {
 			this._input.blur();
 			events.cancel(e);
 			return;
@@ -76,20 +76,11 @@ exports = Singleton(function(){
 				mutation.position -= 1;
 				mutation.deletion = 1;
 			}
-		} else if (e.keyCode == events.keyCodes['enter'] && e.metaKey) {
+		} else if (e.keyCode == events.keyCodes['enter']) {
 			mutation.addition = "\n";
 			if (selectionLength) {
 				mutation.deletion = selectionLength;
 			}
-			
-			void(bind(this, function(){
-				// with the metaKey down, the return does not make it into the input field
-				// This is a ugly-ass way to do it, and would be much nicer by detecting if shift is
-				// pressed down with the enter and use that instead of the metaKey to insert a newline 
-				jsio('import common.Item');
-				this._input.value = common.Item.prototype._applyMutationToValue(mutation, this._input.value);
-			}))();
-			
 		} else if (e.charCode) {
 			mutation.addition = String.fromCharCode(e.charCode);
 			if (selectionLength) {

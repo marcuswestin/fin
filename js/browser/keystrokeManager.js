@@ -59,7 +59,6 @@ exports = Singleton(function(){
 	var globalKeyMap;
 	this._initGlobalKeyMap = function() {
 		globalKeyMap = {};
-		globalKeyMap['tab'] = bind(this, function(){ window.top.console.debug('tab', this._shiftIsDown); });
 		globalKeyMap['escape'] = bind(this, function(){
 			gFocusedPanel.close();
 			if (!gPanelManager.hasPanels()) { gDrawer.focus(); }
@@ -69,13 +68,20 @@ exports = Singleton(function(){
 		globalKeyMap['d'] = bind(gPanelManager, 'focus');
 		globalKeyMap['n'] = bind(gPanelManager, 'focusPreviousPanel');
 		globalKeyMap['m'] = bind(gPanelManager, 'focusNextPanel');
+		globalKeyMap['tab'] = bind(this, function() {
+			if (this._shiftIsDown) {
+				gPanelManager.focusPreviousPanel();
+			} else {
+				gPanelManager.focusNextPanel();
+			}
+		})
 		
 		for (var i=1; i<=9; i++) {
 			globalKeyMap[i.toString()] = bind(gPanelManager, 'focusPanelIndex', i - 1);
 		}
 		globalKeyMap['0'] = bind(gPanelManager, 'focusLastPanel');
 	}
-
+	
 	this._matchGlobals = function(e) {
 		if (!globalKeyMap) { this._initGlobalKeyMap(); }
 		var keyName = events.keyCodes[e.keyCode];

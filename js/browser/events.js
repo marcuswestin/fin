@@ -147,6 +147,7 @@ if (typeof exports != 'undefined') { exports = events };
 	// allow reverse lookup
 	for (var key in events.keyCodes) {
 		var value = events.keyCodes[key];
+		if (events.keyCodes[value]) { continue; } // the numbers clobber tab and backspace... really annoying! Hugly hack around for now
 		events.keyCodes[value] = key;
 	}
 	

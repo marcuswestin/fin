@@ -44,8 +44,8 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.layout = function(layout) {
 		layout.top = layout.top || this._layout.top;
 		layout.left = layout.left || this._layout.left;
-		layout.right = layout.right || this._layout.right;
-		layout.bottom = layout.bottom || this._layout.bottom;
+		layout.width = layout.width || this._layout.width;
+		layout.height = layout.height || this._layout.height;
 		this._layout = layout;
 		dom.setStyle(this._element, { left: layout.left, top: layout.top, 
 			width: layout.width, height: layout.height });

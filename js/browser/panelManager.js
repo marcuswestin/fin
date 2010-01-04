@@ -23,48 +23,78 @@ exports = Singleton(browser.UIComponent, function(supr) {
 	this.createContent = function() {
 		this.addClassName('PanelManager');
 		this._offset = 0;
-		this._panels = {};
-		this._panelOrder = [];
-		this._minPanelWidth = 300;
-		this._panelAnimationDuration = 850;
+		this._panelsByItem = {};
+		this._panelsByIndex = [];
+		this._panelWidth = 300;
+		this._panelMargin = 30;
+		this._panelAnimationDuration = 650;
 		this._panelAnimation = new browser.Animation(bind(this, '_animatePanels'), 
 			this._panelAnimationDuration);
+		this.__defineSetter__('_focusIndex', function(newFocusIndex){
+			if (typeof newFocusIndex != 'number') { debugger; }
+			this.__focusIndex = newFocusIndex;
+		})
+		
+		this.__defineGetter__('_focusIndex', function(newFocusIndex){
+			return this.__focusIndex;
+		})
 	}
 	
 	this.setOffset = function(offset) { this._offset = offset; }
 	
 	this.showItem = function(item) {
-		var panel = this._addPanel(item);
-		this.focusPanel(panel);
+		// debugger;
+		if (this._panelsByItem[item]) {
+			this.focusPanel(this._panelsByItem[item]);
+		} else {
+			this._blurFocusedPanel();
+			this._focusIndex = this._addPanel(item);
+			this.focusPanel(this._panelsByIndex[this._focusIndex]);
+		}
 	}
 	
 	this.focus = function() {
-		this.focusPanel(this._focusedPanel);
+		this.focusPanel(this._panelsByIndex[this._focusIndex]);
 	}
 	
 	this.focusPanel = function(panel) {
-		if (!this._panels || !(panel in this._panels)) { return; }
-		
-		if (this._focusedPanel) { this._focusedPanel.blur(); }
-		this._focusedPanel = panel;
-		this._focusedPanel.focus();
-		
-		var movedPanel = this._extractPanelFromOrder(panel);
-		this._panelOrder.unshift(movedPanel);
-		
+		if (!panel) { return; }
+		this._blurFocusedPanel();
+		this._focusIndex = this._getPanelIndex(panel);
+		panel.focus();
 		this._positionPanels();
 		this._publish('PanelFocused', panel);
 	}
 	
-	this.hasPanels = function() { return !!this._panelOrder.length; }
+	this._blurFocusedPanel = function() {
+		if (!this._panelsByIndex[this._focusIndex]) { return; }
+		this._panelsByIndex[this._focusIndex].blur();
+		delete this._focusIndex;
+	}
+	
+	this.focusNextPanel = function() {
+		var nextIndex = this._focusIndex + 1
+		if (nextIndex == this._panelsByIndex.length) { nextIndex = 0; }
+		this.focusPanel(this._panelsByIndex[nextIndex]);
+	}
+	
+	this.focusPreviousPanel = function() {
+		var previousIndex = this._focusIndex - 1;
+		if (previousIndex < 0) { previousIndex = this._panelsByIndex.length - 1 }
+		this.focusPanel(this._panelsByIndex[previousIndex]);
+	}
+	
+	this.hasPanels = function() { return !!this._panelsByIndex.length; }
 	
 	this.removePanel = function(panel) {
-		if (!this._panels || !(panel in this._panels)) { return; }
-
-		var panelId = this._extractPanelFromOrder(panel);
-		delete this._panels[panelId];
-		this._element.removeChild(panel.getElement());
-		if (panel == this._focusedPanel) { this.focusPanel(this._panels[this._panelOrder[0]]); }
+		var panelIndex = this._getPanelIndex(panel);
+		this._panelsByIndex.splice(panelIndex, 1);
+		delete this._panelsByItem[panel.getItem()];
+		dom.remove(panel.getElement());
+		if (panelIndex == this._focusIndex) { 
+			// panelIndex will now refer to panel on the right of removed panel
+			this.focusPanel(this._panelsByIndex[panelIndex]);
+		}
 		this._positionPanels();
 	}
 	
@@ -73,54 +103,76 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._positionPanels();
 	}
 
-	this._extractPanelFromOrder = function(panel) {
-		for (var i=0; i < this._panelOrder.length; i++) {
-			if (panel != this._panels[this._panelOrder[i]]) { continue; }
-			return this._panelOrder.splice(i, 1)[0];
+	this._getPanelIndex = function(panel) {
+		for (var i=0; i < this._panelsByIndex.length; i++) {
+			if (panel != this._panelsByIndex[i]) { continue; }
+			return i;
 		}
 	}
 	
 	this._addPanel = function(item) {
-		if (this._panels[item]) { return this._panels[item]; }
-		this._panels[item] = new browser.panels.ItemPanel(this, item);
-		this._panelOrder.push(item);
-		return this._panels[item];
+		if (this._panelsByItem[item]) { return this._panelsByItem[item]; }
+		
+		var panel = new browser.panels.ItemPanel(this, item);
+		panel.isNew = true;
+		var middleIndex = Math.floor(this._panelsByIndex.length / 2);
+		this._panelsByIndex.splice(middleIndex, 0, panel);
+		this._panelsByItem[item] = panel;
+		panel.hide();
+		setTimeout(bind(panel, 'show'), this._panelAnimationDuration);
+		
+		return middleIndex;
 	}
 	
 	this._positionPanels = function() {
+		if (!this._panelsByIndex.length) { return; }
 		var managerSize = dimensions.getDimensions(this._element);
-		var panelWidth = this._minPanelWidth;
-		var numPanels = this._panelOrder.length;
-		var margin = 30;
-		var offset = this._offset;
-		var stackedPanelWidth = 23;
-		var stackPanels = false;
-		var panelLabelWidth = stackedPanelWidth + 4;
-		for (var i=0, panel; panel = this._panels[this._panelOrder[i]]; i++) {
-			panel.prependTo(this._element);
-			
-			panel.layout({ width: panelWidth, height: managerSize.height });
-			var remainingPanels = numPanels - i - 1;
-			
-			if (offset + panelWidth + panelLabelWidth + (remainingPanels * stackedPanelWidth) > managerSize.width) {
-				stackPanels = true;
-			}
-			if (stackPanels) {
-				var fromRight = remainingPanels * stackedPanelWidth;
-				panel._targetOffset = managerSize.width - panelWidth - panelLabelWidth - fromRight;
-			} else {
-				panel._targetOffset = offset;
-				offset += panelWidth + margin;
-			}
-			panel._currentOffset = panel.getDimensions().left - managerSize.left || 0;
-		}
+
+		// debugger;
+		var centerPanel = this._panelsByIndex[this._focusIndex];
+		var centerPanelOffset = Math.max(this._offset, managerSize.width / 2 - this._panelWidth / 2);
+		this._layoutPanel(centerPanel, centerPanelOffset, managerSize, centerPanel.isNew);
+		delete centerPanel.isNew;
+		
+		this._layoutPanels(1, centerPanelOffset + this._panelWidth + this._panelMargin, managerSize);
+		this._layoutPanels(-1, centerPanelOffset - this._panelWidth - this._panelMargin, managerSize);
+		
 		this._panelAnimation.animate();
 	}
 	
+	this._layoutPanels = function(direction, offset, managerSize) {
+		// var stackedPanelWidth = 23;
+		// var panelLabelWidth = stackedPanelWidth + 4;
+		// var remainingWidth = 
+		// var stackPanels = false;
+		var startIndex = this._focusIndex + direction;
+		for (var i = startIndex, panel; panel = this._panelsByIndex[i]; i += direction) {
+			this._layoutPanel(panel, offset, managerSize);
+			offset += (this._panelWidth + this._panelMargin) * direction;
+
+			// var remainingPanels = numPanels - i - 1;
+			// if (offset + panelWidth + panelLabelWidth + (remainingPanels * stackedPanelWidth) > managerSize.width) {
+				// stackPanels = true;
+			// }
+			// if (stackPanels) {
+				// var fromRight = remainingPanels * stackedPanelWidth;
+				// panel.targetOffset = managerSize.width - panelWidth - panelLabelWidth - fromRight;
+			// } else {
+			// }
+		}
+	}
+	
+	this._layoutPanel = function(panel, targetOffset, managerSize, snapToPosition) {
+		panel.prependTo(this._element);
+		panel.currentOffset = snapToPosition ? targetOffset : panel.getDimensions().left - managerSize.left;
+		panel.targetOffset = targetOffset;
+		panel.layout({ width: this._panelWidth, height: managerSize.height });
+	}
+	
 	this._animatePanels = function(n) {
-		for (var i=0, panel; panel = this._panels[this._panelOrder[i]]; i++) {
-			var diff = panel._targetOffset - panel._currentOffset;
-			panel.layout({ left: panel._currentOffset + (diff * n) });
+		for (var i=0, panel; panel = this._panelsByIndex[i]; i++) {
+			var diff = panel.targetOffset - panel.currentOffset;
+			panel.layout({ left: panel.currentOffset + (diff * n) });
 		}
 	}
 })

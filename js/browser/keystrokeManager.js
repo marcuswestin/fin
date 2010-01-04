@@ -65,6 +65,12 @@ exports = Singleton(function(){
 			case events.keyCodes['3']:
 				gPanelManager.focus();
 				break;
+			case events.keyCodes['m']:
+				gPanelManager.focusNextPanel();
+				break;
+			case events.keyCodes['n']:
+				gPanelManager.focusPreviousPanel();
+				break;
 			case events.keyCodes['escape']:
 				gFocusedPanel.close();
 				if (!gPanelManager.hasPanels()) {

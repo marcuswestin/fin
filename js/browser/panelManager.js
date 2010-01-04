@@ -72,6 +72,13 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		delete this._focusIndex;
 	}
 	
+	this.focusPanelIndex = function(index) {
+		if (!this._panelsByIndex[index]) { return; }
+		this.focusPanel(this._panelsByIndex[index]);
+	}
+	
+	this.focusLastPanel = function() { this.focusPanelIndex(this._panelsByIndex.length - 1); }
+	
 	this.focusNextPanel = function() {
 		var nextIndex = this._focusIndex + 1
 		if (nextIndex == this._panelsByIndex.length) { nextIndex = 0; }

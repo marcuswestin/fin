@@ -55,39 +55,33 @@ exports = Singleton(function(){
 		if (!this._keystrokeHandler) { return; }
 		this._keystrokeHandler(e);
 	}
+	
+	var globalKeyMap;
+	this._initGlobalKeyMap = function() {
+		globalKeyMap = {};
+		globalKeyMap['tab'] = bind(this, function(){ window.top.console.debug('tab', this._shiftIsDown); });
+		globalKeyMap['escape'] = bind(this, function(){
+			gFocusedPanel.close();
+			if (!gPanelManager.hasPanels()) { gDrawer.focus(); }
+		});
+		globalKeyMap['a'] = bind(gDrawer, 'focusLeftmost');
+		globalKeyMap['s'] = bind(gDrawer, 'focus');
+		globalKeyMap['d'] = bind(gPanelManager, 'focus');
+		globalKeyMap['n'] = bind(gPanelManager, 'focusPreviousPanel');
+		globalKeyMap['m'] = bind(gPanelManager, 'focusNextPanel');
+		
+		for (var i=1; i<=9; i++) {
+			globalKeyMap[i.toString()] = bind(gPanelManager, 'focusPanelIndex', i - 1);
+		}
+		globalKeyMap['0'] = bind(gPanelManager, 'focusLastPanel');
+	}
 
 	this._matchGlobals = function(e) {
-		// jsio package bug: if this gets imported at top of file, 
-		// browser.keystrokeManager becomes null in ListComponent.
-
-		switch(e.keyCode.toString()) {
-			case events.keyCodes['a']:
-			case events.keyCodes['1']:
-				gDrawer.focusLeftmost();
-				break;
-			case events.keyCodes['s']:
-			case events.keyCodes['2']:
-				gDrawer.focus();
-				break;
-			case events.keyCodes['d']:
-			case events.keyCodes['3']:
-				gPanelManager.focus();
-				break;
-			case events.keyCodes['m']:
-				gPanelManager.focusNextPanel();
-				break;
-			case events.keyCodes['n']:
-				gPanelManager.focusPreviousPanel();
-				break;
-			case events.keyCodes['escape']:
-				gFocusedPanel.close();
-				if (!gPanelManager.hasPanels()) {
-					gDrawer.focus();
-				}
-				break;
-			default:
-				return false; // did not handle the event
-		}
+		if (!globalKeyMap) { this._initGlobalKeyMap(); }
+		var keyName = events.keyCodes[e.keyCode];
+		if (!globalKeyMap[keyName]) { return; }
+		
+		globalKeyMap[keyName]();
 		events.cancel(e);
 		return true;
 	}

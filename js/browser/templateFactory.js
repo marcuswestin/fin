@@ -20,11 +20,19 @@ exports = Singleton(function() {
 			this._templateCallbacks[itemType].push({ callback: callback, viewType: viewType });
 		} else {
 			this._templateCallbacks[itemType] = [{ callback: callback, viewType: viewType }];
+			css.loadStyles(itemType, 'templates');
 			browser.xhr.get(this._getPath(itemType), bind(this, '_onTemplateFetched', itemType));
 		}
 	}
 	
 	this._onTemplateFetched = function(itemType, fml) {
+		// until we figure out how to user getElementById instead of getElementsByClassName 
+		// in the document fragments, replace id= with class=
+		
+		fml = fml.replace(/id=".*-template"/g, function(match, index){
+			return "class=" + match.substr(3);
+		})
+		
 		this._fmlTemplates[itemType] = fml;
 		for (var i=0, pending; pending = this._templateCallbacks[itemType][i]; i++) {
 			var template = this._getCompiledTemplate(itemType, pending.viewType);

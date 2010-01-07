@@ -19,15 +19,16 @@ exports.hasClassName = function(element, className) {
 	return !!element.className.match(' ' + className + ' ');
 }
 
-var base = 'css/';
+var cssBase = 'css';
 var loadedStyles = {};
-exports.loadStyles = function(path) {
+exports.loadStyles = function(path, base) {
+	base = base || cssBase;
 	path = path.split('.').join('/');
 	if (loadedStyles[path]) { return; }
 	loadedStyles[path] = true;
 	var link = document.createElement('link');
 	link.rel = 'stylesheet';
 	link.type = 'text/css';
-	link.href = base + path + '.css';
+	link.href = base + '/' + path + '.css';
 	document.getElementsByTagName('head')[0].appendChild(link);
 }

@@ -1,22 +1,22 @@
-<div class="line-template">
-	<div style="float: left; width: 45px; height: 45px; background-color: #ddd; margin-right: 10px"></div>
+<div id="list-template">
+	<div class="picture"></div>
 	<div>{{name}}</div>
-	<div style="color: #555; font-size: .9em;">{{email}}</div>
-	<div style="clear: both"></div>
+	<div class="email">{{email}}</div>
+	<div class="clear"></div>
 </div>
 
-<div class="panel-template">
-	<div style="width: 100px; height: 100px; background: #ddd; margin: 10px; float: left"></div>
-	<div style="padding-top: 10px">{{name}}</div>
-	<div style="color: #555; font-size: .9em;">{{email}}</div>
-	<div style="clear:both;"></div>
-	<div style="padding: 5px 20px; font-size: .9em;">{{profile}}</div>
+<div id="panel-template">
+	<div class="picture"></div>
+	<div class="name">{{name}}</div>
+	<div class="email">{{email}}</div>
+	<div class="clear"></div>
+	<div class="profile">{{profile}}</div>
 </div>
 
-<div class="reference-template">
-	<div style="float: left; width: 45px; height: 45px; background-color: #ddd; margin-right: 10px"></div>
-	<div>{{name}}</div>
-	<div style="color: #555; font-size: .9em;">{{email}}</div>
-	<div style="clear: both;"></div>
+<div id="reference-template">
+	<div class="image"></div>
+	<div class="name">{{name}}</div>
+	<div class="email">{{email}}</div>
+	<div class="clear"></div>
 </div>
 

@@ -118,7 +118,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	
 	this._onLabelItemsReceived = function(label, items) {
 		for (var i=0, item; item = items[i]; i++) { 
-			var itemView = new browser.ItemView(item, item.getType(), 'line');
+			var itemView = new browser.ItemView(item, item.getType(), 'list');
 			this._labelViewPanel.addItem(itemView);
 		}
 	}

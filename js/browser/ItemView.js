@@ -25,7 +25,7 @@ exports = Class(browser.UIComponent, function(supr) {
 	}
 	
 	this.createContent = function() {
-		this.addClassName('itemView itemViewType-' + this._itemType + ' itemView-' + this._viewType);
+		this.addClassName('itemView ' + this._itemType + '-item ' + this._viewType + '-view');
 		
 		browser.templateFactory.getTemplateHTML(this._itemType, this._viewType, bind(this, '_onTemplateHtml'));
 	}

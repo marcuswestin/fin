@@ -1,15 +1,15 @@
-<div class="line-template">
+<div id="list-template">
 	<span class="title">{{title}}</span>
 </div>
-<div class="panel-template">
-	<div style="font-size: 1.2em;">Title:</div>
-	<div style="margin: 5px 5px 10px 10px;">{{title}}</div>
-	<div style="font-size: 1.2em;">User:</div>
-	<div style="margin: 5px 5px 10px 10px;">{{user:user}}</div>
-	<div style="font-size: 1.2em;">Milestone:</div>
-	<div style="margin: 5px 5px 10px 10px;">{{milestone:milestone}}</div>
-	<div style="font-size: 1.2em;">Priority:</div>
-	<div style="margin: 5px 5px 10px 10px;">{{priority}}</div>
-	<div style="font-size: 1.2em;">Description:</div> 
-	<div style="margin: 5px 5px 10px 10px;">{{description}}</div>
+<div id="panel-template">
+	<div class="title-header">Title:</div>
+	<div class="title">{{title}}</div>
+	<div class="user-header">User:</div>
+	<div class="user">{{user:user}}</div>
+	<div class="milestone-header">Milestone:</div>
+	<div class="milestone">{{milestone:milestone}}</div>
+	<div class="priority-header">Priority:</div>
+	<div class="priority">{{priority}}</div>
+	<div class="description-header">Description:</div> 
+	<div class="description">{{description}}</div>
 </div>

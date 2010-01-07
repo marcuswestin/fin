@@ -1,0 +1,15 @@
+<div class="line-template">
+	<div style="font-size: 1.2em;">{{title}}</div>
+	<div style="font-weight: bold;">{{status}}</div>
+</div>
+
+<div class="panel-template">
+	<div style="font-size: 1.2em; margin: 10px;">{{title}}</div>
+	<div style="margin: 5px;">Status: <span style="font-weight: bold;">{{status}}</span></div>
+	<div style="margin: 10px 5px 0;">Description: <span style="font-style: italic;">{{description}}</span></div>
+</div>
+
+<div class="reference-template">
+ 	<div style="margin: 5px 5px 0 10px;">{{name}}</div>
+	<div style="color: #555; font-size: .9em; margin: 5px 5px 10px 10px;">{{date}}</div>
+</div>

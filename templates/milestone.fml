@@ -1,0 +1,16 @@
+<div class="line-template">
+	<div>{{name}}</div>
+	<div style="color: #555; font-size: .9em;">{{date}}</div>
+</div>
+
+<div class="panel-template">
+	<div style="font-size: 1.2em;">Milestone name:</div>
+ 	<div style="margin: 5px 5px 10px 10px;">{{name}}</div>
+	<div style="font-size: 1.2em;">Date:</div> 
+	<div style="color: #555; font-size: .9em; margin: 5px 5px 10px 10px;">{{date}}</div>
+</div>
+
+<div class="reference-template">
+ 	<div style="margin: 5px 5px 0 10px;">{{name}}</div>
+	<div style="color: #555; font-size: .9em; margin: 5px 5px 10px 10px;">{{date}}</div>
+</div>

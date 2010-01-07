@@ -27,9 +27,11 @@ exports = Class(browser.UIComponent, function(supr) {
 	this.createContent = function() {
 		this.addClassName('itemView itemViewType-' + this._itemType + ' itemView-' + this._viewType);
 		
-		var templateId = browser.templateFactory.getTemplateId(this._itemType, this._viewType);
-		var templateHTML = browser.templateFactory.getTemplateHTML(templateId);
-		var templateProperties = browser.templateFactory.getPropertyMatches(templateId); 
+		browser.templateFactory.getTemplateHTML(this._itemType, this._viewType, bind(this, '_onTemplateHtml'));
+	}
+	
+	this._onTemplateHtml = function(templateHTML) {
+		var templateProperties = browser.templateFactory.getPropertyMatches(this._itemType, this._viewType); 
 
 		this._element.innerHTML = templateHTML;
 		for (var i=0, property; property = templateProperties[i]; i++) {

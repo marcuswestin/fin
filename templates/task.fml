@@ -5,6 +5,8 @@
 
 <div id="panel-template">
 	<div class="title">{{title}}</div>
-	<div class="status-container">Status: <span class="status">{{status}}</span></div>
-	<div class="description-container">Description: <span class="description">{{description}}</span></div>
+	<div class="header">Status</div>
+	<div class="status">{{status}}</div>
+	<div class="header">Description</div>
+	<div class="description">{{description}}</div>
 </div>

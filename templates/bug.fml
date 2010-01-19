@@ -2,14 +2,14 @@
 	<span class="title">{{title}}</span>
 </div>
 <div id="panel-template">
-	<div class="title-header">Title:</div>
-	<div class="title">{{title}}</div>
-	<div class="user-header">User:</div>
-	<div class="user">{{user:user}}</div>
-	<div class="milestone-header">Milestone:</div>
-	<div class="milestone">{{milestone:milestone}}</div>
-	<div class="priority-header">Priority:</div>
-	<div class="priority">{{priority}}</div>
-	<div class="description-header">Description:</div> 
-	<div class="description">{{description}}</div>
+	<div class="header">Title</div>
+	<div class="value title">{{title}}</div>
+	<div class="header">Assigned to</div>
+	<div class="value user">{{user:user}}</div>
+	<div class="header">Milestone</div>
+	<div class="value milestone">{{milestone:milestone}}</div>
+	<div class="header">Priority</div>
+	<div class="value priority">{{priority}}</div>
+	<div class="header">Description</div> 
+	<div class="value description">{{description}}</div>
 </div>

@@ -1,0 +1,45 @@
+.fml-user-item .email {
+	color: #666;
+}
+
+.fml-user-item .picture {
+	background-color: #ddd;
+}
+
+/* Reference */
+.fml-user-item.reference-view .picture {
+	width: 30px;
+	height: 30px;
+	float: left;
+	margin-right: 5px;
+}
+
+.fml-user-item.reference-view .name-and-email {
+	float: left;
+}
+
+/* Panel */
+.fml-user-item.panel-view .picture {
+	width: 70px;
+	height: 70px;
+	float: left;
+	margin: 0 10px 10px 0;
+}
+
+.fml-user-item.panel-view .name-and-email {
+	float: left;
+}
+
+.fml-user-item.panel-view .name {
+	font-size: 1.1em;
+}
+
+.fml-user-item.panel-view .profile {
+	clear: both;
+	margin-left: 5px;
+}
+
+.fml-user-item.panel-view .profile .header {
+	font-weight: bold;
+	margin-bottom: 5px;
+}

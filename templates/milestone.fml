@@ -4,9 +4,8 @@
 </div>
 
 <div id="panel-template">
-	<div class="name-header">Milestone name:</div>
- 	<div class="name">{{name}}</div>
-	<div class="date-header">Date:</div> 
+	<div class="name">Milestone: {{name}}</div>
+	<div class="header">Target date</div> 
 	<div class="date">{{date}}</div>
 </div>
 

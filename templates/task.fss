@@ -1,0 +1,15 @@
+.fml-task-item .status {
+	color: #666;
+}
+
+/* Panel */
+
+.fml-task-item.panel-view .title {
+	font-size: 1.5em;
+}
+
+.fml-task-item.panel-view .header {
+	font-weight: bold;
+	clear: both;
+	margin: 17px 0 2px;
+}

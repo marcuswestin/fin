@@ -1,0 +1,14 @@
+.fml-milestone-item .date {
+	color: #666;
+}
+
+.fml-milestone-item.panel-view .name {
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+.fml-milestone-item.panel-view .header {
+	font-weight: bold;
+	clear: both;
+	margin: 12px 0 2px 0;
+}

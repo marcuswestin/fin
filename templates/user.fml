@@ -1,22 +1,28 @@
 <div id="list-template">
 	<div class="picture"></div>
-	<div>{{name}}</div>
+	<div class="name">{{name}}</div>
 	<div class="email">{{email}}</div>
 	<div class="clear"></div>
 </div>
 
 <div id="panel-template">
 	<div class="picture"></div>
-	<div class="name">{{name}}</div>
-	<div class="email">{{email}}</div>
-	<div class="clear"></div>
-	<div class="profile">{{profile}}</div>
+	<div class="name-and-email">
+		<div class="name">{{name}}</div>
+		<div class="email">{{email}}</div>
+	</div>
+	<div class="profile">
+		<div class="header">Who am I?</div>
+		{{profile}}
+	</div>
 </div>
 
 <div id="reference-template">
-	<div class="image"></div>
-	<div class="name">{{name}}</div>
-	<div class="email">{{email}}</div>
+	<div class="picture"></div>
+	<div class="name-and-email">
+		<div class="name">{{name}}</div>
+		<div class="email">{{email}}</div>
+	</div>
 	<div class="clear"></div>
 </div>
 

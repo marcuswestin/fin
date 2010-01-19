@@ -1,0 +1,14 @@
+/* Panel */
+.fml-bug-item.panel-view {
+	margin-top: -12px;
+}
+
+.fml-bug-item.panel-view .header {
+	font-weight: bold;
+	clear: both;
+	margin: 12px 0 8px 0;
+}
+
+.fml-bug-item.panel-view .value {
+	margin-left: 10px;
+}

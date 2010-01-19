@@ -1,3 +1,11 @@
-.ItemPanel .itemView-reference {
+.ItemPanel .content {
+	overflow-y: auto;
+}
+
+.ItemPanel .content > .itemView {
+	padding: 5px;
+}
+
+.ItemPanel .content .reference-view {
 	cursor: pointer;
 }

@@ -114,16 +114,13 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		
 		var panel = new browser.panels.ItemPanel(this, item);
 		panel.isNew = true;
-		var middleIndex = Math.floor(this._panelsByIndex.length / 2);
 		var delayShow = this.hasPanels();
-		this._panelsByIndex.splice(middleIndex, 0, panel);
+		this._panelsByIndex.splice(this._focusIndex, 0, panel);
 		this._panelsByItem[item] = panel;
 		if (delayShow) {
 			panel.hide();
 			setTimeout(bind(panel, 'show'), this._panelAnimationDuration);
 		}
-		
-		return middleIndex;
 	}
 	
 	this._positionPanels = function() {

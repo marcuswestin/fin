@@ -21,7 +21,7 @@ exports.hasClassName = function(element, className) {
 
 var cssBase = 'css';
 var loadedStyles = {};
-exports.loadStyles = function(path, base) {
+exports.loadStyles = function(path, base, extension) {
 	base = base || cssBase;
 	path = path.split('.').join('/');
 	if (loadedStyles[path]) { return; }
@@ -29,6 +29,6 @@ exports.loadStyles = function(path, base) {
 	var link = document.createElement('link');
 	link.rel = 'stylesheet';
 	link.type = 'text/css';
-	link.href = base + '/' + path + '.css';
+	link.href = base + '/' + path + '.' + (extension || 'css');
 	document.getElementsByTagName('head')[0].appendChild(link);
 }

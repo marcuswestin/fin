@@ -20,7 +20,7 @@ exports = Singleton(function() {
 			this._templateCallbacks[itemType].push({ callback: callback, viewType: viewType });
 		} else {
 			this._templateCallbacks[itemType] = [{ callback: callback, viewType: viewType }];
-			css.loadStyles(itemType, 'templates');
+			css.loadStyles(itemType, 'templates', 'fss');
 			browser.xhr.get(this._getPath(itemType), bind(this, '_onTemplateFetched', itemType));
 		}
 	}

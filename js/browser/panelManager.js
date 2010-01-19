@@ -22,6 +22,7 @@ exports = Singleton(browser.UIComponent, function(supr) {
 	
 	this.createContent = function() {
 		this.addClassName('PanelManager');
+		this._focusIndex = 0;
 		this._offset = 0;
 		this._panelsByItem = {};
 		this._panelsByIndex = [];
@@ -30,25 +31,16 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._panelAnimationDuration = 650;
 		this._panelAnimation = new browser.Animation(bind(this, '_animatePanels'), 
 			this._panelAnimationDuration);
-		this.__defineSetter__('_focusIndex', function(newFocusIndex){
-			if (typeof newFocusIndex != 'number') { debugger; }
-			this.__focusIndex = newFocusIndex;
-		})
-		
-		this.__defineGetter__('_focusIndex', function(newFocusIndex){
-			return this.__focusIndex;
-		})
 	}
 	
 	this.setOffset = function(offset) { this._offset = offset; }
 	
 	this.showItem = function(item) {
-		// debugger;
 		if (this._panelsByItem[item]) {
 			this.focusPanel(this._panelsByItem[item]);
 		} else {
 			this._blurFocusedPanel();
-			this._focusIndex = this._addPanel(item);
+			this._addPanel(item);
 			this.focusPanel(this._panelsByIndex[this._focusIndex]);
 		}
 	}
@@ -69,7 +61,6 @@ exports = Singleton(browser.UIComponent, function(supr) {
 	this._blurFocusedPanel = function() {
 		if (!this._panelsByIndex[this._focusIndex]) { return; }
 		this._panelsByIndex[this._focusIndex].blur();
-		delete this._focusIndex;
 	}
 	
 	this.focusPanelIndex = function(index) {
@@ -100,7 +91,7 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		dom.remove(panel.getElement());
 		if (panelIndex == this._focusIndex) { 
 			// panelIndex will now refer to panel on the right of removed panel
-			if (panelIndex > this._panelsByIndex.length) { panelIndex -= 1; }
+			if (panelIndex >= this._panelsByIndex.length) { panelIndex -= 1; }
 			this.focusPanel(this._panelsByIndex[panelIndex]);
 		}
 		this._positionPanels();

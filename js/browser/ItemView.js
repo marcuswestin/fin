@@ -41,6 +41,7 @@ exports = Class(browser.UIComponent, function(supr) {
 				this._createView(property, placeholder);
 			}
 		}
+		this._publish('Resize');
 	}
 	
 	this.getItem = function() { return this._item; }

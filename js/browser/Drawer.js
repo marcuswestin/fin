@@ -75,13 +75,16 @@ exports = Class(browser.UIComponent, function(supr) {
 		var size = dimensions.getSize(window);
 		var height = Math.max(minHeight, size.height - margin.top - margin.bottom);
 		var panelWidth = 0;
-		if (this._labelViewPanel) {
-			panelWidth = this._labelViewPanel.isMinimized() ? 30 : 320;
-		}
 		this._labelListPanel.layout({ height: height, width: width, top: margin.top, left: marginLeft });
 		if (this._labelViewPanel) {
-			this._labelViewPanel.layout({ width: panelWidth + 2, height: height, 
-				top: margin.top, left: width + marginLeft + 6 });
+			if (this._labelViewPanel.isMinimized()) {
+				panelWidth = 30;
+				this._labelViewPanel.layout({ height: height });
+			} else {
+				panelWidth = 320;
+				this._labelViewPanel.layout({ width: panelWidth + 2, height: height, 
+					top: margin.top, left: width + marginLeft + 6 });
+			}
 		}
 		return { width: width + panelWidth + marginLeft, height: height, top: margin.top };
 	}

@@ -51,6 +51,7 @@
 }
 
 .Drawer .Panel, .Drawer .Panel .panelLabel {
+	border-color: #a0a0a0;
 	box-shadow: 7px 7px 11px #444;
 	-moz-box-shadow: 7px 7px 11px #444;
 	-webkit-box-shadow: 7px 7px 11px #444

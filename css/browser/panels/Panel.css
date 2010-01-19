@@ -53,6 +53,9 @@
 	-moz-box-shadow: 7px 7px 11px #444;
 	-webkit-box-shadow: 7px 7px 11px #444
 }
+.Panel.focused .panelLabel {
+	border-left-color: #FFFFFF;
+}
 
 
 .Panel.minimized .content { display: none; }

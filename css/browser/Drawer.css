@@ -57,6 +57,10 @@
 	-webkit-box-shadow: 7px 7px 11px #444
 }
 
+.Drawer .Panel .panelLabel {
+	border-left-color: #FFFFFF;
+}
+
 .Drawer .labelViewPanel .panelLabel .closeButton {
 	background: transparent url(../../img/minimize.png)  repeat scroll 0 0;
 }

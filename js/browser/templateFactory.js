@@ -7,7 +7,6 @@ exports = Singleton(function() {
 
 	this.init = function() {
 		this._templateCallbacks = {};
-		this._compiledTemplates = {};
 		this._propertyMatches = {};
 		this._fmlFragments = {};
 		this._fmlTemplates = {};

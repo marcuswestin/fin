@@ -47,12 +47,14 @@ gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", f
 		gPanelManager.layout({ width: size.width, height: size.height - 100 });
 	});
 	
-	Meebo('addButton', { id: 'create-item', label: 'Create item', onClick: function() {
+	Meebo('addButton', { id: 'create-label', label: 'Create label', 
+		icon: 'img/crystal/16/kdvi.png', onClick: gCreateLabelFn });
+
+	Meebo('addButton', { id: 'create-item', label: 'Create item', 
+		icon: 'img/crystal/16/new window.png', onClick: function() {
 		var type = prompt('What type of item should I create? (user, bug)');
 		gClient.createItem(type, bind(browser.panelManager, 'showItem'));
 	} });
-
-	Meebo('addButton', { id: 'create-label', label: 'Create label', onClick: gCreateLabelFn });
 	
 	(function(){
 		var parts = document.location.hash.substr(2).split('/')

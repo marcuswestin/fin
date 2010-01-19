@@ -139,7 +139,6 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		if (!this._panelsByIndex.length) { return; }
 		var managerSize = dimensions.getDimensions(this._element);
 
-		// debugger;
 		var centerPanel = this._panelsByIndex[this._focusIndex];
 		var centerPanelOffset = Math.max(this._offset, managerSize.width / 2 - this._panelWidth / 2);
 		this._layoutPanel(centerPanel, centerPanelOffset, managerSize, centerPanel.isNew);

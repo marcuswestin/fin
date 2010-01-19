@@ -17,8 +17,6 @@ jsio('import browser.LabelCreator');
 
 jsio('import browser.overlay');
 
-jsio('import browser.Meebo as Meebo');
-
 css.loadStyles('browser.app');
 
 gClient = new browser.Client();
@@ -49,12 +47,12 @@ gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", f
 		gPanelManager.layout({ width: size.width, height: size.height - 100 });
 	});
 	
-	Meebo('addButton', { label: 'Create item', onClick: function() {
+	Meebo('addButton', { id: 'create-item', label: 'Create item', onClick: function() {
 		var type = prompt('What type of item should I create? (user, bug)');
 		gClient.createItem(type, bind(browser.panelManager, 'showItem'));
 	} });
 
-	Meebo('addButton', { label: 'Create label', onClick: gCreateLabelFn });
+	Meebo('addButton', { id: 'create-label', label: 'Create label', onClick: gCreateLabelFn });
 	
 	(function(){
 		var parts = document.location.hash.substr(2).split('/')

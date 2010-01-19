@@ -100,6 +100,7 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		dom.remove(panel.getElement());
 		if (panelIndex == this._focusIndex) { 
 			// panelIndex will now refer to panel on the right of removed panel
+			if (panelIndex > this._panelsByIndex.length) { panelIndex -= 1; }
 			this.focusPanel(this._panelsByIndex[panelIndex]);
 		}
 		this._positionPanels();

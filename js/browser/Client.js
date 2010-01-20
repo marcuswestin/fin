@@ -8,6 +8,10 @@ jsio('import browser.loginManager');
 var logger = logging.getLogger(jsio.__path);
 
 exports = Class(RTJPProtocol, function(supr) {
+
+	this.transport = 'csp';
+	this.url = "http://" + (document.domain || "127.0.0.1") + ":5555";
+
 	this.init = function(playerFactory) {
 		supr(this, 'init');
 		this._isConnected = false;
@@ -17,6 +21,24 @@ exports = Class(RTJPProtocol, function(supr) {
 		common.itemFactory.subscribe('ItemCreated', bind(this, '_onItemCreatedInFactory'));
 	}
 	
+	this._onItemCreatedInFactory = function(item) {
+		item.subscribe('Mutating', bind(this, 'onItemMutating'));
+		this.subscribeToItem(item);
+	}
+
+/* Commands
+ **********/
+	this.connect = function(onConnectedCallback) {
+		if (this._isConnected) { 
+			onConnectedCallback();
+		} else if (this._onConnectedCallbacks) { 
+			this._onConnectedCallbacks.push(onConnectedCallback);
+		} else {
+			this._onConnectedCallbacks = [onConnectedCallback];
+			net.connect(this, this.transport, {url: this.url});
+		}
+	}
+
 	this.createItem = function(type, callback) {
 		if (this._itemCreationCallbacks[type]) { return; } // already in process of creating an item of this type
 		this._itemCreationCallbacks[type] = callback;
@@ -25,21 +47,6 @@ exports = Class(RTJPProtocol, function(supr) {
 	
 	this.createLabel = function(label, mapCode, filterCode) {
 		this.sendFrame('REQUEST_CREATE_LABEL', { label: label, map: mapCode, filter: filterCode });
-	}
-	
-	this.connect = function(transport, url, onConnectedCallback) {
-		logger.log('Connecting...')
-		this.url = url || this.url;
-		this.transport = transport || this.transport || 'csp';
-		this._onConnectedCallback = onConnectedCallback;
-		if(!this._isConnected) {
-			net.connect(this, this.transport, {url: this.url});
-		}
-	}
-	
-	this.sendFrame = function(name, args) {
-		logger.log('sendFrame', name, JSON.stringify(args));
-		supr(this, 'sendFrame', arguments);
 	}
 	
 	this.subscribeToItem = function(item) {
@@ -54,11 +61,6 @@ exports = Class(RTJPProtocol, function(supr) {
 		this.sendFrame('LABEL_GET_LIST', { label: label.toString() });
 	}
 	
-	this._onItemCreatedInFactory = function(item) {
-		item.subscribe('Mutating', bind(this, 'onItemMutating'));
-		this.subscribeToItem(item);
-	}
-	
 	this.connectionMade = function() {
 		this._isConnected = true;
 	}
@@ -71,7 +73,8 @@ exports = Class(RTJPProtocol, function(supr) {
 		this.sendFrame('ITEM_MUTATING', { mutation: mutation });
 	}
 	
-	/* Server event handling */
+/* Server event handling 
+ ***********************/
 	this.frameReceived = function(id, name, args) {
 		logger.log('frameReceived', id, name, JSON.stringify(args));
 		
@@ -87,7 +90,10 @@ exports = Class(RTJPProtocol, function(supr) {
 			case 'WELCOME':
 				logger.log('Connected!')
 				browser.overlay.hide();
-				this._onConnectedCallback();
+				for (var i=0; i < this._onConnectedCallbacks.length; i++) {
+					this._onConnectedCallbacks[i]();
+				}
+				delete this._onConnectedCallbacks;
 				break;
 			case 'ITEM_SNAPSHOT':
 				setTimeout(bind(common.itemFactory, 'loadItemSnapshot', args), 0);

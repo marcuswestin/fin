@@ -35,7 +35,7 @@ gPanelManager.subscribe('PanelFocused', function(panel) {
 	document.location.hash = '#/panel/' + item.getType() + '/' + item.getId();
 })
 
-gClient.connect('csp', "http://" + (document.domain || "127.0.0.1") + ":5555", function(){
+gClient.connect(function(){
 
 	document.body.appendChild(gPanelManager.getElement());
 	document.body.appendChild(gDrawer.getElement());

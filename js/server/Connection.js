@@ -25,7 +25,23 @@ exports = Class(RTJPProtocol, function(supr) {
 	this.frameReceived = function(id, name, args) {
 		this._log('frameReceived', id, name, JSON.stringify(args));
 		
+		if (!this.isAuthenticated() && name != 'AUTHENTICATE') {
+			this.sendFrame('DEMAND_AUTHENTICATION', { frame: { id: id, name: name, args: args } });
+			return;
+		}
+		
 		switch(name) {
+			case 'AUTHENTICATE':
+				this.server.authenticate(args.email, args.password, bind(this, function(userLabels, errorMessage) {
+					if (!userLabels) {
+						this.sendFrame('DEMAND_AUTHENTICATION', { message: errorMessage });
+						return;
+					}
+					this._authenticatedEmail = args.email;
+					this.sendFrame('WELCOME');
+					this.sendFrame('LABELS', { labels: userLabels });
+				}));
+				break;
 			case 'ITEM_SUBSCRIBE':
 				this._log('subscribing to item', args.id);
 				this.server.getItem(args.id, bind(this, function(item){
@@ -52,21 +68,14 @@ exports = Class(RTJPProtocol, function(supr) {
 					this.sendFrame('LABELS', { labels: [label] });
 				}))
 				break;
-			case 'AUTHENTICATE':
-				this.server.authenticate(args.email, args.password, bind(this, function(userLabels, errorMessage) {
-					if (!userLabels) {
-						this.sendFrame('DEMAND_AUTHENTICATION', { message: errorMessage });
-						return;
-					}
-					this._authenticatedEmail = args.email;
-					this.sendFrame('WELCOME');
-					this.sendFrame('LABELS', { labels: userLabels });
-				}));
-				break;
 			default:
 				logger.warn('Unknown frame type received', id, name, JSON.stringify(args));
 				break;
 		}
+	}
+	
+	this.isAuthenticated = function() {
+		return !!this._authenticatedEmail;
 	}
 	
 	this.onItemMutated = function(mutation) {
@@ -75,6 +84,7 @@ exports = Class(RTJPProtocol, function(supr) {
 	
 	this.connectionLost = function() {
 		logger.log('connection lost - unsubscribing from item mutation subscriptions');
+		delete this._authenticatedEmail;
 		for (var itemId in this._itemSubscriptionIds) {
 			this.server.unsubscribeFromItemMutations(itemId, this._itemSubscriptionIds[itemId]);
 		}

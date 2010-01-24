@@ -13,6 +13,7 @@ jsio('import browser.Client');
 jsio('import browser.Drawer');
 jsio('import browser.panelManager');
 jsio('import browser.resizeManager');
+jsio('import browser.keystrokeManager');
 jsio('import browser.LabelCreator');
 
 jsio('import browser.overlay');
@@ -27,6 +28,7 @@ gCreateLabelFn = function() {
 		gDrawer.addLabel(labelName);
 		browser.overlay.hide();
 	});
+	browser.keystrokeManager.requestFocus(function(){}, true);
 	browser.overlay.show(labelCreator.getElement());
 }
 
@@ -40,11 +42,11 @@ gClient.connect(function(){
 	document.body.appendChild(gPanelManager.getElement());
 	document.body.appendChild(gDrawer.getElement());
 	
-	gDrawer.subscribe('LabelClick', bind(browser.panelManager, 'showLabel'));
+	gDrawer.subscribe('LabelClick', bind(gPanelManager, 'showLabel'));
 	browser.resizeManager.onWindowResize(function(size) {
 		var drawerSize = gDrawer.layout();
-		gPanelManager.setOffset(drawerSize.width + 50);
-		gPanelManager.layout({ width: size.width, height: size.height - 100 });
+		gPanelManager.setOffset(drawerSize.width + 40);
+		gPanelManager.layout({ width: size.width, height: size.height - 58 });
 	});
 	
 	Meebo('addButton', { id: 'create-label', label: 'Create label', 
@@ -53,7 +55,7 @@ gClient.connect(function(){
 	Meebo('addButton', { id: 'create-item', label: 'Create item', 
 		icon: 'img/crystal/16/new window.png', onClick: function() {
 		var type = prompt('What type of item should I create? (user, bug)');
-		gClient.createItem(type, bind(browser.panelManager, 'showItem'));
+		gClient.createItem(type, bind(gPanelManager, 'showItem'));
 	} });
 	
 	(function(){

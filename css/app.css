@@ -4,6 +4,7 @@ html, body, input {
 	font-family: Helvetica, Tahoma;
 	color: #774422;
 	font-size: 13px;
+	overflow: hidden;
 }
 a { 
 	text-decoration: none;

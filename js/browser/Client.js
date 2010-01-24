@@ -105,6 +105,7 @@ exports = Class(RTJPProtocol, function(supr) {
 				break;
 			case 'LABELS':
 				setTimeout(bind(gDrawer, 'addLabels', args.labels), 0);
+				setTimeout(bind(browser.overlay, 'hide'), 0);
 				break;
 			case 'LABEL_LIST':
 				var callback = this._labelCallbacks[args.label];

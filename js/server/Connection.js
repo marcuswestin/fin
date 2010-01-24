@@ -64,7 +64,7 @@ exports = Class(RTJPProtocol, function(supr) {
 				}))
 				break;
 			case 'REQUEST_CREATE_LABEL':
-				this.server.createLabel(args.label, args.map, args.filter, bind(this, function(label) {
+				this.server.createLabel(this._authenticatedEmail, args.label, args.map, args.filter, bind(this, function(label) {
 					this.sendFrame('LABELS', { labels: [label] });
 				}))
 				break;

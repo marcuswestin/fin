@@ -87,13 +87,18 @@ exports = Class(Server, function(supr) {
 		}));
 	}
 	
-	this.createLabel = function(labelName, mapCode, filterCode, callback) {
+	this.createLabel = function(userId, labelName, mapCode, filterCode, callback) {
 		var views = { label: { map: mapCode } };
 		var filters = { label: filterCode };
 		var id = '_design/' + labelName;
-		this._database.storeItemData({ _id: id, views: views, filters: filters }, function(respone){
-			callback([labelName]);
-		});
+		this._database.storeItemData({ _id: id, views: views, filters: filters }, bind(this, function(respone){
+			this._database.getItemData(userId, bind(this, function(user) {
+				user.properties.labels = user.properties.labels.concat(labelName);
+				this._database.storeItemData(user, function(response){
+					callback(labelName);
+				});
+			}));
+		}));
 	}
 	
 	this.getItem = function(id, callback) {

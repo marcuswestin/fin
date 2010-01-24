@@ -113,6 +113,7 @@ exports = Class(browser.UIComponent, function(supr) {
 				this._labelViewPanel.minimize();
 			}
 			this._labelViewPanel.focus();
+			browser.resizeManager.fireResize();
 		});
 		
 		this.focusPanel();

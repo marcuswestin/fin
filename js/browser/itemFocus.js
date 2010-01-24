@@ -46,6 +46,10 @@ exports = Singleton(browser.UIComponent, function() {
 		}
 	}
 	
+	this.hide = function() {
+		this.removeFrom(this._focusedView);
+	}
+	
 	var focusPadding = 2;
 	this.layout = function() {
 		if (!this._focusedView) { return; }
@@ -61,6 +65,6 @@ exports = Singleton(browser.UIComponent, function() {
 			width: dim.width + borderWidth });
 		dom.setStyle(this._left, { top: dim.top, left: dim.left - borderWidth, height: dim.height });
 		dom.setStyle(this._right, { top: dim.top - borderWidth, left: dim.left + dim.width, 
-			height: dim.height + borderWidth * 2 });
+			height: dim.height });
 	}
 })

@@ -15,7 +15,7 @@
 }
 
 .ItemFocus .right {
-	border-width: 0 7px 0 0;
+	border-width: 7px 7px 7px 0;
 	border-radius: 0 7px 7px 0;
 	-moz-border-radius: 0 7px 7px 0;
 	-webkit-border-radius: 0 7px 7px 0;
@@ -35,8 +35,16 @@
 	-webkit-border-radius: 0 0 0 7px;
 }
 
-.ItemFocus .bottom { -moz-box-shadow: 4px 7px 3px #444444; }
-.ItemFocus .right { -moz-box-shadow: 3px 6px 3px #444444; }
+.ItemFocus .bottom { 
+	box-shadow: 4px 5px 5px #666;
+	-moz-box-shadow: 4px 5px 5px #666;
+	-webkit-box-shadow: 4px 5px 5px #666; 
+}
+.ItemFocus .right { 
+	box-shadow: 3px 4px 3px #666; 
+	-moz-box-shadow: 3px 4px 3px #666; 
+	-webkit-box-shadow: 3px 4px 3px #666; 
+}
 
 .ItemFocus.onReferenceItemView .right:after {
 	content: url(../../img/crystal/16/key_enter.png);

@@ -18,7 +18,7 @@ css.loadStyles(jsio.__path);
 
 exports = Class(browser.UIComponent, function(supr) {
 	
-	var margin = { top: 10, bottom: 40 };
+	var margin = { top: 10, bottom: 50 };
 	var padding = 3;
 	var handleWidth = 10;
 	var minHeight = 100;

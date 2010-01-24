@@ -13,6 +13,7 @@ jsio('import browser.Animation');
 jsio('import browser.UIComponent');
 jsio('import browser.panels.ItemPanel');
 
+jsio('import browser.itemFocus');
 
 var logger = logging.getLogger(jsio.__path);
 
@@ -26,14 +27,18 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._offset = 0;
 		this._panelsByItem = {};
 		this._panelsByIndex = [];
-		this._panelWidth = 300;
+		this._panelWidth = 500;
 		this._panelMargin = 30;
-		this._panelAnimationDuration = 650;
-		this._panelAnimation = new browser.Animation(bind(this, '_animatePanels'), 
-			this._panelAnimationDuration);
+		this._offset = 0;
+		this._panelAnimation = new browser.Animation(bind(this, '_animatePanels'), 1000);
+		this._scrollAnimation = new browser.Animation(bind(this, '_animateScroll'), 500);
+		
+		events.add(this._element, 'scroll', bind(this, '_onScroll'));
 	}
 	
-	this.setOffset = function(offset) { this._offset = offset; }
+	this._onScroll = function() {
+		browser.itemFocus.layout();
+	}
 	
 	this.showItem = function(item) {
 		if (this._panelsByItem[item]) {
@@ -54,8 +59,27 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._blurFocusedPanel();
 		this._focusIndex = this._getPanelIndex(panel);
 		panel.focus();
-		this._positionPanels();
-		this._publish('PanelFocused', panel);
+		
+		var panelElement = panel.getElement();
+		this._currentScroll = this._element.scrollLeft;
+		if (panelElement.offsetLeft - this._offset < this._currentScroll) {
+			// scroll left by panel's width, or all the way to panel if way off screen
+			this._targetScroll = Math.min(this._currentScroll - panelElement.offsetWidth, 
+				panelElement.offsetLeft - this._offset);
+			this._scrollAnimation.animate();
+		} else if (panelElement.offsetLeft + panelElement.offsetWidth > this._currentScroll + this._element.offsetWidth) {
+			// scroll right by panel's width, or all the way to panel if way off screen
+			console.log(this._currentScroll + panelElement.offsetWidth,
+				panelElement.offsetLeft)
+			this._targetScroll = Math.max(this._currentScroll + panelElement.offsetWidth,
+				panelElement.offsetLeft - (this._element.offsetWidth - panelElement.offsetWidth) + 40); 
+			this._scrollAnimation.animate();
+		}
+	}
+	
+	this._animateScroll = function(n) {
+		var diff = this._currentScroll - this._targetScroll;
+		this._element.scrollLeft = this._currentScroll - diff * n;
 	}
 	
 	this._blurFocusedPanel = function() {
@@ -97,9 +121,13 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._positionPanels();
 	}
 	
+	this.setOffset = function(offset) { this._offset = offset; }
+
 	this.layout = function(size) {
 		dom.setStyle(this._element, size);
-		this._positionPanels();
+		for (var i = 0, panel; panel = this._panelsByIndex[i]; i++) {
+			panel.layout({ height: this._element.offsetHeight - 50 });
+		}
 	}
 
 	this._getPanelIndex = function(panel) {
@@ -114,59 +142,33 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		
 		var panel = new browser.panels.ItemPanel(this, item);
 		panel.isNew = true;
-		var delayShow = this.hasPanels();
 		this._panelsByIndex.splice(this._focusIndex, 0, panel);
 		this._panelsByItem[item] = panel;
-		if (delayShow) {
-			panel.hide();
-			setTimeout(bind(panel, 'show'), this._panelAnimationDuration);
-		}
+		this._positionPanels();
 	}
 	
 	this._positionPanels = function() {
 		if (!this._panelsByIndex.length) { return; }
-		var managerSize = dimensions.getDimensions(this._element);
 
-		var centerPanel = this._panelsByIndex[this._focusIndex];
-		var centerPanelOffset = Math.max(this._offset, managerSize.width / 2 - this._panelWidth / 2);
-		this._layoutPanel(centerPanel, centerPanelOffset, managerSize, centerPanel.isNew);
-		delete centerPanel.isNew;
-		
-		this._layoutPanels(1, centerPanelOffset + this._panelWidth + this._panelMargin, managerSize);
-		this._layoutPanels(-1, centerPanelOffset - this._panelWidth - this._panelMargin, managerSize);
+		var targetOffset = this._offset;
+		for (var i = 0, panel; panel = this._panelsByIndex[i]; i++) {
+			panel.prependTo(this._element);
+			if (panel.isNew) {
+				panel.currentOffset = targetOffset;
+			} else {
+				panel.getElement().offsetLeft - this._element.offsetLeft
+			}
+			panel.currentOffset = panel.isNew ? targetOffset : panel.getElement().offsetLeft - this._element.offsetLeft;
+			delete panel.isNew;
+			panel.targetOffset = targetOffset;
+			panel.layout({ width: this._panelWidth, height: this._element.offsetHeight - 50 });
+			
+			targetOffset += this._panelWidth + this._panelMargin;
+		}
 		
 		this._panelAnimation.animate();
 	}
-	
-	this._layoutPanels = function(direction, offset, managerSize) {
-		// var stackedPanelWidth = 23;
-		// var panelLabelWidth = stackedPanelWidth + 4;
-		// var remainingWidth = 
-		// var stackPanels = false;
-		var startIndex = this._focusIndex + direction;
-		for (var i = startIndex, panel; panel = this._panelsByIndex[i]; i += direction) {
-			this._layoutPanel(panel, offset, managerSize);
-			offset += (this._panelWidth + this._panelMargin) * direction;
-
-			// var remainingPanels = numPanels - i - 1;
-			// if (offset + panelWidth + panelLabelWidth + (remainingPanels * stackedPanelWidth) > managerSize.width) {
-				// stackPanels = true;
-			// }
-			// if (stackPanels) {
-				// var fromRight = remainingPanels * stackedPanelWidth;
-				// panel.targetOffset = managerSize.width - panelWidth - panelLabelWidth - fromRight;
-			// } else {
-			// }
-		}
-	}
-	
-	this._layoutPanel = function(panel, targetOffset, managerSize, snapToPosition) {
-		panel.prependTo(this._element);
-		panel.currentOffset = snapToPosition ? targetOffset : panel.getDimensions().left - managerSize.left;
-		panel.targetOffset = targetOffset;
-		panel.layout({ width: this._panelWidth, height: managerSize.height });
-	}
-	
+		
 	this._animatePanels = function(n) {
 		for (var i=0, panel; panel = this._panelsByIndex[i]; i++) {
 			var diff = panel.targetOffset - panel.currentOffset;

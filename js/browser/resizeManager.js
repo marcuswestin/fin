@@ -5,6 +5,7 @@ var logger = logging.getLogger(jsio.__path);
 var windowResizeCallbacks = [];
 
 function handleResize() {
+	if (!windowResizeCallbacks.length) { return; }
 	var size = exports.getWindowSize();
 	for (var i=0, callback; callback = windowResizeCallbacks[i]; i++) {
 		callback(size);

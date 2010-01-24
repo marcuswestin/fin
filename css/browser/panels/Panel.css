@@ -49,12 +49,11 @@
 
 .Panel.focused, .Panel.focused .panelLabel {
 	border-color: #A3B9DF;
-	box-shadow: 7px 7px 11px #444;
-	-moz-box-shadow: 7px 7px 11px #444;
-	-webkit-box-shadow: 7px 7px 11px #444
+	border-width: 4px;
 }
 .Panel.focused .panelLabel {
 	border-left-color: #FFFFFF;
+	right: -24px;
 }
 
 

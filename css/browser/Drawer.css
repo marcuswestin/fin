@@ -52,13 +52,12 @@
 
 .Drawer .Panel, .Drawer .Panel .panelLabel {
 	border-color: #a0a0a0;
-	box-shadow: 7px 7px 11px #444;
-	-moz-box-shadow: 7px 7px 11px #444;
-	-webkit-box-shadow: 7px 7px 11px #444
+	border-width: 2px;
 }
 
 .Drawer .Panel .panelLabel {
 	border-left-color: #FFFFFF;
+	right: -20px;
 }
 
 .Drawer .labelViewPanel .panelLabel .closeButton {

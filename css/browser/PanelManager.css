@@ -1,6 +1,8 @@
 .PanelManager {
 	position: fixed;
-	top: 10px;
+	top: 30px;
+	overflow-x: auto;
+	overflow-y: visible;
 }
 
 .PanelManager .panelStack {

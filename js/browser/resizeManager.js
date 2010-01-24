@@ -22,7 +22,7 @@ exports = {
 	
 	cancelWindowResize: function(targetCallback) {
 		for (var i=0, callback; callback = windowResizeCallbacks[i]; i++) {
-			if (callback == targetCallback) { continue; }
+			if (callback != targetCallback) { continue; }
 			windowResizeCallbacks.splice(i, 1);
 			return;
 		}

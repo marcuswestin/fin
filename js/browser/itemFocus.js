@@ -46,10 +46,6 @@ exports = Singleton(browser.UIComponent, function() {
 		}
 	}
 	
-	this.hide = function() {
-		this.removeFrom(this._focusedView);
-	}
-	
 	var focusPadding = 2;
 	this.layout = function() {
 		if (!this._focusedView) { return; }

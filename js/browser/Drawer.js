@@ -6,7 +6,6 @@ jsio('import browser.dimensions as dimensions');
 jsio('import browser.dom as dom');
 
 jsio('import browser.resizeManager');
-// jsio('import browser.panelManager'); jsio import bug - am using gPanelManager for now
 jsio('import browser.UIComponent');
 jsio('import browser.Label');
 jsio('import browser.ItemView');

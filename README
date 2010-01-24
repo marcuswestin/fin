@@ -1,0 +1,15 @@
+Realtime templates
+
+To get manual dependencies:
+	
+	Install Node v0.1.25 from http://github.com/ry/node/downloads
+	Install couchdb from http://couchdb.apache.org/
+	Create CouchDB database "items"
+
+To get automatic dependencies:
+
+	make init
+
+To run
+	
+	make run

@@ -1,7 +1,7 @@
 
-.PHONY: install clean jsio node-couch
+.PHONY: init clean jsio node-couch
 
-install: jsio node-couch
+init: jsio node-couch
 
 run:
 	cd js/server; node app.js
@@ -23,9 +23,8 @@ node-couch:
 
 
 
-# Use install-edit for write-access versions of all lib imports
-
-install-edit: jsio-edit node-couch-edit
+# Use init-edit for write-access versions of all lib imports
+init-edit: jsio-edit node-couch-edit
 
 jsio-edit:
 	git clone git@github.com:marcuswestin/js.io.git

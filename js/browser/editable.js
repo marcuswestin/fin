@@ -91,8 +91,6 @@ exports = Singleton(function(){
 		// Don't publish no op mutations
 		if (!mutation.deletion && !mutation.addition) { return; }
 		
-		setTimeout(bind(this, function() {
-			this._onMutationCallback(mutation, this._input.value);
-		}), 0);
+		this._onMutationCallback(mutation, this._input.value);
 	}
 })

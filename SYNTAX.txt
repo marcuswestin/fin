@@ -1,0 +1,22 @@
+
+
+(( widgetName prop1, prop2 ... ))
+
+[[ property ]] 						=> (( _itemListView: property )) ID }]
+{{ property }} 						=> (( _itemValueView: property ))		  
+
+{{ user owner }}
+
+
+(( timeWidget date, location ))
+{{ owner: user }}
+
+
+
+
+
+(( Clock date location ))
+
+
+MEETING
+(( Agenda users time location ))

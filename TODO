@@ -1,0 +1,7 @@
+= Views =
+	ItemReferenceView and ItemValueView are the first ones. They should be moved into browser/views/ and there should be more than those. CalendarView, ClockView, ImageView...
+	
+	templateFactory should scan for and replace 
+		{{ property }} 			=> (( _itemValueView property ))
+		{{ property : user }} 	=> (( _itemReferenceView 'user' property ))
+		[[ property ]] 			=> (( _itemPropertyListView property ))

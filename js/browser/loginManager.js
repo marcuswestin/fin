@@ -1,4 +1,5 @@
 jsio('from common.javascript import Singleton, bind');
+jsio('import common.sha1');
 
 jsio('import browser.css as css');
 jsio('import browser.events as events');
@@ -49,10 +50,6 @@ exports = Singleton(browser.UIComponent, function(supr) {
 	}
 	
 	this._submit = function() {
-		this._onSubmit(this._emailInput.getValue(), this._hashPassword(this._passwordInput.getValue()));
-	}
-	
-	this._hashPassword = function(password) {
-		return 'FAKE_HASHED_' + password;
+		this._onSubmit(this._emailInput.getValue(), common.sha1(this._passwordInput.getValue()));
 	}
 })

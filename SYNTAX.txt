@@ -4,6 +4,7 @@
 
 [[ property ]] 						=> (( _itemListView: property )) ID }]
 {{ property }} 						=> (( _itemValueView: property ))		  
+{{ property: type }} 						=> (( _itemReferenceView: type, property ))		  
 
 {{ user owner }}
 

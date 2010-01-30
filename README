@@ -24,3 +24,16 @@ To run
 	
 	make run
 	# navigate to browser and log in with the email address and password you used when setting up the CouchDB database
+
+
+To auto run tests as you code
+	
+	# First, install Growl
+	# Second, install growlnotify
+	sudo make install-growlnotify
+	# Third, grab node-growl
+	make node-growl
+	
+	# Finally, start monitoring and code away!
+	make monitor
+

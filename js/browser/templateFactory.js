@@ -3,8 +3,6 @@ jsio('import browser.xhr');
 
 exports = Singleton(function() {
 	
-	var templatePropsRegex = /\{\{[^\}]+\}\}/g;
-
 	this.init = function() {
 		this._templateCallbacks = {};
 		this._propertyMatches = {};

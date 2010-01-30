@@ -40,7 +40,7 @@ exports = Class(browser.panels.Panel, function(supr) {
 	}
 	
 	this._makeEditable = function(view) {
-		browser.editable.setValue(this._item.getProperty(view.getPropertyName()) || '');
+		browser.editable.setValue(this._item.getProperty(view.getPropertyName()));
 		browser.editable.showAt(view, bind(this, '_onMutation', view), bind(this, '_onEditableHide'));
 	}
 	

@@ -5,7 +5,17 @@ To get manual dependencies:
 	Install Node v0.1.25 from http://github.com/ry/node/downloads
 	Install couchdb from http://couchdb.apache.org/
 	Create CouchDB database "items"
+	Add a document to your database for the first user:
 
+		{
+			"id": "your.email@domain.com",
+			"type": "user",
+			"properties": {
+				"password": sha1(your_password),
+				"labels": []
+			}
+		}
+		
 To get automatic dependencies:
 
 	make init
@@ -13,3 +23,4 @@ To get automatic dependencies:
 To run
 	
 	make run
+	# navigate to browser and log in with the email address and password you used when setting up the CouchDB database

@@ -19,7 +19,7 @@ exports = Class(browser.UIComponent, function(supr){
 		if (value) {
 			this.setValue(value);
 		} else {
-			this.setValue('loading...');
+			this.setValue('loading ' + this._propertyName + '...');
 		}
 		this._item.subscribe('PropertyUpdated', bind(this, '_onPropertyUpdated'));
 		events.add(this._element, 'dblclick', bind(this, '_publish', 'DoubleClick'));

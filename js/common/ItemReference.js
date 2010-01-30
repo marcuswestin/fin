@@ -8,7 +8,7 @@ exports = Class(common.Publisher, function(supr) {
 		supr(this, 'init');
 		this._proxiedCalls = [];
 		this._referencedItemType = referencedItemType;
-		var referenceItemId = sourceItem.getProperty(itemReferencePropertyName);
+		var referenceItemId = sourceItem.getProperty(itemReferencePropertyName, true);
 		if (referenceItemId) {
 			this._referencedItem = common.itemFactory.getItem(referenceItemId);
 		}
@@ -20,11 +20,12 @@ exports = Class(common.Publisher, function(supr) {
 	
 	this._onReferenceChanged = function(newReferenceItemId) {
 		this._referencedItem = common.itemFactory.getItem(newReferenceItemId);
-		forEach(this._proxiedCalls, bind(this, function(proxiedCall){
+		for (var i=0, proxiedCall; proxiedCall = this._proxiedCalls[i]; i++) {
 			var methodName = proxiedCall[0];
 			var args = proxiedCall[1];
 			this[methodName].apply(this, args);
-		}))
+		}
+		this._proxiedCalls = [];
 		this._publish('ReferenceChanged')
 	}
 	
@@ -32,16 +33,17 @@ exports = Class(common.Publisher, function(supr) {
 	this.asObject = function() { return this._referencedItem.asObject(); }
 	this.toString = function() { return this._referencedItem.toString(); }
 	this.getType = function() { return this._referencedItemType; }
-	this.getProperty = function(propertyName) { 
+	this.getProperty = function(propertyName, noDefault) { 
 		if (this._referencedItem) { 
 			return this._referencedItem.getProperty(propertyName); 
+		} else if (noDefaultValue) {
+			return null
 		} else {
-			return 'loading...';
+			return propertyName;
 		}
 	}
 	
-	var self = this;
-	function createProxiedMethod(context, methodName) {
+	function createProxiedMethod(methodName) {
 		return function() {
 			if (!this._referencedItem) { 
 				this._proxiedCalls.push([methodName, arguments]);
@@ -51,7 +53,7 @@ exports = Class(common.Publisher, function(supr) {
 		}
 	}
 	
-	this.subscribe = createProxiedMethod(this, 'subscribe');
+	this.subscribe = createProxiedMethod('subscribe');
 	this.unsubscribe = createProxiedMethod('unsubscribe');
 	this.mutate = createProxiedMethod('mutate');
 	this.applyMutation = createProxiedMethod('applyMutation');

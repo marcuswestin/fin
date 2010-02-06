@@ -1,5 +1,5 @@
 
-.PHONY: init clean jsio node-couch node-growl
+.PHONY: init clean jsio node-couch node-growl monitor test
 
 init: jsio node-couch
 
@@ -12,6 +12,9 @@ clean:
 
 monitor:
 	cd tests; node monitor_tests.js
+
+test:
+	cd tests; node run_tests.js
 
 ### util
 ####################

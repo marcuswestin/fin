@@ -33,11 +33,11 @@ exports = Class(common.Publisher, function(supr) {
 	this.asObject = function() { return this._referencedItem.asObject(); }
 	this.toString = function() { return this._referencedItem.toString(); }
 	this.getType = function() { return this._referencedItemType; }
-	this.getProperty = function(propertyName, noDefault) { 
+	this.getProperty = function(propertyName, noDefaultValue) { 
 		if (this._referencedItem) { 
 			return this._referencedItem.getProperty(propertyName); 
 		} else if (noDefaultValue) {
-			return null
+			return null;
 		} else {
 			return propertyName;
 		}

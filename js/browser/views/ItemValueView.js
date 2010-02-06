@@ -1,18 +1,15 @@
 jsio('from common.javascript import Class, bind')
+jsio('import browser.editable');
 jsio('import browser.UIComponent')
 
 exports = Class(browser.UIComponent, function(supr){
 	
 	this._domType = 'span';
 	
-	this.init = function(item, propertyName, viewElement) {
-		supr(this, 'init');
+	this.initializeView = function(item, args) {
 		this._item = item;
-		this._propertyName = propertyName;
-		this._viewElement = viewElement;
+		this._propertyName = args[0];
 	}
-	
-	this.getPropertyName = function() { return this._propertyName; }
 	
 	this.createContent = function() {
 		var value = this._item.getProperty(this._propertyName);
@@ -31,6 +28,17 @@ exports = Class(browser.UIComponent, function(supr){
 		value = value.replace(/ $/, '&nbsp;');
 		this._element.innerHTML = value;
 		this._publish('Resize');
+	}
+	
+	this.handleSelected = function(listComponent) {
+		browser.editable.setValue(this._item.getProperty(this._propertyName));
+		browser.editable.showAt(this, bind(this, '_onMutation'), bind(listComponent, 'focus'));
+	}
+	
+	this._onMutation = function(mutation, value) {
+		this.setValue(value); // set the value of the element beneath the input early, so that its size updates correctly
+		mutation.property = this._propertyName;
+		this._item.mutate(mutation);
 	}
 	
 	this._onPropertyUpdated = function(propertyName, newValue) {

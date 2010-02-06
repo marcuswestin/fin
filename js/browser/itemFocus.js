@@ -3,8 +3,8 @@ jsio('import browser.dimensions as dimensions');
 jsio('import browser.dom as dom');
 jsio('import browser.css as css');
 jsio('import browser.UIComponent');
-jsio('import browser.ItemValueView');
-jsio('import browser.ItemReferenceView');
+jsio('import browser.views.ItemValueView');
+jsio('import browser.views.ItemReferenceView');
 
 css.loadStyles(jsio.__path);
 
@@ -31,9 +31,9 @@ exports = Singleton(browser.UIComponent, function() {
 			this.appendTo(document.body);
 		}
 
-		if (itemView instanceof browser.ItemReferenceView) {
+		if (itemView instanceof browser.views.ItemReferenceView) {
 			this._element.className = 'ItemFocus onReferenceItemView';
-		} else if (itemView instanceof browser.ItemValueView) {
+		} else if (itemView instanceof browser.views.ItemValueView) {
 			this._element.className = 'ItemFocus onValueItemView';
 		} else {
 			this._element.className = 'ItemFocus';

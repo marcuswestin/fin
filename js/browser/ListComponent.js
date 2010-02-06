@@ -60,6 +60,12 @@ exports = Class(function(supr){
 		if (e) { events.cancel(e); }
 		this._selectedItem = item;
 		item.addClassName('selected');
-		this._itemSelectedCallback(item);
+
+		// Only the label list panel needs this - should move the handler into the browser.Label instead
+		if (this._itemSelectedCallback) {
+			this._itemSelectedCallback(item);
+		} else {
+			item.handleSelected(this);
+		}
 	}
 })

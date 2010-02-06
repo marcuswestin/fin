@@ -1,8 +1,5 @@
 jsio('from common.javascript import Singleton, bind, map');
 
-jsio('import common.ItemReference');
-jsio('import browser.ItemReferenceView');
-
 jsio('import browser.css as css');
 jsio('import browser.events as events');
 jsio('import browser.dom as dom');
@@ -27,7 +24,7 @@ exports = Singleton(browser.UIComponent, function(supr) {
 		this._offset = 0;
 		this._panelsByItem = {};
 		this._panelsByIndex = [];
-		this._panelWidth = 500;
+		this._panelWidth = 400;
 		this._panelMargin = 30;
 		this._offset = 0;
 		this._panelAnimation = new browser.Animation(bind(this, '_animatePanels'), 1000);

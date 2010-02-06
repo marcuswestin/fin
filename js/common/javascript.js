@@ -38,3 +38,8 @@ exports.Class = function(parent, proto) {
 exports.Singleton = function(parent, proto) {
 	return new (exports.Class(parent, proto))();
 }
+
+var stripRegexp = /^\s*(.*?)\s*$/;
+exports.strip = function(str) {
+	return str.match(stripRegexp)[1];
+}

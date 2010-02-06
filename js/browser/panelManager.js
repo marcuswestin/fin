@@ -69,8 +69,6 @@ exports = Singleton(browser.UIComponent, function(supr) {
 			this._scrollAnimation.animate();
 		} else if (panelElement.offsetLeft + panelElement.offsetWidth > this._currentScroll + this._element.offsetWidth) {
 			// scroll right by panel's width, or all the way to panel if way off screen
-			console.log(this._currentScroll + panelElement.offsetWidth,
-				panelElement.offsetLeft)
 			this._targetScroll = Math.max(this._currentScroll + panelElement.offsetWidth,
 				panelElement.offsetLeft - (this._element.offsetWidth - panelElement.offsetWidth) + 40); 
 			this._scrollAnimation.animate();

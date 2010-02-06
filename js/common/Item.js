@@ -60,9 +60,6 @@ exports = Class(Publisher, function(supr) {
 		}
 	}
 	this.setType = function(type) {
-		if (this._type && this._type != type) { 
-			throw new Error("Attempting to set type " + type + "for item that already has type" + this._type); 
-		}
 		this._type = type;
 	}
 	this.subscribeToProperty = function(property, callback) {

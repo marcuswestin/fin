@@ -1,4 +1,5 @@
 var assert = jsio.__env.require('assert')
+var sys = jsio.__env.require('sys')
 
 jsio('import browser.templateFactory as templateFactory');
 
@@ -12,8 +13,8 @@ exports.testValueReplacement = function() {
 exports.testReferenceReplacement = function() {
 	var template = '<div>{{ owner : user }}</div><div>{{milestone:milestone}}</div>';
 	var replaced = templateFactory._replaceReferencesWithViews(template);
-	var shouldBe = '<div>(( _itemReferenceView \'user\' owner ))</div>' +
-		'<div>(( _itemReferenceView \'milestone\' milestone ))</div>';
+	var shouldBe = '<div>(( _itemReferenceView user owner ))</div>' +
+		'<div>(( _itemReferenceView milestone milestone ))</div>';
 	assert.equal(replaced, shouldBe, '\n' + replaced + '\n!=\n' + shouldBe);
 }
 

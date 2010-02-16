@@ -41,7 +41,7 @@ node-growl:
 	mv node-growl lib/
 
 # Use init-edit for write-access versions of all lib imports
-init-edit: jsio-edit node-couch-edit
+init-edit: jsio-edit node-couch-edit node-growl
 
 jsio-edit:
 	git clone git@github.com:marcuswestin/js.io.git

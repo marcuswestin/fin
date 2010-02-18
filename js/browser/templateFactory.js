@@ -1,138 +1,79 @@
-jsio('from common.javascript import Singleton, strip');
-jsio('import browser.xhr');
+jsio('from common.javascript import Singleton, strip, forEach')
+jsio('import browser.viewFactory')
 
 exports = Singleton(function() {
 	
-	this._widgetRegex = /\(\([\w\s]+\)\)/g;
-
-	this.init = function() {
-		this._templateCallbacks = {};
-		this._propertyMatches = {};
-		this._fmlFragments = {};
-		this._fmlTemplates = {};
-	}
+	this._widgetRegex = /\(\([\w\s]+?\)\)/g
+	this._valueRegex = /\{\{[^\}]+?\}\}/g
+	this._listRegex = /\[\[[^\]]+?\]\]/g
 	
-	this.getTemplateHTML = function(itemType, viewType, callback) {
-		if (this._fmlTemplates[itemType]) { 
-			return callback(this._getCompiledTemplate(itemType, viewType)); 
-		} else if (this._templateCallbacks[itemType]) {
-			this._templateCallbacks[itemType].push({ callback: callback, viewType: viewType });
-		} else {
-			this._templateCallbacks[itemType] = [{ callback: callback, viewType: viewType }];
-			css.loadStyles(itemType, 'templates', 'fss');
-			browser.xhr.get(this._getPath(itemType), bind(this, '_onTemplateFetched', itemType));
-		}
-	}
-	
-	this._onTemplateFetched = function(itemType, fml) {
-		// until we figure out how to user getElementById instead of getElementsByClassName 
-		// in the document fragments, replace id= with class=
+	this.applyTemplate = function(templateString, item) {
 		
-		fml = fml.replace(/id=".*-template"/g, function(match, index){
-			return "class=" + match.substr(3);
-		})
+		// compile template
+		templateString = this._replaceValuesWithViews(templateString)
+		templateString = this._replaceListsWithViews(templateString)
 		
-		fml = this._replaceValuesWithViews(fml);
-		fml = this._replaceReferencesWithViews(fml);
-		fml = this._replaceListsWithViews(fml);
+		// replace view template strings with elements we can later extract and replace with views
+		var templateElement = document.createElement('span')
+		var viewElements = []
 
-		this._fmlTemplates[itemType] = fml;
-		for (var i=0, pending; pending = this._templateCallbacks[itemType][i]; i++) {
-			var template = this._getCompiledTemplate(itemType, pending.viewType);
-			pending.callback(template);
+		viewMatches = this._findViewsInTemplate(templateString)
+		for (var i=0, viewMatch; viewMatch = viewMatches[i]; i++) {
+			var view = browser.viewFactory.getView(item, viewMatch.name, viewMatch.args)
+			viewElements[i] = view.getElement()
+			templateString = templateString.replace(viewMatch.string, '<finPlaceholder viewIndex="'+i+'"></finPlaceholder>')
 		}
-		delete this._templateCallbacks[itemType];
+		
+		// replace placeholder elements with views
+		templateElement.innerHTML = templateString
+		
+		var placeholders = Array.prototype.slice.call(templateElement.getElementsByTagName('finPlaceholder'), 0)
+		for (var i=0, viewElement; viewElement = viewElements[i]; i++) {
+			var parentNode = placeholders[i].parentNode
+			parentNode.insertBefore(viewElement, placeholders[i])
+			parentNode.removeChild(placeholders[i])
+		}
+		
+		return templateElement
 	}
 	
-	this._getCompiledTemplate = function(itemType, viewType) {
-		if (!this._fmlFragments[itemType]) { this._createFragment(itemType); }
-
-		var templateId = viewType + '-template';
-		var template = this._fmlFragments[itemType].getElementsByClassName(templateId)[0];
-		if (!template) {
-			return 'Sorry, no template with id ' + templateId + ' exists in ' + this._getPath(itemType);
-		}
-		return template.innerHTML;
-	}
 	
-	this._createFragment = function(itemType) {
-		this._fmlFragments[itemType] = document.createElement('div');
-		var matches = this.findViewsInTemplate(itemType, '_all');
-		var templateHTML = this._fmlTemplates[itemType];
-		for (var i=0, match; match = matches[i]; i++) {
-			while (templateHTML.match(match._str)) {
-				templateHTML = templateHTML.replace(match._str,
-					'<span class="' + this.getViewClassName(match.name) + '"></span>');
-			}
-		}
-		this._fmlFragments[itemType].innerHTML = templateHTML;
-	}
-	
-	this._getTemplateId = function(itemType, viewType) {
-		return itemType + '::' + viewType;
-	}
-
 	this._replaceValuesWithViews = function(template) {
-		var matches = template.match(/\{\{[^\}:]+\}\}/g);
-		if (!matches) { return template; }
+		var matches = template.match(this._valueRegex)
+		if (!matches) { return template }
 		for (var i=0, match; match = matches[i]; i++) {
 			template = template.replace(match, function(str, proper) {
-				str = str.substring(2, str.length - 2);
-				var property = str.replace(/\s+/gi, '');
-				return '(( _itemValueView ' + property + ' ))';
+				str = str.substring(2, str.length - 2)
+				var property = str.replace(/\s+/gi, '')
+				return '(( Value ' + property + ' ))'
 			})
 		}
-		return template;
+		return template
 	}
 	
-	this._replaceReferencesWithViews = function(template) {
-		var matches = template.match(/\{\{[^\}]+\}\}/g);
-		if (!matches) { return template; }
-		for (var i=0, match; match = matches[i]; i++) {
-			template = template.replace(match, function(str, proper) {
-				str = str.substring(2, str.length - 2);
-				var typeAndProperty = str.replace(/\s+/gi, '').split(':');
-				return '(( _itemReferenceView ' + typeAndProperty[1] + ' ' + typeAndProperty[0] + ' ))';
-			})
-		}
-		return template;
-	}
-
 	this._replaceListsWithViews = function(template) {
-		var matches = template.match(/\[\[[^\]]+\]\]/g);
-		if (!matches) { return template; }
+		var matches = template.match(this._listRegex)
+		if (!matches) { return template }
 		for (var i=0, match; match = matches[i]; i++) {
 			template = template.replace(match, function(str, proper) {
-				str = str.substring(2, str.length - 2);
-				var property = str.replace(/\s+/gi, '');
-				return '(( _itemListView ' + property + ' ))';
+				str = str.substring(2, str.length - 2)
+				var property = str.replace(/\s+/gi, '')
+				return '(( List ' + property + ' ))'
 			})
 		}
-		return template;
+		return template
 	}
 
-	this.findViewsInTemplate = function(itemType, viewType) {
-		var templateId = this._getTemplateId(itemType, viewType);
-		if (this._propertyMatches[templateId]) { return this._propertyMatches[templateId]; }
-		this._propertyMatches[templateId] = [];
-		
-		// Now match for all the views
-		var matches = this._fmlTemplates[itemType].match(this._widgetRegex);
+	this._findViewsInTemplate = function(template) {
+		var matches = template.match(this._widgetRegex)
+		var views = []
+		if (!matches) { return views }
 		for (var i=0, match; match = matches[i]; i++) {
-			var stripped = strip(match.substring(2, match.length - 2)); // strip (( )) and whitespace
-			var args = stripped.split(' ');
-			var name = args.shift();
-			this._propertyMatches[templateId].push({ name: name, args: args, _str: match });
+			var stripped = strip(match.substring(2, match.length - 2)) // strip (( )) and whitespace
+			var args = stripped.split(' ')
+			var name = args.shift()
+			views.push({ name: name, args: args , string: match })
 		}
-		return this._propertyMatches[templateId];
+		return views
 	}
-	
-	this.getViewClassName = function(viewName) {
-		return 'finView-' + viewName;
-	}
-	
-	this._getPath = function(itemType){
-		return './templates/' + itemType + '.fml';
-	}
-	
 })

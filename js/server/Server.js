@@ -1,15 +1,13 @@
 jsio('from common.javascript import Class, map, bind');
 jsio('from net.interfaces import Server');
-jsio('import .Connection');
-jsio('import .Database');
 jsio('import common.itemFactory');
 
 var logger = logging.getLogger(jsio.__path);
 
 exports = Class(Server, function(supr) {
 
-	this.init = function(database) {
-		supr(this, 'init', [Connection]);
+	this.init = function(database, connectionConstructor) {
+		supr(this, 'init', [connectionConstructor]);
 		this._mutationSubscriptions = {};
 		this._uniqueId = 0;
 		this._database = database;
@@ -37,11 +35,11 @@ exports = Class(Server, function(supr) {
 	}
 
 	this.subscribeToItemMutations = function(item, callback) {
-		var id = item.getId();
-		if (!this._mutationSubscriptions[id]) { this._mutationSubscriptions[id] = {}; }
-		logger.log('subscribeToItemMutations', this._mutationSubscriptions[id].length, 'subscribers');
+		var itemId = item.getId();
+		if (!this._mutationSubscriptions[itemId]) { this._mutationSubscriptions[itemId] = {}; }
+		logger.log('subscribeToItemMutations', this._mutationSubscriptions[itemId].length, 'subscribers');
 		var subId = 'sub' + this._uniqueId++;
-		this._mutationSubscriptions[id][subId] = callback;
+		this._mutationSubscriptions[itemId][subId] = callback;
 		return subId;
 	}
 	

@@ -21,15 +21,7 @@ exports = Class(Publisher, function(supr) {
 	
 	this.applyMutation = function(mutation, silent) {
 		logger.log('apply mutation', mutation._id, mutation.property);
-		var value = this._applyMutationToValue(mutation, this._properties[mutation.property] || '');
-		this._properties[mutation.property] = value;
-		if (!silent) {
-			logger.log('publish PropertyUpdated', mutation.property, value);
-			this._publish('PropertyUpdated', mutation.property, value);
-		}
-	}
-	
-	this._applyMutationToValue = function(mutation, value) {
+		var value = this._properties[mutation.property] || ''
 		if (mutation.deletion) {
 			var startDelete = mutation.position;
 			var endDelete = mutation.position + mutation.deletion;
@@ -38,7 +30,17 @@ exports = Class(Publisher, function(supr) {
 		if (mutation.addition) {
 			value = value.slice(0, mutation.position) + mutation.addition + value.slice(mutation.position);
 		}
-		return value;
+		this._properties[mutation.property] = value;
+		this._notifySubscribers(mutation.property)
+	}
+	
+	this._notifySubscribers = function(propertyName) {
+		var propertySubscribers = this._propertySubscriptions[propertyName]
+		if (!propertySubscribers) { return }
+		var newValue = this._properties[propertyName]
+		for (var i=0, callback; callback = propertySubscribers[i]; i++) {
+			callback(newValue)
+		}
 	}
 	
 	this.getId = function() { return this._id; }
@@ -51,12 +53,7 @@ exports = Class(Publisher, function(supr) {
 		for (var propertyName in snapshot.properties) {
 			var newValue = snapshot.properties[propertyName];
 			this._properties[propertyName] = newValue;
-			this._publish('PropertyUpdated', propertyName, newValue);
-			var propertySubscribers = this._propertySubscriptions[propertyName];
-			if (!propertySubscribers) { continue; }
-			for (var i=0, callback; callback = propertySubscribers[i]; i++) {
-				callback(newValue);
-			}
+			this._notifySubscribers(propertyName)
 		}
 	}
 	this.setType = function(type) {

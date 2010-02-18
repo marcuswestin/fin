@@ -4,7 +4,7 @@
 init: jsio node-couch
 
 run:
-	cd js/server; node app.js
+	cd js/server; node run_server.js
 
 clean:
 	rm -rf lib/*

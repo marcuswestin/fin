@@ -4,14 +4,13 @@ jsio('import browser.viewFactory')
 exports = Singleton(function() {
 	
 	this._widgetRegex = /\(\([\w\s]+?\)\)/g
-	this._valueRegex = /\{\{[^\}]+?\}\}/g
-	this._listRegex = /\[\[[^\]]+?\]\]/g
+	// this._listRegex = /\[\[[^\]]+?\]\]/g
 	
 	this.applyTemplate = function(templateString, item) {
 		
 		// compile template
-		templateString = this._replaceValuesWithViews(templateString)
-		templateString = this._replaceListsWithViews(templateString)
+		// templateString = this._replaceValuesWithViews(templateString)
+		// templateString = this._replaceListsWithViews(templateString)
 		
 		// replace view template strings with elements we can later extract and replace with views
 		var templateElement = document.createElement('span')
@@ -37,32 +36,18 @@ exports = Singleton(function() {
 		return templateElement
 	}
 	
-	
-	this._replaceValuesWithViews = function(template) {
-		var matches = template.match(this._valueRegex)
-		if (!matches) { return template }
-		for (var i=0, match; match = matches[i]; i++) {
-			template = template.replace(match, function(str, proper) {
-				str = str.substring(2, str.length - 2)
-				var property = str.replace(/\s+/gi, '')
-				return '(( Value ' + property + ' ))'
-			})
-		}
-		return template
-	}
-	
-	this._replaceListsWithViews = function(template) {
-		var matches = template.match(this._listRegex)
-		if (!matches) { return template }
-		for (var i=0, match; match = matches[i]; i++) {
-			template = template.replace(match, function(str, proper) {
-				str = str.substring(2, str.length - 2)
-				var property = str.replace(/\s+/gi, '')
-				return '(( List ' + property + ' ))'
-			})
-		}
-		return template
-	}
+	// this._replaceListsWithViews = function(template) {
+	// 	var matches = template.match(this._listRegex)
+	// 	if (!matches) { return template }
+	// 	for (var i=0, match; match = matches[i]; i++) {
+	// 		template = template.replace(match, function(str, proper) {
+	// 			str = str.substring(2, str.length - 2)
+	// 			var property = str.replace(/\s+/gi, '')
+	// 			return '(( List ' + property + ' ))'
+	// 		})
+	// 	}
+	// 	return template
+	// }
 
 	this._findViewsInTemplate = function(template) {
 		var matches = template.match(this._widgetRegex)
@@ -71,7 +56,11 @@ exports = Singleton(function() {
 		for (var i=0, match; match = matches[i]; i++) {
 			var stripped = strip(match.substring(2, match.length - 2)) // strip (( )) and whitespace
 			var args = stripped.split(' ')
-			var name = args.shift()
+			if (args.length == 1) {
+				name = 'Value'
+			} else {
+				var name = args.shift()
+			}
 			views.push({ name: name, args: args , string: match })
 		}
 		return views

@@ -4,3 +4,11 @@ Make List view
 	How does a user reorder items? Drag and drop?
 
 Support chain subscriptions properties
+
+Use node-couchdb instead of stale node-couch project
+
+Include lib's in repo
+	js.io
+	node-couchdb
+
+Look over API again - would be nice to have something like fin.applyToElement

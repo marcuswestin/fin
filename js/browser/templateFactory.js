@@ -9,7 +9,6 @@ exports = Singleton(function() {
 	this.applyTemplate = function(templateString, item) {
 		
 		// compile template
-		// templateString = this._replaceValuesWithViews(templateString)
 		// templateString = this._replaceListsWithViews(templateString)
 		
 		// replace view template strings with elements we can later extract and replace with views

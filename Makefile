@@ -24,6 +24,10 @@ install-growl-notify:
 	cd growl-notify; sudo ./install.sh;
 	rm -rf growl-notify;
 
+install-node:
+	git clone git://github.com/ry/node.git
+	cd node; ./configure; make; sudo make install
+	rm -rf node;
 
 ### lib dependencies
 ####################

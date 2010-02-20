@@ -20,8 +20,14 @@ exports = Class(Publisher, function(supr) {
 	}
 	
 	this.applyMutation = function(mutation, silent) {
-		logger.log('apply mutation', mutation._id, mutation.property);
+		logger.log('apply mutation', mutation._id, mutation);
 		var value = this._properties[mutation.property] || ''
+		// Numbers
+		// if (mutation.value) {
+		// 	value = mutation.value
+		// }
+
+		// Strings
 		if (mutation.deletion) {
 			var startDelete = mutation.position;
 			var endDelete = mutation.position + mutation.deletion;
@@ -30,6 +36,13 @@ exports = Class(Publisher, function(supr) {
 		if (mutation.addition) {
 			value = value.slice(0, mutation.position) + mutation.addition + value.slice(mutation.position);
 		}
+		
+		// Lists
+		if (mutation.from && mutation.to) {
+			var item = value.splice(mutation.from, 1)[0]
+			value.splice(mutation.to, 0, item)
+		}
+		
 		this._properties[mutation.property] = value;
 		this._notifySubscribers(mutation.property)
 	}

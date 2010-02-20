@@ -1,0 +1,27 @@
+<html>
+	<head>
+		<title>fin-test</title>
+	</head>
+	<body>
+		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
+		<script type="text/javascript">
+			jsio.path.browser = '../js';
+			jsio.path.common = '../js';
+			
+			jsio('import logging');
+			jsio('import browser.API as fin')
+			
+			fin.connect(function(){
+				var itemId = '2a37d2692106e306983d2f55b0ec58e1';
+				var item = fin.getItem(itemId);
+				
+				var templateString = '<div style="margin-left: 40px"> List: (( List names )) </div>';
+
+				var viewEl = fin.applyTemplate(templateString, itemId)
+				// var inputEl = fin.getInput(itemId, 'model')
+				document.body.appendChild(viewEl)
+				// document.body.appendChild(inputEl)
+			})
+		</script>
+	</body>
+</html>

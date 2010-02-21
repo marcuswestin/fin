@@ -1,9 +1,15 @@
 jsio('from common.javascript import Class, bind');
 
 exports = Class(function() {
-	this.init = function(couchdb) {
-		var host = '127.0.0.1', port = 5984, database = 'items'; // rename database to fin?
+	this.init = function(couchdb, database) {
+		var host = '127.0.0.1', port = 5984;
 	  	this._db = couchdb.createClient(port, host).db(database)
+	}
+	
+	this.ensureExists = function() {
+		this._db.exists().addCallback(bind(this, function(exists){
+			if (!exists) { this._db.create() }
+		}))
 	}
 	
 	this.createItem = function(type, callback) {

@@ -15,7 +15,7 @@ jsio('import logging');
 jsio('import server.Database');
 jsio('import common.sha1');
 
-var database = new server.Database(couchdb);
+var database = new server.Database(couchdb, 'fin');
 
 var username = process.ARGV[2];
 var password = process.ARGV[3];

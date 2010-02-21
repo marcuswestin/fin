@@ -12,11 +12,15 @@ jsio('import server.Database');
 jsio('import server.Server');
 jsio('import server.Connection');
 
-var finDatabase = new server.Database(couchdb);
-var finServer = new server.Server(finDatabase, server.Connection);
-
-exports.startServer = function() {
-	net.listen(finServer, 'csp', {port: 5555});
+exports.startServer = function(args) {
+	args.database = args.database || 'fin';
+	args.port = args.port || 5555;
+	
+	var finDatabase = new server.Database(couchdb, args.database);
+	finDatabase.ensureExists()
+	
+	var finServer = new server.Server(finDatabase, server.Connection);
+	net.listen(finServer, 'csp', {port: args.port});
 }
 
 // 

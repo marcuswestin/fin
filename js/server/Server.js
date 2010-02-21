@@ -13,25 +13,25 @@ exports = Class(Server, function(supr) {
 		this._databaseScheduledWrites = {}
 	}
 	
-	this.authenticate = function(email, password, callback) {
-		this._database.getItemData(email, function(userDescription, error){
-			logger.log("Checking credentials for", email, "found", JSON.stringify(userDescription));
-			if (error) {
-				callback(false, 'That email is not in our database');
-			} else if (userDescription.properties.password != password) {
-				callback(false, 'That password isn\'t correct');
-			} else {
-				callback(userDescription.properties.labels);
-			}
-		})
-	}
+	// this.authenticate = function(email, password, callback) {
+	// 	this._database.getItemData(email, function(userDescription, error){
+	// 		logger.log("Checking credentials for", email, "found", JSON.stringify(userDescription));
+	// 		if (error) {
+	// 			callback(false, 'That email is not in our database');
+	// 		} else if (userDescription.properties.password != password) {
+	// 			callback(false, 'That password isn\'t correct');
+	// 		} else {
+	// 			callback(userDescription.properties.labels);
+	// 		}
+	// 	})
+	// }
 
-	this.getLabelList = function(label, callback) {
-		this._database.getList(label, function(response) {
-			var list = map(response.rows, function(row) { return row.value });
-			callback(list);
-		});
-	}
+	// this.getLabelList = function(label, callback) {
+	// 	this._database.getList(label, function(response) {
+	// 		var list = map(response.rows, function(row) { return row.value });
+	// 		callback(list);
+	// 	});
+	// }
 
 	this.subscribeToItemMutations = function(item, callback) {
 		var itemId = item.getId();

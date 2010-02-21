@@ -10,6 +10,7 @@ exports = Class(Server, function(supr) {
 		this._uniqueId = 0;
 		this._database = database;
 		this._databaseWriteFrequency = 1; // write on every update
+		this._databaseScheduledWrites = {}
 	}
 	
 	this.authenticate = function(email, password, callback) {
@@ -54,8 +55,14 @@ exports = Class(Server, function(supr) {
 			}
 		}
 		if (item._mutationCount++ % this._databaseWriteFrequency == 0) {
-			logger.log('store item changes to database for item', item.getId(), JSON.stringify(item._properties));
-			this._database.storeItemData(item.asObject(), bind(this, '_handleItemRevision', item));
+			var id = item.getId()
+			logger.log('store item changes to database for item', id, JSON.stringify(item._properties));
+			if (this._databaseScheduledWrites[id]) { return }
+			this._databaseScheduledWrites[id] = setTimeout(bind(this, function() {
+				clearTimeout(this._databaseScheduledWrites[id])
+				delete this._databaseScheduledWrites[id]
+				this._database.storeItemData(item.asObject(), bind(this, '_handleItemRevision', item));
+			}, 2000))
 		}
 	}
 	

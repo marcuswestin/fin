@@ -14,6 +14,7 @@ exports = Class(Publisher, function(supr) {
 	
 	this.mutate = function(mutation) {
 		mutation._id = this._id;
+		logger.log('mutate', mutation._id, mutation);
 		this._publish('Mutating', mutation);
 	}
 	
@@ -36,7 +37,7 @@ exports = Class(Publisher, function(supr) {
 		}
 		
 		// Lists
-		if (mutation.from && mutation.to) {
+		if (typeof mutation.from != 'undefined' && typeof mutation.to != 'undefined') {
 			var item = value.splice(mutation.from, 1)[0]
 			value.splice(mutation.to, 0, item)
 		}

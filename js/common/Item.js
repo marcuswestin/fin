@@ -1,8 +1,6 @@
 jsio('from common.javascript import Class, bind')
 jsio('import common.Publisher as Publisher')
 
-var logger = logging.getLogger(jsio.__path);
-
 exports = Class(Publisher, function(supr) {
 	
 	this.init = function(id, properties) {

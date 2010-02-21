@@ -33,7 +33,7 @@ install-node:
 ####################
 
 jsio:
-	git clone git://github.com/marcuswestin/js.io.git
+	git clone git://github.com/mcarter/js.io.git
 	mv js.io lib/
 
 node-couch:
@@ -48,7 +48,7 @@ node-growl:
 init-edit: jsio-edit node-couch-edit node-growl
 
 jsio-edit:
-	git clone git@github.com:marcuswestin/js.io.git
+	git clone git@github.com:mcarter/js.io.git
 	mv js.io lib/
 
 node-couch-edit:

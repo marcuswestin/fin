@@ -5,8 +5,6 @@ jsio('import browser.templateFactory')
 jsio('import browser.UIComponent')
 jsio('import browser.views.viewFactory')
 
-var logger = logging.getLogger(jsio.__path);
-
 // TODO: This code should really be contained inside ItemPanel instead
 exports = Class(browser.UIComponent, function(supr) {
 	

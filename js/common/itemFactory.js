@@ -2,8 +2,6 @@ jsio('from common.javascript import Singleton, Publisher, bind')
 jsio('import common.Item')
 jsio('import common.Publisher')
 
-var logger = logging.getLogger(jsio.__path)
-
 exports = Singleton(common.Publisher, function(supr) {
 	
 	this.init = function() {

@@ -1,7 +1,5 @@
 jsio('from common.javascript import Class, bind');
 
-var logger = logging.getLogger(jsio.__path);
-
 exports = Class(function() {
 	this.init = function(CouchDB) {
 		var host = '127.0.0.1', port = 5984;

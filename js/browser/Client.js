@@ -3,8 +3,6 @@ jsio('import net.protocols.rtjp');
 jsio('from common.javascript import Class, bind, forEach');
 jsio('import common.itemFactory');
 
-var logger = logging.getLogger(jsio.__path);
-
 exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 
 	this.transport = 'csp';

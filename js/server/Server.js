@@ -2,8 +2,6 @@ jsio('from common.javascript import Class, map, bind');
 jsio('from net.interfaces import Server');
 jsio('import common.itemFactory');
 
-var logger = logging.getLogger(jsio.__path);
-
 exports = Class(Server, function(supr) {
 
 	this.init = function(database, connectionConstructor) {

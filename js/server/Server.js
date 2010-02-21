@@ -67,8 +67,8 @@ exports = Class(Server, function(supr) {
 		if (error) {
 			logger.warn('could not store item', item.getId(), JSON.stringify(error));
 		} else {
-			logger.log('stored item', item.getId());
-			item._rev = response._rev;
+			logger.log('stored item and got new revision', response.id, response.rev);
+			item._rev = response.rev;
 		}
 	}
 	
@@ -83,19 +83,19 @@ exports = Class(Server, function(supr) {
 		}));
 	}
 	
-	this.createLabel = function(userId, labelName, mapCode, filterCode, callback) {
-		var views = { label: { map: mapCode } };
-		var filters = { label: filterCode };
-		var id = '_design/' + labelName;
-		this._database.storeItemData({ _id: id, views: views, filters: filters }, bind(this, function(respone){
-			this._database.getItemData(userId, bind(this, function(user) {
-				user.properties.labels = user.properties.labels.concat(labelName);
-				this._database.storeItemData(user, function(response){
-					callback(labelName);
-				});
-			}));
-		}));
-	}
+  // this.createLabel = function(userId, labelName, mapCode, filterCode, callback) {
+  //  var views = { label: { map: mapCode } };
+  //  var filters = { label: filterCode };
+  //  var id = '_design/' + labelName;
+  //  this._database.storeItemData({ _id: id, views: views, filters: filters }, bind(this, function(respone){
+  //    this._database.getItemData(userId, bind(this, function(user) {
+  //      user.properties.labels = user.properties.labels.concat(labelName);
+  //      this._database.storeItemData(user, function(response){
+  //        callback(labelName);
+  //      });
+  //    }));
+  //  }));
+  // }
 	
 	this.getItem = function(id, callback) {
 		if (common.itemFactory.hasItem(id)) {

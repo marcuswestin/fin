@@ -3,7 +3,7 @@ require('../../lib/js.io/packages/jsio');
 jsio.path.common = '../../js'
 jsio.path.server = '../../js'
 
-var CouchDB = require('../../lib/node-couch/module/node-couch').CouchDB;
+var couchdb = require('../../lib/node-couchdb/lib/couchdb');
 
 // Let's do it
 jsio('import net');
@@ -12,7 +12,7 @@ jsio('import server.Database');
 jsio('import server.Server');
 jsio('import server.Connection');
 
-var finDatabase = new server.Database(CouchDB);
+var finDatabase = new server.Database(couchdb);
 var finServer = new server.Server(finDatabase, server.Connection);
 
 exports.startServer = function() {

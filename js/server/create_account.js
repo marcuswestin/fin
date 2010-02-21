@@ -6,7 +6,7 @@ if (process.ARGV.length != 4) {
 }
 
 require('../../lib/js.io/packages/jsio');
-var CouchDB = require('../../lib/node-couch/module/node-couch').CouchDB;
+var couchdb = require('../../lib/node-couchdb/lib/couchdb');
 
 jsio.path.common = '../'
 jsio.path.server = '../'
@@ -15,7 +15,7 @@ jsio('import logging');
 jsio('import server.Database');
 jsio('import common.sha1');
 
-var database = new server.Database(CouchDB);
+var database = new server.Database(couchdb);
 
 var username = process.ARGV[2];
 var password = process.ARGV[3];

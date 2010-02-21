@@ -1,7 +1,7 @@
 
-.PHONY: init clean jsio node-couch node-growl monitor test
+.PHONY: init clean jsio node-couchdb node-growl monitor test
 
-init: jsio node-couch
+init: jsio node-couchdb
 
 run:
 	cd js/server; node run_server.js
@@ -36,24 +36,24 @@ jsio:
 	git clone git://github.com/mcarter/js.io.git
 	mv js.io lib/
 
-node-couch:
-	git clone git://github.com/marcuswestin/node-couch.git
-	mv node-couch lib/
+node-couchdb:
+	git clone git://github.com/marcuswestin/node-couchdb.git
+	mv node-couchdb lib/
 
 node-growl:
 	git clone git://github.com/marcuswestin/node-growl.git
 	mv node-growl lib/
 
 # Use init-edit for write-access versions of all lib imports
-init-edit: jsio-edit node-couch-edit node-growl
+init-edit: jsio-edit node-couchdb-edit node-growl
 
 jsio-edit:
 	git clone git@github.com:mcarter/js.io.git
 	mv js.io lib/
 
-node-couch-edit:
-	git clone git@github.com:marcuswestin/node-couch.git
-	mv node-couch lib/
+node-couchdb-edit:
+	git clone git@github.com:marcuswestin/node-couchdb.git
+	mv node-couchdb lib/
 
 node-growl-edit:
 	git clone git@github.com:marcuswestin/node-growl.git

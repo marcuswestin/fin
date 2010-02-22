@@ -16,7 +16,6 @@ run-couchdbx: lib/CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.app
 	cd js/server; ../../lib/node/build/default/node run_server.js
 
 clean:
-	rm -rf __MACOSX/
 	rm -rf lib/*
 	touch lib/empty.txt
 
@@ -90,6 +89,5 @@ install-growl-notify:
 lib/CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.app:
 	curl http://cloud.github.com/downloads/janl/couchdbx-core/CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.zip > CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.zip
 	unzip CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.zip
-	rm CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.zip
+	rm -rf CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.zip __MACOSX/
 	mv CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.app lib/
-

@@ -14,15 +14,19 @@ Getting started
 --------------
 
 *	If you don't have node.js installed
+
 	sudo make install node
 
 *	Load dependencies
+
 	make init
 
 *	If you don't have couchdb installed and running and you use snow leopard
+
 	make run-couchdbx
 
 *	If you do have couchdb running on localhost:5555 already
+
 	make run
 	
 *	Open a browser and navigate to localhost/path/to/fin/examples

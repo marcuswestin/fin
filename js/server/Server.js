@@ -62,7 +62,7 @@ exports = Class(Server, function(supr) {
 				clearTimeout(this._databaseScheduledWrites[id])
 				delete this._databaseScheduledWrites[id]
 				this._database.storeItemData(item.asObject(), bind(this, '_handleItemRevision', item));
-			}, 2000))
+			}), 2000)
 		}
 	}
 	

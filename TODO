@@ -2,12 +2,8 @@ TODO
 
 Support chain subscriptions properties
 
-Use node-couchdb instead of stale node-couch project
-
-Include lib's in repo
-	js.io
-	node-couchdb
-
 Look over API again - would be nice to have something like fin.applyToElement
 
-Make drag and drop support to lists
+Add drag and drop support to lists
+
+When referencing an object that doesn't exist yet, create it automatically and update the reference to point to the new object

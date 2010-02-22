@@ -13,23 +13,23 @@ then "name" in the span will update at every key stroke in the name Input. In an
 Getting started
 --------------
 
-*	If you don't have node.js installed
+(Fin is alpha, unversioned and unstable, but very actively developed)
 
-	<code>sudo make install-node</code>
+This setup process has been tested on OS X 10.6
 
-*	Load dependencies
+*	Download and builds dependencies
 
-	<code>make init</code>
+	<code>make dependencies</code>
 
-*	If you don't have couchdb installed and running and you use snow leopard
+*	If you don't have couchdb installed and running, you can just run it with couchdbx (snow leopard only)
 
 	<code>make run-couchdbx</code>
 
-*	If you do have couchdb running on localhost:5555 already
+*	If you already have couchdb running on localhost:5555
 
 	<code>make run</code>
 	
-*	Open a browser and navigate to localhost/path/to/fin/examples
+*	fin! Open up a browser to http://localhost/path/to/fin/examples
 
 
 Running tests

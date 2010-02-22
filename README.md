@@ -15,7 +15,7 @@ Getting started
 
 *	If you don't have node.js installed
 
-	<code>sudo make install node</code>
+	<code>sudo make install-node</code>
 
 *	Load dependencies
 

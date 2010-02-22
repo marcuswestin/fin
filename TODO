@@ -7,3 +7,5 @@ Look over API again - would be nice to have something like fin.applyToElement
 Add drag and drop support to lists
 
 When referencing an object that doesn't exist yet, create it automatically and update the reference to point to the new object
+
+Database: Remove the nested properties object - should just be reading directly off of the document

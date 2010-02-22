@@ -29,7 +29,7 @@ clean:
 .PHONY: jsio node-couchdb
 
 jsio:
-	git clone git://github.com/mcarter/js.io.git
+	git clone git://github.com/marcuswestin/js.io.git
 	mv js.io lib/
 
 node-couchdb:
@@ -41,8 +41,8 @@ node-couchdb:
 ###############
 ### Testing ###
 ###############
-.PHONY: test 
-test:
+.PHONY: run-tests
+run-tests:
 	cd tests; node run_tests.js
 
 
@@ -74,7 +74,7 @@ edit-node-growl:
 #######################
 ### Install helpers ###
 #######################
-.PHONY: install-couchdbx-snow-leopard
+.PHONY: install-growl-notify install-node
 
 install-growl-notify:
 	git clone git://github.com/marcuswestin/growl-notify.git
@@ -82,7 +82,7 @@ install-growl-notify:
 	rm -rf growl-notify;
 
 install-node:
-	git clone git://github.com/ry/node.git
+	git clone git://github.com/marcuswestin/node.git
 	cd node; ./configure; make; sudo make install
 	rm -rf node;
 

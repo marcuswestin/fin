@@ -24,11 +24,12 @@ exports = Class(function() {
 	// }
 	
 	this.getItemData = function(itemId, callback) {
-		if (!itemId) { 
-			logger.warn("getItemData called without an itemId. Refusing to pull all documents."); 
-			return callback(null);
-		}
 		this._db.getDoc(itemId).addCallback(callback)
+			.addErrback(bind(this, '_onGetItemError', itemId, callback))
+	}
+	
+	this._onGetItemError = function(itemId, callback) {
+		this._db.saveDoc(itemId, { properties: {} }).addCallback(callback)
 	}
 	
 	this.storeItemData = function(itemData, callback) {

@@ -60,11 +60,12 @@ exports = Class(Publisher, function(supr) {
 	this.getType = function() { return this._type; }
 
 	this.setSnapshot = function(snapshot) {
-		this.setType(snapshot.type);
-		this._rev = snapshot._rev;
+		this.setType(snapshot.type)
+		this._rev = snapshot._rev
 		for (var propertyName in snapshot.properties) {
-			var newValue = snapshot.properties[propertyName];
-			this._properties[propertyName] = newValue;
+			this._properties[propertyName] = snapshot.properties[propertyName]
+		}
+		for (var propertyName in this._propertySubscriptions) {
 			this._notifySubscribers(propertyName)
 		}
 	}

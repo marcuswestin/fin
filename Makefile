@@ -5,7 +5,7 @@
 
 .PHONY: dependencies run run-couchdbx clean
 
-dependencies: jsio node-couchdb ../../lib/node/build/default/node
+deps: jsio node-couchdb ../../lib/node/build/default/node
 
 run:
 	cd js/server; ../../lib/node/build/default/node run_server.js

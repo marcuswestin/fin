@@ -21,7 +21,7 @@ exports = Singleton(function(){
 	}
 	
 	// Apply an item to a fin template string
-	this.applyTemplate = function(templateString, item) {
+	this.getView = function(templateString, item) {
 		if (typeof item == 'string') { item = this.getItem(item) }
 		return browser.templateFactory.applyTemplate(templateString, item);
 	}

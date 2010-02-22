@@ -17,7 +17,7 @@
 				
 				var templateString = '<div style="margin-left: 40px"> List: (( List names )) </div>';
 
-				var viewEl = fin.applyTemplate(templateString, itemId)
+				var viewEl = fin.getView(templateString, itemId)
 				// var inputEl = fin.getInput(itemId, 'model')
 				document.body.appendChild(viewEl)
 				// document.body.appendChild(inputEl)

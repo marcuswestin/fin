@@ -24,15 +24,26 @@ exports = Class(Value, function(supr){
 	}
 	
 	this._setValue = function(value) {
-		this._element.value = value
+		this._element.value = typeof value == 'string' ? value : this._name
 	}
 	
-	this._onFocus = function() { this._focused = true }
-	this._onBlur = function() { this._focused = false }
+	this._onFocus = function() { 
+		this._focused = true
+		if (this._element.value == this._name) { this._element.value = '' }
+	}
+	this._onBlur = function() { 
+		this._focused = false 
+		if (this._element.value == '') { this._element.value = this._name }
+	}
 	
 	this._onPropertyUpdated = function(newValue) {
 		this._element.disabled = false
-		if (this._focused) { return }
+		if (this._focused) { 
+			this._onFocus()
+			return
+		} else {
+			this._onBlur
+		}
 		this._setValue(newValue)
 	}
 	

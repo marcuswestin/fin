@@ -5,15 +5,15 @@
 
 .PHONY: dependencies run run-couchdbx clean
 
-deps: jsio node-couchdb ../../lib/node/build/default/node
+deps: jsio node-couchdb
 
 run:
-	cd js/server; ../../lib/node/build/default/node run_server.js
+	cd js/server; node run_server.js
 
 run-couchdbx: lib/CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.app
 	open lib/CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.app &
 	sleep 3
-	cd js/server; ../../lib/node/build/default/node run_server.js
+	cd js/server; node run_server.js
 
 clean:
 	rm -rf lib/*
@@ -36,12 +36,6 @@ node-couchdb:
 	git clone git://github.com/marcuswestin/node-couchdb.git
 	mv node-couchdb lib/
 	cd lib/node-couchdb/; git checkout 9283376d57cff9f3ac3aabf9705dc98b6ecb3a8e
-
-../../lib/node/build/default/node:
-	git clone git://github.com/ry/node.git
-	# install node v0.1.29
-	mv node lib/node
-	cd lib/node; git checkout 87d5e5b316a4276bcf881f176971c1a237dcdc7a; ./configure; make;
 
 ###############
 ### Testing ###
@@ -79,7 +73,13 @@ edit-node-growl:
 #######################
 ### Install helpers ###
 #######################
-.PHONY: install-growl-notify
+.PHONY: install-node install-growl-notify
+
+install-node:
+	git clone git://github.com/ry/node.git
+	# install node v0.1.29
+	mv node lib/node
+	cd lib/node; git checkout 87d5e5b316a4276bcf881f176971c1a237dcdc7a; ./configure; make; sudo make install;
 
 install-growl-notify:
 	git clone git://github.com/marcuswestin/growl-notify.git

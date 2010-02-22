@@ -17,7 +17,7 @@ exports = Singleton(function(){
 	
 	// Get an input field for an item
 	this.getInput = function(itemId, propertyName) {
-		return this.applyTemplate('(( Input ' + propertyName + '))', itemId)
+		return this.getView('(( Input ' + propertyName + '))', itemId)
 	}
 	
 	// Apply an item to a fin template string

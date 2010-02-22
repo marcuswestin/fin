@@ -17,6 +17,10 @@ Getting started
 
 This setup process has been tested on OS X 10.6
 
+*	fin requires node v0.1.29. To install it, run
+
+	<code>sudo make install-node</code>
+
 *	Download and builds dependencies
 
 	<code>make deps</code>

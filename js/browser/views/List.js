@@ -45,7 +45,6 @@ exports = Class(Value, function(supr){
 	}
 	
 	this._onPropertyUpdated = function(newItems) { 
-		console.log('_onPropertyUpdated', newItems)
 		this._setValue(newItems)
 	}
 })

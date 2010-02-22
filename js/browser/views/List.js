@@ -10,12 +10,13 @@ exports = Class(Value, function(supr){
 			this.innerHTML = '';
 		} else {
 			this._items = items
-			this._render(items)
+			this._render()
 		}
 	}
 	
 	this._render = function() {
 		this._element.innerHTML = ''
+		if (!this._items || !this._items.length) { return; }
 		for (var i=0, item; itemValue = this._items[i]; i++) {
 			// allow reverse lookup of position
 			if (typeof itemValue == 'number') { itemValue = String(itemValue) }

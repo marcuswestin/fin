@@ -42,13 +42,13 @@ exports = Singleton(function(){
 		}));
 		
 		this.handleEvent('FIN_EVENT_ITEM_SNAPSHOT', function(properties) {
-			setTimeout(bind(common.itemFactory, 'loadItemSnapshot', properties), 0)
+			common.itemFactory.loadItemSnapshot(properties)
 		})
 		
 		// When an item has succesfully mutated, apply the mutation
 		this.handleEvent('FIN_EVENT_ITEM_MUTATED', function(mutation) {
 			var item = common.itemFactory.getItem(mutation._id)
-			setTimeout(bind(item, 'applyMutation', mutation, false), 0)
+			item.applyMutation(mutation);
 		})
 	}
 })

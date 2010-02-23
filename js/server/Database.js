@@ -29,7 +29,7 @@ exports = Class(function() {
 	}
 	
 	this._onGetItemError = function(itemId, callback) {
-		this._db.saveDoc(itemId, { properties: {} }).addCallback(callback)
+		this._db.saveDoc(itemId, { properties: {} }).addCallback(bind(this, 'getItemData', itemId, callback))
 	}
 	
 	this.storeItemData = function(itemData, callback) {

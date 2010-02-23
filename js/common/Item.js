@@ -20,7 +20,7 @@ exports = Class(common.Publisher, function(supr) {
 		this._publish('Mutating', mutation);
 	}
 	
-	this.applyMutation = function(mutation, silent) {
+	this.applyMutation = function(mutation) {
 		logger.log('apply mutation', mutation._id, mutation);
 		var value = this._properties[mutation.property] || ''
 		// Numbers

@@ -30,6 +30,8 @@ exports = Class(common.Publisher, function(supr) {
 	
 	this.addDependant = function(propertyChain, dependantCallback) {
 		if (propertyChain.length == 0) { debugger; }
+		propertyChain = propertyChain.slice(0)
+		
 		this._dependants.push({ propertyChain: propertyChain, dependantCallback: dependantCallback })
 		if (this._referencedItem) {
 			this._referencedItem.addDependant(propertyChain, dependantCallback)

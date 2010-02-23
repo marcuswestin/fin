@@ -37,14 +37,15 @@ exports = Class(Value, function(supr){
 	}
 	
 	this._onPropertyUpdated = function(newValue) {
+		if (typeof newValue == 'undefined') { 
+			this._onBlur()
+			return
+		}
+		if (this._focused) { return }
+		this._element.disabled = false
 		this._setValue(newValue)
 		if (typeof newValue == 'undefined') { return }
-		this._element.disabled = false
-		if (this._focused) { 
-			this._onFocus()
-		} else {
-			this._onBlur()
-		}
+		this._onBlur()
 	}
 	
 	this._onKeyPress = function(e) {

@@ -81,6 +81,7 @@ exports = Class(common.Publisher, function(supr) {
 	
 	this.addDependant = function(propertyChain, dependantCallback) {
 		if (typeof propertyChain == 'string') { propertyChain = propertyChain.split('.') }
+		propertyChain = propertyChain.slice(0)
 		var propertyName = propertyChain.shift()
 		if (propertyChain.length == 0) { 
 			this._subscribeToProperty(propertyName, dependantCallback)

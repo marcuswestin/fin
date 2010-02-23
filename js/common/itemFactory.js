@@ -22,7 +22,19 @@ exports = Singleton(common.Publisher, function(supr) {
 		this._publish('ItemCreated', this._items[id])
 		return this._items[id]
 	}
-
+	
+	this.getChainedItem = function(item, propertyChain) {
+		propertyChain = propertyChain.slice(0)
+		var referencePropertyName = propertyChain.shift()
+		var chainItemId = item.getProperty(referencePropertyName)
+		var nextItem = this.getItem(chainItemId)
+		if (propertyChain.length == 0) {
+			return nextItem
+		} else {
+			return this.getChainedItem(nextItem, propertyChain)
+		}
+	}
+	
 	this.hasItem = function(id) {
 		return !!this._items[id]
 	}

@@ -5,9 +5,17 @@
 	<body>
 		<div id="template" style="display: none;">
 
+
 			<div class="user">
 				<b>A User</b>
+				<div>User name: (( name )) </div>
+				<div>User name: (( Input name )) </div>
+			</div>
+
+			<div class="friend">
+				<b>User's Friend</b>
 				<div>Friend name: (( friend.name )) </div>
+				<div>Friend name: (( Input friend.name )) </div>
 			</div>
 		</div>
 			
@@ -20,7 +28,7 @@
 			
 			fin.connect(function(){
 				var template = document.getElementById('template').innerHTML
-				document.body.appendChild(fin.getView(template, 'test-friend'))
+				document.body.appendChild(fin.getView(template, 'marcus'))
 			})
 		</script>
 	</body>

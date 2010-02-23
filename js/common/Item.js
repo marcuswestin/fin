@@ -91,6 +91,14 @@ exports = Class(common.Publisher, function(supr) {
 		item.addDependant(propertyChain, dependantCallback)
 	}
 	
+	this.getChainedItem = function(propertyChain) {
+		if (propertyChain.length == 0) { 
+			return this 
+		} else {
+			return this._factory.getChainedItem(this, propertyChain)
+		}
+	}
+	
 	this.asObject = function() {
 		return { _id: this._id, _rev: this._rev, type: this._type, properties: this._properties };
 	}

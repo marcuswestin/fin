@@ -11,8 +11,8 @@ exports = Class(Value, function(supr){
 	this.init = function(item, args) {
 		supr(this, 'init', arguments)
 		
-		var value = this._item.getProperty(this._name)
-		if (typeof value == 'undefined') { this._element.disabled = true }
+		this._propertyChain = this._name.split('.')
+		this._name = this._propertyChain.pop()
 		
 		events.add(this._element, 'focus', bind(this, '_onFocus'))
 		events.add(this._element, 'keypress', bind(this, '_onKeyPress'))
@@ -37,14 +37,14 @@ exports = Class(Value, function(supr){
 	}
 	
 	this._onPropertyUpdated = function(newValue) {
+		this._setValue(newValue)
+		if (typeof newValue == 'undefined') { return }
 		this._element.disabled = false
 		if (this._focused) { 
 			this._onFocus()
-			return
 		} else {
-			this._onBlur
+			this._onBlur()
 		}
-		this._setValue(newValue)
 	}
 	
 	this._onKeyPress = function(e) {
@@ -53,7 +53,7 @@ exports = Class(Value, function(supr){
 		
 		var position = browser.caret.getPosition(this._element)
 		var selectionLength = position.end - position.start
-		var mutation = { property: this._name, position: position.caret - selectionLength }
+		var mutation = { position: position.caret - selectionLength }
 		
 		if (e.keyCode == events.keyCodes['enter'] && !browser.keyboard.shiftIsDown()) {
 			this._element.blur()
@@ -81,6 +81,7 @@ exports = Class(Value, function(supr){
 		// Don't publish no op mutations
 		if (!mutation.deletion && !mutation.addition) { return }
 		
-		this._item.mutate(mutation)
+		mutation.property = this._name
+		this._item.getChainedItem(this._propertyChain).mutate(mutation)
 	}
 })

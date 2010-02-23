@@ -38,26 +38,26 @@ This setup process has been tested on OS X 10.6
 
 Using fin (javascript)
 ----------------------
-	// Get an item by id
+Get an item by id
 	var item = fin.getItem('itemId')
 	
-	// Get a view of an item
+Get a view of an item
 	var viewEl = fin.getView('<div>(( task.dueDate ))</div>', item)
 	document.body.appendChild(viewEl)
 	
-	// Get a view using multiple items
+Get a view using multiple items
 	fin.getView('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', {
 		user: userItem,
 		message: messageItem
 	})
 
-	// Get a view of an array (a list)
+Get a view of an array (a list)
 	fin.getView('<div>(( List names ))</div>', item)
 
-	// Create an input field for an item property
+Create an input field for an item property
 	fin.getView('<div>(( name ))</div><div>(( Input name ))</div>', item)
 	
-	// add a dependant to the user's current task's date's time. The function will be called right away, as well as when the value changes
+add a dependant to the user's current task's date's time. The function will be called right away, as well as when the value changes
 	item.addDependant('user.currentTask.date.time', function(value){ /* render or do something with value */ })
 
 

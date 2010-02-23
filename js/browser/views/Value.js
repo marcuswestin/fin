@@ -2,7 +2,7 @@ jsio('from common.javascript import Class, bind')
 
 exports = Class(function(supr){
 	
-	this._domType = 'div'
+	this._domType = 'span'
 	
 	this.init = function(item, args) {
 		this._element = document.createElement(this._domType)

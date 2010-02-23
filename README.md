@@ -8,7 +8,7 @@ In fin, if you say
 		<br/>(( Input name ))
 	</div>
 
-then "name" in the span will update at every key stroke in the name Input. In any browser.
+then "name" in the span will update at every key stroke in the name Input. On all computers.
 
 Getting started
 --------------

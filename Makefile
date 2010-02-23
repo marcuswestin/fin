@@ -49,12 +49,12 @@ run-tests:
 ###################
 ### Development ###
 ###################
-.PHONY: monitor-tests edit-jsio edit-node-couchdb edit-node-growl
+.PHONY: monitor-tests edit-deps edit-jsio edit-node-couchdb edit-node-growl
 
 monitor-tests:
 	cd tests; node monitor_tests.js
 
-edit-init: edit-jsio edit-node-couchdb edit-node-growl
+edit-deps: edit-jsio edit-node-couchdb edit-node-growl
 
 edit-jsio:
 	git clone git@github.com:mcarter/js.io.git
@@ -80,6 +80,7 @@ install-node:
 	# install node v0.1.29
 	mv node lib/node
 	cd lib/node; git checkout 87d5e5b316a4276bcf881f176971c1a237dcdc7a; ./configure; make; sudo make install;
+	rm -rf lib/node;
 
 install-growl-notify:
 	git clone git://github.com/marcuswestin/growl-notify.git

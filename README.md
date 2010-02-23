@@ -57,11 +57,8 @@ Using fin (javascript)
 	// Create an input field for an item property
 	fin.getView('<div>(( name ))</div><div>(( Input name ))</div>', item)
 	
-	// Deprecated: subscribe to changes of an item property
-	item.subscribeToProperty('propertyName', function callback(newPropertyValue){})
-	
-	// subscribeToProperty will be replaced with addDependant, but it's not yet implemented
-	item.addDependant('user.currentTask.date.time', function(value){ /* render or do something with value */ }) // coming soon
+	// add a dependant to the user's current task's date's time. The function will be called right away, as well as when the value changes
+	item.addDependant('user.currentTask.date.time', function(value){ /* render or do something with value */ })
 
 
 Writing custom fin views

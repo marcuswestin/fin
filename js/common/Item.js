@@ -1,14 +1,16 @@
 jsio('from common.javascript import Class, bind')
-jsio('import common.Publisher as Publisher')
+jsio('import common.Publisher')
+jsio('import common.ItemReference')
 
-exports = Class(Publisher, function(supr) {
+exports = Class(common.Publisher, function(supr) {
 	
-	this.init = function(id, properties) {
+	this.init = function(factory, id) {
 		supr(this, 'init');
 		this._id = id;
+		this._factory = factory;
 		this._type = null;
 		this._rev = null;
-		this._properties = properties || {};
+		this._properties = {};
 		this._propertySubscriptions = {};
 	}
 	
@@ -72,9 +74,21 @@ exports = Class(Publisher, function(supr) {
 	this.setType = function(type) {
 		this._type = type;
 	}
-	this.subscribeToProperty = function(property, callback) {
+	this._subscribeToProperty = function(property, callback) {
 		if (!this._propertySubscriptions[property]) { this._propertySubscriptions[property] = []; }
 		this._propertySubscriptions[property].push(callback);
+	}
+	
+	this.addDependant = function(propertyChain, dependantCallback) {
+		if (typeof propertyChain == 'string') { propertyChain = propertyChain.split('.') }
+		var propertyName = propertyChain.shift()
+		if (propertyChain.length == 0) { 
+			this._subscribeToProperty(propertyName, dependantCallback)
+			dependantCallback(this._properties[propertyName])
+			return
+		}
+		var item = new common.ItemReference(this._factory, this, propertyName)
+		item.addDependant(propertyChain, dependantCallback)
 	}
 	
 	this.asObject = function() {

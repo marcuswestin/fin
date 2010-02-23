@@ -1,45 +1,49 @@
 jsio('from common.javascript import Class, bind, forEach');
 jsio('import common.Publisher')
-jsio('import common.itemFactory')
 
 exports = Class(common.Publisher, function(supr) {
 	
-	this.init = function(sourceItem, referencedItemType, itemReferencePropertyName) {
+	this.init = function(factory, sourceItem, itemReferencePropertyName) {
 		supr(this, 'init');
+		this._factory = factory;
 		this._proxiedCalls = [];
-		this._referencedItemType = referencedItemType;
+		this._dependants = [];
 		var referenceItemId = sourceItem.getProperty(itemReferencePropertyName, true);
-		if (referenceItemId) {
-			this._referencedItem = common.itemFactory.getItem(referenceItemId);
-		}
-		sourceItem.subscribeToProperty(itemReferencePropertyName, 
-			bind(this, '_onReferenceChanged'));
+		sourceItem.addDependant(itemReferencePropertyName, bind(this, '_onReferenceChanged'))
 	}
 	
 	this.getReferencedItem = function() { return this._referencedItem; }
 	
-	this._onReferenceChanged = function(newReferenceItemId) {
-		this._referencedItem = common.itemFactory.getItem(newReferenceItemId);
+	this._onReferenceChanged = function(referencedItemId) {
+		if (typeof referencedItemId == 'undefined') { return }
+		this._referencedItem = this._factory.getItem(referencedItemId);
 		for (var i=0, proxiedCall; proxiedCall = this._proxiedCalls[i]; i++) {
 			var methodName = proxiedCall[0];
 			var args = proxiedCall[1];
 			this[methodName].apply(this, args);
 		}
 		this._proxiedCalls = [];
-		this._publish('ReferenceChanged')
+		for (var i=0, dependant; dependant = this._dependants[i]; i++) {
+			this._referencedItem.addDependant(dependant.propertyChain, dependant.dependantCallback)
+		}
+	}
+	
+	this.addDependant = function(propertyChain, dependantCallback) {
+		if (propertyChain.length == 0) { debugger; }
+		this._dependants.push({ propertyChain: propertyChain, dependantCallback: dependantCallback })
+		if (this._referencedItem) {
+			this._referencedItem.addDependant(propertyChain, dependantCallback)
+		}
 	}
 	
 	this.getId = function() { return this._referencedItem.getId(); }
 	this.asObject = function() { return this._referencedItem.asObject(); }
 	this.toString = function() { return this._referencedItem.toString(); }
-	this.getType = function() { return this._referencedItemType; }
-	this.getProperty = function(propertyName, noDefaultValue) { 
+	this.getProperty = function(propertyName) { 
 		if (this._referencedItem) { 
 			return this._referencedItem.getProperty(propertyName); 
-		} else if (noDefaultValue) {
-			return null;
 		} else {
-			return propertyName;
+			return undefined;
 		}
 	}
 	
@@ -59,5 +63,4 @@ exports = Class(common.Publisher, function(supr) {
 	this.applyMutation = createProxiedMethod('applyMutation');
 	this.setSnapshot = createProxiedMethod('setSnapshot');
 	this.setType = createProxiedMethod('setType');
-	this.subscribeToProperty = createProxiedMethod('subscribeToProperty');
 })

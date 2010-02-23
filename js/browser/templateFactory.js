@@ -3,7 +3,7 @@ jsio('import browser.viewFactory')
 
 exports = Singleton(function() {
 	
-	this._widgetRegex = /\(\([\w\s]+?\)\)/g
+	this._widgetRegex = /\(\([\.\w\s]+?\)\)/g
 	// this._listRegex = /\[\[[^\]]+?\]\]/g
 	
 	this.applyTemplate = function(templateString, item) {

@@ -10,14 +10,15 @@ exports = Singleton(common.Publisher, function(supr) {
 	}
 	
 	this.loadItemSnapshot = function(snapshot, callback) {
-		logger.log('Loading snapshot for item', snapshot)
+		logger.log('Loading snapshot', snapshot._id, snapshot)
 		var item = this.getItem(snapshot._id)
 		item.setSnapshot(snapshot)
 	}
 	
 	this.getItem = function(id) {
 		if (this._items[id]) { return this._items[id] }
-		this._items[id] = new common.Item(id)
+		logger.log("Create item", id)
+		this._items[id] = new common.Item(this, id)
 		this._publish('ItemCreated', this._items[id])
 		return this._items[id]
 	}

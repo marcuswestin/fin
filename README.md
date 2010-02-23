@@ -45,7 +45,7 @@ Get a view of an item
 	var viewEl = fin.getView('<div>(( task.dueDate ))</div>', item)
 	document.body.appendChild(viewEl)
 	
-Get a view using multiple items
+Get a view using multiple items (not yet supported)
 	fin.getView('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', {
 		user: userItem,
 		message: messageItem

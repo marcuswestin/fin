@@ -10,31 +10,19 @@ In fin, if you say
 
 then "name" in the span will update at every key stroke in the name Input. On all computers.
 
-Getting started
+Getting started on OS X 10.6
 --------------
 
-(Fin is alpha, unversioned and unstable, but very actively developed)
+Fin is alpha, unversioned and unstable. It is currently developed and tested only on OS X 10.6. 
 
-This setup process has been tested on OS X 10.6
-
-*	fin requires node v0.1.29. To install it, run
-
-	<code>sudo make install-node</code>
-
-*	Download and builds dependencies
-
-	<code>make deps</code>
-
-*	If you don't have couchdb installed and running, you can just run it with couchdbx (snow leopard only)
-
-	<code>make run-couchdbx</code>
-
-*	If you already have couchdb running on localhost:5555
-
-	<code>make run</code>
+	sudo make install-node #install node v0.1.29
+	make deps #download all js dependencies
+	make run-couchdbx #run fin using a local instance of couchdbx
+	# Fire up a browser and navigate to localhost/path/to/fin/examples
 	
-*	fin! Open up a browser to http://localhost/path/to/fin/examples
+If you already have couchdb running on localhost:5555, replace <code>make run-couchdbx</code> with <code>make run</code>
 
+To get fin to run on OS X 10.5 you'd probably only need to replace the reference to CouchDBX for OS X 10.6 with the version for OS X 10.5 in Makefile 
 
 Using fin - API
 ---------------

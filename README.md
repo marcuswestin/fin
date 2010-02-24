@@ -36,8 +36,8 @@ This setup process has been tested on OS X 10.6
 *	fin! Open up a browser to http://localhost/path/to/fin/examples
 
 
-Using fin (javascript)
-----------------------
+Using fin - API
+---------------
 Get a view of an item
 	var viewEl = fin.getView('<div>(( task.dueDate ))</div>', 'item-id')
 	document.body.appendChild(viewEl)
@@ -48,6 +48,14 @@ Get a view of an array (a list)
 Create an input field for an item property
 	fin.getView('<div>(( name ))</div><div>(( Input name ))</div>', 'item-id')
 
+*Under the hood* - Get an item by id
+	var item = fin.getItem('itemId')
+	
+*Under the hood* - Add a dependant to the user's current task's date. The function will be called right away and when the value changes
+	item.addDependant('user.currentTask.date', function(value){ /* render or do something with value */ })
+
+Upcoming API
+------------
 Get a view using multiple items (not yet supported)
 	fin.getView('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', 
 		{ user: userItem, message: messageItem })
@@ -55,12 +63,7 @@ Get a view using multiple items (not yet supported)
 Get a view of a list of items by properties (not yet supported)
 	var topPriorityBugsList = fin.getListView('<div class="list-item"> (( priority )) Owner: (( owner.name ))</div>, 
 		{ type: 'bug', priority: 1 })
-	
-*Under the hood* - Get an item by id
-	var item = fin.getItem('itemId')
-	
-*Under the hood* - Add a dependant to the user's current task's date. The function will be called right away and when the value changes
-	item.addDependant('user.currentTask.date', function(value){ /* render or do something with value */ })
+
 
 Writing custom fin views
 ------------------------

@@ -1,17 +1,27 @@
 TODO
 
-Database: Remove the nested properties object - should just be reading directly off of the document
+=== P1 ====
 
-Property chaining depends alot on recursive calls modifying the property chain, which requires a bunch of dependancyChain.slice(0) copying of the dependancy chain array. Should use loops instead, without modifying the propertyChain
+Support list views - these should map to CouchDB Views with subscriptions to the changes api
 
 Support passing in multiple items to getView
 	fin.getView('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', {
 		user: userItem,
 		message: messageItem
 	})
-	
-	
-MAYBES
+
+
+
+=== P2 ====
+
+Database: Remove the nested properties object - should just be reading directly off of the document
+
+Property chaining depends alot on recursive calls modifying the property chain, which requires a bunch of dependancyChain.slice(0) copying of the dependancy chain array. Should use loops instead, without modifying the propertyChain
+
+
+
+
+=== P3 ====
 
 Look over API again - would be nice to have something like fin.applyToElement
 

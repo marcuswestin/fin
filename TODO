@@ -7,6 +7,20 @@ Support updating list views
 	Gloabl (implicit order): uses couchdb views with sort order. UI cannot change order directly. Uses changes API with a filter
 	Global (explicit order): uses couchdb views over a specific property to give order. Uses changes API with a filter
 
+	- GLOBAL IMPLICIT ORDER by public item member property
+	e.g. order items of type task by public property priority ("public" in the sense that other views might read and write this property)
+	translates to a couch view keyed by the key "priority"
+	UI is not allowed to directly mutate order of items in list.  Task list UI has to mutate tasks' priority to effect order
+
+	- GLOBAL EXPLICIT ORDER by private item member property
+	e.g. order items of type task by private property _priority_list_position. ("private" in the sense that no other UI should read or write this property)
+	translates to a couch view keyed by the key "_priority_list_position"
+	UI is allowed to directly mutate order of items in list (by e.g. drag and drop). The interesting part becomes if multiple global explicit views use the same property to order - then changing the ordering in one list will change the order in other lists as well.
+
+	- LOCAL EXPLICIT ORDER
+	e.g. list of values, like a person's interests
+	translates to an array of values
+	
 === P2 ====
 
 Database: Remove the nested properties object - should just be reading directly off of the document

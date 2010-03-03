@@ -1,12 +1,6 @@
 var posix = require('posix');
 var sys = require('sys')
 
-require('../lib/js.io/packages/jsio');
-
-jsio.path.browser = '../js/'
-jsio.path.common = '../js/'
-jsio.path.server = '../js/'
-
 exports.forEachFile = function(dir, callback) {
 	var entries = posix.readdir(dir).wait();
 	for (var i=0, entry; entry = entries[i]; i++) {

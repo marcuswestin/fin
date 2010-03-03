@@ -2,7 +2,10 @@ TODO
 
 === P1 ====
 
-Support list views - these should map to CouchDB Views with subscriptions to the changes api
+Support updating list views
+	Local: uses array property. UI can change order
+	Gloabl (implicit order): uses couchdb views with sort order. UI cannot change order directly. Uses changes API with a filter
+	Global (explicit order): uses couchdb views over a specific property to give order. Uses changes API with a filter
 
 Support passing in multiple items to getView
 	fin.getView('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', {
@@ -25,4 +28,4 @@ Property chaining depends alot on recursive calls modifying the property chain, 
 
 Look over API again - would be nice to have something like fin.applyToElement
 
-Add drag and drop support to lists
+Create ListDragNDrop view for drag and drop support to lists

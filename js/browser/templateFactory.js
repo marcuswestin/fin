@@ -4,9 +4,12 @@ jsio('import browser.viewFactory')
 exports = Singleton(function() {
 	
 	this._widgetRegex = /\(\([\.\w\s]+?\)\)/g
+	this._itemReferenceRegex = /([\w]+)?\.([\.\w]+)/
+	this._singleItemName = '__item'
+	
 	// this._listRegex = /\[\[[^\]]+?\]\]/g
 	
-	this.applyTemplate = function(templateString, item) {
+	this.applyTemplate = function(templateString, items, singleItem) {
 		
 		// compile template
 		// templateString = this._replaceListsWithViews(templateString)
@@ -14,10 +17,15 @@ exports = Singleton(function() {
 		// replace view template strings with elements we can later extract and replace with views
 		var templateElement = document.createElement('span')
 		var viewElements = []
-
-		viewMatches = this._findViewsInTemplate(templateString)
+		
+		if (singleItem) {
+			var item = items, items = {}
+			items[this._singleItemName] = item
+		}
+		
+		viewMatches = this._findViewsInTemplate(templateString, singleItem)
 		for (var i=0, viewMatch; viewMatch = viewMatches[i]; i++) {
-			var view = browser.viewFactory.getView(item, viewMatch.name, viewMatch.args)
+			var view = browser.viewFactory.getView(items, viewMatch.name, viewMatch.references)
 			viewElements[i] = view.getElement()
 			templateString = templateString.replace(viewMatch.string, '<finPlaceholder viewIndex="'+i+'"></finPlaceholder>')
 		}
@@ -48,19 +56,25 @@ exports = Singleton(function() {
 	// 	return template
 	// }
 
-	this._findViewsInTemplate = function(template) {
+	this._findViewsInTemplate = function(template, singleItem) {
 		var matches = template.match(this._widgetRegex)
 		var views = []
 		if (!matches) { return views }
 		for (var i=0, match; match = matches[i]; i++) {
 			var stripped = strip(match.substring(2, match.length - 2)) // strip (( )) and whitespace
 			var args = stripped.split(' ')
-			if (args.length == 1) {
-				name = 'Value'
-			} else {
-				var name = args.shift()
+			var name = (args.length == 1 ? 'Value' : args.shift())
+			
+			var references = []
+			for (var j=0, arg; arg = args[j]; j++) {
+				if (singleItem) {
+					references[j] = { item: this._singleItemName, property: arg }
+				} else {
+					var itemAndPropertyMatches = arg.match(this._itemReferenceRegex)
+					references[j] = { item: itemAndPropertyMatches[1], property: itemAndPropertyMatches[2] }
+				}
 			}
-			views.push({ name: name, args: args , string: match })
+			views.push({ name: name, references: references , string: match })
 		}
 		return views
 	}

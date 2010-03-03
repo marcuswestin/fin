@@ -1,5 +1,6 @@
 jsio('from common.javascript import Singleton, bind')
 jsio('import common.itemFactory')
+jsio('import common.Item')
 jsio('import browser.Client')
 jsio('import browser.templateFactory')
 
@@ -21,9 +22,16 @@ exports = Singleton(function(){
 	}
 	
 	// Apply an item to a fin template string
-	this.getView = function(templateString, item) {
-		if (typeof item == 'string') { item = this.getItem(item) }
-		return browser.templateFactory.applyTemplate(templateString, item);
+	this.getView = function(templateString, items) {
+		if (typeof items == 'string') { items = this.getItem(items) }
+		var singleItem = (items instanceof common.Item)
+		if (!singleItem) {
+			for (var itemKey in items) {
+				if (items[itemKey] instanceof common.Item) { continue }
+				items[itemKey] = this.getItem(items[itemKey])
+			}
+		}
+		return browser.templateFactory.applyTemplate(templateString, items, singleItem);
 	}
 	
 	// Register yourself to handle events from the server

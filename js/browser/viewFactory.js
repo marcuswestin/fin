@@ -5,9 +5,9 @@ jsio('from common.javascript import Singleton');
 
 exports = Singleton(function() {
 	
-	this.getView = function(item, name, args) {
+	this.getView = function(items, name, references) {
 		jsio('import browser.views.' + name + ' as viewConstructor')
-		var view = new viewConstructor(item, args);
+		var view = new viewConstructor(items, references);
 		return view;
 	}
 })

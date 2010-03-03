@@ -8,11 +8,11 @@ exports = Class(Value, function(supr){
 	
 	this._domType = 'input'
 	
-	this.init = function(item, args) {
+	this.init = function() {
 		supr(this, 'init', arguments)
 		
-		this._propertyChain = this._name.split('.')
-		this._name = this._propertyChain.pop()
+		this._propertyChain = this._property.split('.')
+		this._property = this._propertyChain.pop()
 		
 		events.add(this._element, 'focus', bind(this, '_onFocus'))
 		events.add(this._element, 'keypress', bind(this, '_onKeyPress'))
@@ -24,16 +24,16 @@ exports = Class(Value, function(supr){
 	}
 	
 	this._setValue = function(value) {
-		this._element.value = typeof value == 'string' ? value : this._name
+		this._element.value = typeof value == 'string' ? value : this._property
 	}
 	
 	this._onFocus = function() { 
 		this._focused = true
-		if (this._element.value == this._name) { this._element.value = '' }
+		if (this._element.value == this._property) { this._element.value = '' }
 	}
 	this._onBlur = function() { 
 		this._focused = false 
-		if (this._element.value == '') { this._element.value = this._name }
+		if (this._element.value == '') { this._element.value = this._property }
 	}
 	
 	this._onPropertyUpdated = function(newValue) {
@@ -82,7 +82,7 @@ exports = Class(Value, function(supr){
 		// Don't publish no op mutations
 		if (!mutation.deletion && !mutation.addition) { return }
 		
-		mutation.property = this._name
+		mutation.property = this._property
 		this._item.getChainedItem(this._propertyChain).mutate(mutation)
 	}
 })

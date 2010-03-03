@@ -7,14 +7,6 @@ Support updating list views
 	Gloabl (implicit order): uses couchdb views with sort order. UI cannot change order directly. Uses changes API with a filter
 	Global (explicit order): uses couchdb views over a specific property to give order. Uses changes API with a filter
 
-Support passing in multiple items to getView
-	fin.getView('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', {
-		user: userItem,
-		message: messageItem
-	})
-
-
-
 === P2 ====
 
 Database: Remove the nested properties object - should just be reading directly off of the document

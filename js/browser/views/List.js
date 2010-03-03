@@ -41,7 +41,7 @@ exports = Class(Value, function(supr){
 	this._moveItem = function(itemValue, delta) {
 		var current = this._items[itemValue]
 		var next = current + delta
-		var mutation = { property: this._name, from: current, to: next }
+		var mutation = { property: this._property, from: current, to: next }
 		this._item.mutate(mutation)
 	}
 	

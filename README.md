@@ -36,6 +36,10 @@ Get a view of an array (a list)
 Create an input field for an item property
 	fin.getView('<div>(( name ))</div><div>(( Input name ))</div>', 'item-id')
 
+Get a view using multiple items
+	fin.getView('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', 
+		{ user: userItem, message: messageItem })
+
 *Under the hood* - Get an item by id
 	var item = fin.getItem('itemId')
 	
@@ -44,9 +48,6 @@ Create an input field for an item property
 
 Upcoming API
 ------------
-Get a view using multiple items (not yet supported)
-	fin.getView('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', 
-		{ user: userItem, message: messageItem })
 
 Get a view of a list of items by properties (not yet supported)
 	var topPriorityBugsList = fin.getListView('<div class="list-item"> (( priority )) Owner: (( owner.name ))</div>, 

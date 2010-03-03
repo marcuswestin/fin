@@ -4,19 +4,20 @@ exports = Class(function(supr){
 	
 	this._domType = 'span'
 	
-	this.init = function(item, args) {
+	this.init = function(items, references) {
 		this._element = document.createElement(this._domType)
-		this._item = item
-		this._name = args[0]
+		var reference = references[0] // only take one argument
+		this._property = reference.property
+		this._item = items[reference.item]
 		
-		this._item.addDependant(this._name, bind(this, '_onPropertyUpdated'))
+		this._item.addDependant(this._property, bind(this, '_onPropertyUpdated'))
 	}
 	
 	this.getElement = function() { return this._element }
 	
 	this._setValue = function(value) {
-		if (typeof value == 'undefined') { value = 'loading ' + this._name + '...' }
-		value = value || this._name
+		if (typeof value == 'undefined') { value = 'loading ' + this._property + '...' }
+		value = value || this._property
 		value = value.replace(/\n/g, '<br />')
 		value = value.replace(/ $/, '&nbsp;')
 		this._element.innerHTML = value

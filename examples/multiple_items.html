@@ -1,0 +1,37 @@
+<html>
+	<head>
+		<title>fin-test</title>
+	</head>
+	<body>
+		<div id="template" style="display: none;">
+
+			<div class="user">
+				<b>Two users</b>
+				<div>User 1: (( Value user1.name )) </div>
+				<div>User 2: (( Value user2.name )) </div>
+			</div>
+			<br />
+			<div class="input">
+				<b>Edit users</b>
+				<div>User 1: (( Input user1.name )) </div>
+				<div>User 2: (( Input user2.name )) </div>
+			</div>
+			<br />
+			<br />
+			<br />
+		</div>
+			
+		
+		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
+		<script type="text/javascript">
+			jsio.path.browser = '../js';
+			jsio.path.common = '../js';
+			jsio('import browser.API as fin')
+			
+			fin.connect(function(){
+				var template = document.getElementById('template').innerHTML
+				document.body.appendChild(fin.getView(template, { user1: 'marcus', user2: 'kwame' }))
+			})
+		</script>
+	</body>
+</html>

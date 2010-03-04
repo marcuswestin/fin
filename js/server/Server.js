@@ -58,7 +58,7 @@ exports = Class(Server, function(supr) {
 			clearTimeout(this._databaseScheduledWrites[id])
 			delete this._databaseScheduledWrites[id]
 			logger.log('store item in database', id, JSON.stringify(item._properties));
-			this._database.storeItemData(item.asObject(), bind(this, '_handleItemRevision', item));
+			this._database.storeItemData(item.getProperties(), bind(this, '_handleItemRevision', item));
 		}), 2000)
 	}
 	
@@ -71,7 +71,7 @@ exports = Class(Server, function(supr) {
 			logger.warn('could not store item', item.getId(), JSON.stringify(error));
 		} else {
 			logger.log('stored item and got new revision', response.id, response.rev);
-			item._rev = response.rev;
+			item.setRevision(response.rev);
 		}
 	}
 	
@@ -110,9 +110,7 @@ exports = Class(Server, function(supr) {
 			this._database.getItemData(id, function(data) {
 				logger.log('retrieved item from database', JSON.stringify(data));
 				var item = common.itemFactory.getItem(data._id);
-				item.setType(data.type);
-				item._rev = data._rev;
-				item._properties = data.properties;
+				item.setSnapshot(data, true)
 				callback(item);
 			});
 		}

@@ -25,12 +25,7 @@ Make fin server and database work from the browser
 
 === P2 ====
 
-Database: Remove the nested properties object - should just be reading directly off of the document
-
 Property chaining depends alot on recursive calls modifying the property chain, which requires a bunch of dependancyChain.slice(0) copying of the dependancy chain array. Should use loops instead, without modifying the propertyChain
-
-
-
 
 === P3 ====
 

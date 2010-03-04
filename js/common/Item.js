@@ -6,16 +6,14 @@ exports = Class(common.Publisher, function(supr) {
 	
 	this.init = function(factory, id) {
 		supr(this, 'init');
-		this._id = id;
+		this._properties = { _id: id, _rev: null };
 		this._factory = factory;
 		this._type = null;
-		this._rev = null;
-		this._properties = {};
 		this._propertySubscriptions = {};
 	}
 	
 	this.mutate = function(mutation) {
-		mutation._id = this._id;
+		mutation._id = this.getId();
 		logger.log('mutate', mutation._id, mutation);
 		this._publish('Mutating', mutation);
 	}
@@ -57,22 +55,15 @@ exports = Class(common.Publisher, function(supr) {
 		}
 	}
 	
-	this.getId = function() { return this._id; }
+	this.getId = function() { return this._properties._id; }
 	this.getProperty = function(propertyName) { return this._properties[propertyName] }
-	this.getType = function() { return this._type; }
-
-	this.setSnapshot = function(snapshot) {
-		this.setType(snapshot.type)
-		this._rev = snapshot._rev
-		for (var propertyName in snapshot.properties) {
-			this._properties[propertyName] = snapshot.properties[propertyName]
-		}
+	
+	this.setSnapshot = function(snapshot, dontNotify) {
+		this._properties = snapshot
+		if (dontNotify) { return; }
 		for (var propertyName in this._propertySubscriptions) {
 			this._notifySubscribers(propertyName)
 		}
-	}
-	this.setType = function(type) {
-		this._type = type;
 	}
 	this._subscribeToProperty = function(property, callback) {
 		if (!this._propertySubscriptions[property]) { this._propertySubscriptions[property] = []; }
@@ -100,9 +91,8 @@ exports = Class(common.Publisher, function(supr) {
 		}
 	}
 	
-	this.asObject = function() {
-		return { _id: this._id, _rev: this._rev, type: this._type, properties: this._properties };
-	}
+	this.setRevision = function(revision) { this._properties._rev = revision; }
+	this.getProperties = function() { return this._properties }
 	
 	this.toString = function() {
 		return this._id;

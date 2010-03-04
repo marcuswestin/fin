@@ -13,7 +13,7 @@ exports = Class(RTJPProtocol, function(supr) {
 			this.server.getItem(itemId, bind(this, function(item) {
 				var callback = bind(this, 'sendFrame', 'FIN_EVENT_ITEM_MUTATED')
 				this._itemSubscriptions[itemId] = this.server.subscribeToItemMutations(item, callback)
-				this.sendFrame('FIN_EVENT_ITEM_SNAPSHOT', item.asObject())
+				this.sendFrame('FIN_EVENT_ITEM_SNAPSHOT', item.getProperties())
 			}))
 		}))
 

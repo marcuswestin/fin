@@ -39,7 +39,6 @@ exports = Class(common.Publisher, function(supr) {
 	}
 	
 	this.getId = function() { return this._referencedItem.getId(); }
-	this.asObject = function() { return this._referencedItem.asObject(); }
 	this.toString = function() { return this._referencedItem.toString(); }
 	this.getProperty = function(propertyName) { 
 		if (this._referencedItem) { 
@@ -64,5 +63,5 @@ exports = Class(common.Publisher, function(supr) {
 	this.mutate = createProxiedMethod('mutate');
 	this.applyMutation = createProxiedMethod('applyMutation');
 	this.setSnapshot = createProxiedMethod('setSnapshot');
-	this.setType = createProxiedMethod('setType');
+	this.setRevision = createProxiedMethod('setRevision');
 })

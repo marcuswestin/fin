@@ -21,6 +21,8 @@ Support updating list views
 	e.g. list of values, like a person's interests
 	translates to an array of values
 	
+Make fin server and database work from the browser
+
 === P2 ====
 
 Database: Remove the nested properties object - should just be reading directly off of the document

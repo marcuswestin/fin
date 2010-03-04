@@ -12,11 +12,6 @@ exports = Class(function() {
 		}))
 	}
 	
-	this.createItem = function(type, callback) {
-		this._db.saveDoc({ type: type, properties: {} })
-			.addCallback(callback)
-	}
-	
 	// this.createUser = function(username, hashedPassword, callback) {
 	// 	var userProperties = { password: hashedPassword, email: username }
 	// 	this._db.saveDoc({ _id: username, type: 'user', properties: userProperties })

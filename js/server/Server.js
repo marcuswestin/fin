@@ -75,17 +75,6 @@ exports = Class(Server, function(supr) {
 		}
 	}
 	
-	this.createItem = function(type, callback) {
-		this._database.createItem(type, bind(this, function(response, error) {
-			if (error) {
-				logger.warn('could not create item', type, JSON.stringify(error));
-			} else {
-				logger.log('created item', type, response._id);
-				this.getItem(response._id, callback);
-			}
-		}));
-	}
-	
   // this.createLabel = function(userId, labelName, mapCode, filterCode, callback) {
   //  var views = { label: { map: mapCode } };
   //  var filters = { label: filterCode };

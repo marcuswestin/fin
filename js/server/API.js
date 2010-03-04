@@ -23,15 +23,6 @@ exports.startServer = function(args) {
 	net.listen(finServer, 'csp', {port: args.port});
 }
 
-// 
-// this._handleItemCreationRequest = function(properties) {
-// 	this.server.createItem(properties, bind(this, function(item){
-// 		this.sendFrame('ITEM_CREATED', item.asObject());
-// 	}))
-// }
-// 
-
-
 // case 'AUTHENTICATE':
 // 		this.server.authenticate(args.email, args.password, bind(this, function(userLabels, errorMessage) {
 // 			if (!userLabels) {

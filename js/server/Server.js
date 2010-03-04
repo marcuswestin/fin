@@ -35,17 +35,16 @@ exports = Class(Server, function(supr) {
 	this.subscribeToItemMutations = function(item, callback) {
 		var itemId = item.getId();
 		if (!this._mutationSubscriptions[itemId]) { this._mutationSubscriptions[itemId] = {}; }
-		logger.log('subscribeToItemMutations', this._mutationSubscriptions[itemId].length, 'subscribers');
 		var subId = 'sub' + this._uniqueId++;
 		this._mutationSubscriptions[itemId][subId] = callback;
 		return subId;
 	}
 	
 	this.handleMutation = function(mutation) {
-		var item = common.itemFactory.getItem(mutation._id);
-		logger.log('handleMutation', mutation._id, item._mutationCount, JSON.stringify(mutation));
+		var id = mutation._id, item = common.itemFactory.getItem(id);
+		logger.log('handleMutation', id, JSON.stringify(mutation));
 		item.applyMutation(mutation, true);
-		var subs = this._mutationSubscriptions[item.getId()];
+		var subs = this._mutationSubscriptions[id];
 		for (var key in subs) {
 			try {
 				subs[key](mutation);				

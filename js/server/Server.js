@@ -9,7 +9,6 @@ exports = Class(Server, function(supr) {
 		this._mutationSubscriptions = {};
 		this._uniqueId = 0;
 		this._database = database;
-		this._databaseWriteFrequency = 1; // write on every update
 		this._databaseScheduledWrites = {}
 	}
 	
@@ -54,16 +53,14 @@ exports = Class(Server, function(supr) {
 				logger.error('Error when handling mutation', JSON.stringify(e));
 			}
 		}
-		if (item._mutationCount++ % this._databaseWriteFrequency == 0) {
-			var id = item.getId()
-			logger.log('store item changes to database for item', id, JSON.stringify(item._properties));
-			if (this._databaseScheduledWrites[id]) { return }
-			this._databaseScheduledWrites[id] = setTimeout(bind(this, function() {
-				clearTimeout(this._databaseScheduledWrites[id])
-				delete this._databaseScheduledWrites[id]
-				this._database.storeItemData(item.asObject(), bind(this, '_handleItemRevision', item));
-			}), 2000)
-		}
+		
+		if (this._databaseScheduledWrites[id]) { return }
+		this._databaseScheduledWrites[id] = setTimeout(bind(this, function() {
+			clearTimeout(this._databaseScheduledWrites[id])
+			delete this._databaseScheduledWrites[id]
+			logger.log('store item in database', id, JSON.stringify(item._properties));
+			this._database.storeItemData(item.asObject(), bind(this, '_handleItemRevision', item));
+		}), 2000)
 	}
 	
 	this.unsubscribeFromItemMutations = function(itemId, subId) {
@@ -117,7 +114,6 @@ exports = Class(Server, function(supr) {
 				item.setType(data.type);
 				item._rev = data._rev;
 				item._properties = data.properties;
-				item._mutationCount = 0;
 				callback(item);
 			});
 		}

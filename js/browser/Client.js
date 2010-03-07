@@ -5,7 +5,8 @@ jsio('import common.itemFactory');
 
 exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 
-	this.transport = 'csp';
+	// Hack to detect if we should use postmessage. See js/server/index.html
+	this.transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp';
 	this.url = "http://" + (document.domain || "127.0.0.1") + ":5555";
 
 	this.init = function(playerFactory) {
@@ -64,7 +65,9 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 
 	this._log = function() {
 		var args = Array.prototype.slice.call(arguments);
-		args.unshift(this.transport._conn._sessionKey);
+		if (this.transport._conn) {
+			args.unshift(this.transport._conn._sessionKey);
+		}
 		logger.log.apply(this, args);
 	}
 });

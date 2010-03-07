@@ -1,11 +1,12 @@
 jsio('from common.javascript import Class, map, bind');
 jsio('from net.interfaces import Server');
+jsio('import server.Connection');
 jsio('import common.itemFactory');
 
 exports = Class(Server, function(supr) {
 
-	this.init = function(database, connectionConstructor) {
-		supr(this, 'init', [connectionConstructor]);
+	this.init = function(database) {
+		supr(this, 'init', [server.Connection]);
 		this._mutationSubscriptions = {};
 		this._uniqueId = 0;
 		this._database = database;
@@ -96,7 +97,11 @@ exports = Class(Server, function(supr) {
 			callback(item);
 		} else {
 			logger.log('get item from database', id);
-			this._database.getItemData(id, function(data) {
+			this._database.getItemData(id, function(err, data) {
+				if (err) {
+					logger.warn("Could not retrieve item from db", id, err)
+					return;
+				}
 				logger.log('retrieved item from database', JSON.stringify(data));
 				var item = common.itemFactory.getItem(data._id);
 				item.setSnapshot(data, true)

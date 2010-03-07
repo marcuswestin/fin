@@ -1,13 +1,12 @@
 jsio('from common.javascript import Class, bind');
 
 exports = Class(function() {
-	this.init = function(couchdb, database) {
-		var host = '127.0.0.1', port = 5984;
-	  	this._db = couchdb.createClient(port, host).db(database)
+	this.init = function(db) {
+		this._db = db
 	}
 	
 	this.ensureExists = function() {
-		this._db.exists().addCallback(bind(this, function(exists){
+		this._db.exists(bind(this, function(exists){
 			if (!exists) { this._db.create() }
 		}))
 	}
@@ -19,17 +18,28 @@ exports = Class(function() {
 	// }
 	
 	this.getItemData = function(itemId, callback) {
-		this._db.getDoc(itemId).addCallback(callback)
-			.addErrback(bind(this, '_onGetItemError', itemId, callback))
+		this._db.getDoc(itemId, bind(this, function(err, doc){
+			if (err) {
+				this._onGetItemError(itemId, callback);
+				return;
+			}
+			callback(err, doc);
+		}));
 	}
 	
 	this._onGetItemError = function(itemId, callback) {
-		this._db.saveDoc(itemId, {}).addCallback(bind(this, 'getItemData', itemId, callback))
+		this._db.saveDoc(itemId, {}, bind(this, function(err, ok){
+			if (err) {
+				logger.warn("Could not save document", itemId, err);
+				return;
+			}
+			this._db.getDoc(itemId, callback);
+		}))
 	}
 	
 	this.storeItemData = function(itemData, callback) {
 		logger.log('store item data', JSON.stringify(itemData))
-		this._db.saveDoc(itemData).addCallback(callback);
+		this._db.saveDoc(itemData, callback)
 	}
 	
 	// this.getList = function(label, callback) {

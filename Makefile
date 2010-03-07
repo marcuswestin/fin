@@ -33,9 +33,9 @@ jsio:
 	cd lib/js.io/; git checkout 4c831469774c1709b0e1b62af864d63995f6ed59
 
 node-couchdb:
-	git clone git://github.com/marcuswestin/node-couchdb.git
+	git clone git://github.com/felixge/node-couchdb.git
 	mv node-couchdb lib/
-	cd lib/node-couchdb/; git checkout 9283376d57cff9f3ac3aabf9705dc98b6ecb3a8e
+	cd lib/node-couchdb/; git checkout cb4d08b727f1dc47ee82170bb3b644783d445f68
 
 ###############
 ### Testing ###

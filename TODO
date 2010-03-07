@@ -21,7 +21,7 @@ Support updating list views
 	e.g. list of values, like a person's interests
 	translates to an array of values
 	
-Make fin server and database work from the browser
+Make FakeDatabase use local storage
 
 === P2 ====
 

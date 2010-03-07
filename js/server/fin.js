@@ -1,27 +1,24 @@
 // jsio
-require('../../lib/js.io/packages/jsio');
 jsio.path.common = '../../js'
 jsio.path.server = '../../js'
 
-var couchdb = require('../../lib/node-couchdb/lib/couchdb');
-
 // Let's do it
 jsio('import net');
-jsio('import logging');
+jsio('from common.javascript import Singleton')
 jsio('import server.Database');
 jsio('import server.Server');
-jsio('import server.Connection');
 
-exports.startServer = function(args) {
-	args.database = args.database || 'fin';
-	args.port = args.port || 5555;
+fin = Singleton(function() {
 	
-	var finDatabase = new server.Database(couchdb, args.database);
-	finDatabase.ensureExists()
+	this.startServer = function(args) {
+		var finDatabase = new server.Database(args.db);
+		finDatabase.ensureExists();
+		
+		var finServer = new server.Server(finDatabase);
+		return net.listen(finServer, (args.transport || 'csp'), { port: args.port || 5555 });
+	}
 	
-	var finServer = new server.Server(finDatabase, server.Connection);
-	net.listen(finServer, 'csp', {port: args.port});
-}
+})
 
 // case 'AUTHENTICATE':
 // 		this.server.authenticate(args.email, args.password, bind(this, function(userLabels, errorMessage) {

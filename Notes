@@ -1,0 +1,40 @@
+Redis 
+	in-memory
+	key value store
+	has node.js driver
+	supports client sharding by consistent key hashing
+	networks over tcp with strings (e.g. "EXISTS " + itemKey + "\r\n")
+	has atomic operators
+		inc/dec - clobbers, e.g. inc on "test" becomes "1"
+		set_intersect - intersect(['2', '3', '5', '7'], ['2', '4', '6']) => ['2']
+		to get intersections working cross machines, you need to map possibly intersecting keys to same machine
+	key can have TTL to expire from datastore
+	smaller sets of data, asynch write is ok => Redis
+	large sets of data (too big for RAM), => Not Redis
+	http://github.com/fictorial/redis-node-client
+
+Reactive Javascript
+	Flapjax - docs http://www.flapjax-lang.org/docs/ demo http://www.flapjax-lang.org/try/
+	Reactive javascript extensions
+	http://www.blueskyonmars.com/2010/02/23/slownews-declarative-events-in-js-redis-mono-facebook-x2/
+	Time varying values (behaviors) and discreet sequences of values (events)
+	transformers take an event stream and returns another (e.g. requests as input and outputs an event stream of response)
+		interface IObservable {
+		  	IDiposable Attach(IObserver o);    // returns an un-subscription handle.
+		}
+
+		interface IObserver {
+		  	void Yield(T event);
+		  	void Break();    // this was the last event from this source.
+		  	void Throw(Exception ex);    // source blew up. no more events.
+		}
+	
+Live map reduce
+	item store, writes to both database and live map
+	database
+	map
+
+Node.js hosting
+	http://remysharp.com/2010/02/14/slicehost-nodejs-websockets/
+
+	

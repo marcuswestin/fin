@@ -29,6 +29,8 @@ Property chaining depends alot on recursive calls modifying the property chain, 
 
 === P3 ====
 
+Remove all semi colons
+
 Look over API again - would be nice to have something like fin.applyToElement
 
 Create ListDragNDrop view for drag and drop support to lists

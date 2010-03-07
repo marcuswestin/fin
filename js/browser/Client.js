@@ -28,23 +28,23 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			this._onConnectedCallbacks = [onConnectedCallback];
 		}
 	}
-	
+
 	this.connectionMade = function() {
 		this._isConnected = true
 		for (var i=0, cb; cb = this._onConnectedCallbacks[i]; i++) { cb() }
 		delete this._onConnectedCallbacks;
 	}
-	
+
 	this.connectionLost = function() {
 		this._isConnected = false
 	}
-	
+
 /* Events 
  ********/
 	this.registerEventHandler = function(frameName, callback) {
 		this._eventHandlers[frameName] = callback
 	}
-	
+
 	this.frameReceived = function(id, name, args) {
 		logger.log('frameReceived', id, name, JSON.stringify(args))
 		if (!this._eventHandlers[name]) { 

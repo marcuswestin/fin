@@ -30,7 +30,7 @@ clean:
 jsio:
 	git clone git://github.com/mcarter/js.io.git
 	mv js.io lib/
-	cd lib/js.io/; git checkout 4c831469774c1709b0e1b62af864d63995f6ed59
+	cd lib/js.io/; git checkout f4a9d4939201992173f1612db972e04adf01c6ed
 
 node-couchdb:
 	git clone git://github.com/felixge/node-couchdb.git

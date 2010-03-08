@@ -37,4 +37,5 @@ Live map reduce
 Node.js hosting
 	http://remysharp.com/2010/02/14/slicehost-nodejs-websockets/
 
-	
+Global pubsub
+	Interesting stuff at http://bitbucket.org/malde/bespinserv-malde/changeset/1ece23e8d374/

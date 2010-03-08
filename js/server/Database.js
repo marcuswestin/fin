@@ -29,10 +29,7 @@ exports = Class(function() {
 	
 	this._onGetItemError = function(itemId, callback) {
 		this._db.saveDoc(itemId, {}, bind(this, function(err, ok){
-			if (err) {
-				logger.warn("Could not save document", itemId, err);
-				return;
-			}
+			if (err) throw err
 			this._db.getDoc(itemId, callback);
 		}))
 	}

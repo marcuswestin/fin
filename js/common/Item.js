@@ -8,7 +8,6 @@ exports = Class(common.Publisher, function(supr) {
 		supr(this, 'init');
 		this._properties = { _id: id, _rev: null };
 		this._factory = factory;
-		this._type = null;
 		this._propertySubscriptions = {};
 	}
 	
@@ -94,7 +93,5 @@ exports = Class(common.Publisher, function(supr) {
 	this.setRevision = function(revision) { this._properties._rev = revision; }
 	this.getProperties = function() { return this._properties }
 	
-	this.toString = function() {
-		return this._id;
-	}
+	this.toString = function() { return this._properties._id }
 })

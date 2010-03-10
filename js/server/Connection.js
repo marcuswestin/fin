@@ -10,30 +10,39 @@ exports = Class(RTJPProtocol, function(supr) {
 		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEM', bind(this, function(args){
 			var itemId = args.id
 			this._log('subscribing to item', itemId)
-			this.server.getItem(itemId, bind(this, function(item) {
-				var callback = bind(this, 'sendFrame', 'FIN_EVENT_ITEM_MUTATED')
-				this._itemSubscriptions[itemId] = this.server.subscribeToItemMutations(item, callback)
-				this.sendFrame('FIN_EVENT_ITEM_SNAPSHOT', item.getProperties())
-			}))
+			var onMutated = bind(this, function(mutation) {
+				this.sendFrame('FIN_EVENT_ITEM_MUTATED', mutation)
+			})
+			this._itemSubs[itemId] = this.server.subscribeToItemMutations(itemId, onMutated, 
+				bind(this, 'sendFrame', 'FIN_EVENT_ITEM_SNAPSHOT'))
 		}))
 
 		this.handleRequest('FIN_REQUEST_MUTATE_ITEM', bind(this, function(mutation){
 			this.server.handleMutation(mutation);
 		}))
-
+		
+		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEMSET', bind(this, function(request) {
+			var onMutated = bind(this, '_onItemSetMutated')
+			this._itemSetSubs = this.server.subscribeToItemSetMutations(request.id, onMutated, 
+				bind(this, 'sendFrame', 'FIN_EVENT_ITEMSET_SNAPSHOT'))
+		}))
 	}
 	
 /* Connection
  ************/
 	this.connectionMade = function() {
 		this._log('connectionMade');
-		this._itemSubscriptions = {};
+		this._itemSubs = {};
+		this._itemSetSubs = {};
 	}
 	
 	this.connectionLost = function() {
 		logger.log('connection lost - unsubscribing from item mutation subscriptions');
-		for (var itemId in this._itemSubscriptions) {
-			this.server.unsubscribeFromItemMutations(itemId, this._itemSubscriptions[itemId]);
+		for (var itemId in this._itemSubs) {
+			this.server.unsubscribeFromItemMutations(itemId, this._itemSubs[itemId]);
+		}
+		for (var itemSetId in this._itemSetSubs) {
+			this.server.unsubscribeFromItemSetMutations(itemSetId, this._itemSetSubs[itemId]);
 		}
 	}
 	
@@ -51,7 +60,14 @@ exports = Class(RTJPProtocol, function(supr) {
 		}
 		this._requestHandlers[name](args)
 	}
-	
+
+/* Item sets
+ ***********/
+
+	this._onItemSetMutated = function(mutation) {
+		this.sendFrame('FIN_EVENT_ITEMSET_MUTATED', mutation)
+	}
+
 /* Util
  ******/
 	this.sendFrame = function(name, args) {

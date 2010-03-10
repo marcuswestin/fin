@@ -35,7 +35,7 @@ exports = Class(function() {
 	}
 	
 	this.storeItemData = function(itemData, callback) {
-		logger.log('store item data', JSON.stringify(itemData))
+		logger.debug('store item data', JSON.stringify(itemData))
 		this._db.saveDoc(itemData, callback)
 	}
 	

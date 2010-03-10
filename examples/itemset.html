@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<title>fin-test</title>
+	</head>
+	<body>
+		<div id="template" style="display: none;">
+
+			<div class="user">
+				<b>A User</b>
+				<div>Name: (( name )) </div>
+				<div>Email: (( email )) </div>
+				<div>Profile: (( profile )) </div>
+			</div>
+			<br />
+			<div class="input">
+				<b>Edit user</b>
+				<br />Name: (( Input name ))
+				<br />Email: (( Input email ))
+				<br />Profile: (( Input profile ))
+			</div>
+			<br />
+			<br />
+			<br />
+		</div>
+			
+		<div id="output">
+			
+		</div>
+		
+		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
+		<script type="text/javascript" src="../js/browser/fin.js"></script>
+		<script type="text/javascript">
+			fin.connect(function(){
+				var template = document.getElementById('template').innerHTML
+				document.body.appendChild(fin.getView(template, 'marcus'))
+				// 
+				var itemSet = fin.getItemSet(
+					['name', '=', 'marcus'],
+					['email', '=', 'marcus@meebo-inc.com']
+				)
+				
+				var output = document.getElementById('output')
+				itemSet.subscribe('ItemAdded', function(){
+					output.innerHTML += "Item added!"
+				})
+				itemSet.subscribe('ItemRemoved', function(){
+					output.innerHTML += "Item removed!"
+				})
+			})
+		</script>
+	</body>
+</html>

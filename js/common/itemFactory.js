@@ -9,10 +9,18 @@ exports = Singleton(common.Publisher, function(supr) {
 		this._items = {}
 	}
 	
-	this.loadItemSnapshot = function(snapshot, callback) {
+	this.handleItemSnapshot = function(snapshot, callback) {
 		logger.log('Loading snapshot', snapshot._id, snapshot)
 		var item = this.getItem(snapshot._id)
 		item.setSnapshot(snapshot)
+	}
+	
+	this.handleMutation = function(mutation) {
+		logger.log('handleMutation', JSON.stringify(mutation));
+		var item = this.getItem(mutation._id)
+		item.applyMutation(mutation)
+		
+		this._publish('ItemPropertyUpdated', item, mutation.property)
 	}
 	
 	this.getItem = function(id) {

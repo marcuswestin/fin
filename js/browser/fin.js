@@ -4,6 +4,8 @@ jsio.path.common = '../js';
 jsio('from common.javascript import Singleton, bind')
 jsio('import common.itemFactory')
 jsio('import common.Item')
+jsio('import common.ItemSetFactory')
+jsio('import browser.ItemSetLocalStore')
 jsio('import browser.Client')
 jsio('import browser.templateFactory')
 
@@ -42,9 +44,19 @@ fin = Singleton(function(){
 		this._client.registerEventHandler(eventName, callback)
 	}
 	
+	// Grab an item set
+	this.getItemSet = function(/* condition1, condition2, ... */) {
+		var conditions = Array.prototype.slice.call(arguments, 0);
+		var itemSet = this._itemSetFactory.getItemSetByConditions(conditions)
+		this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEMSET', { id: itemSet.getId() });
+		return itemSet
+	}
+	
 	// Private method - hook up all internals
 	this.init = function() {
 		this._client = new browser.Client();
+		var localStore = new browser.ItemSetLocalStore()
+		this._itemSetFactory = new common.ItemSetFactory(localStore)
 		
 		// Whenever a new item is created, subscribe to it and hook up to send mutations to server
 		common.itemFactory.subscribe('ItemCreated', bind(this, function(item) {
@@ -53,13 +65,23 @@ fin = Singleton(function(){
 		}));
 		
 		this.handleEvent('FIN_EVENT_ITEM_SNAPSHOT', function(properties) {
-			common.itemFactory.loadItemSnapshot(properties)
+			common.itemFactory.handleItemSnapshot(properties)
 		})
 		
 		// When an item has succesfully mutated, apply the mutation
 		this.handleEvent('FIN_EVENT_ITEM_MUTATED', function(mutation) {
-			var item = common.itemFactory.getItem(mutation._id)
-			item.applyMutation(mutation);
+			common.itemFactory.handleMutation(mutation)
 		})
+
+		this.handleEvent('FIN_EVENT_ITEMSET_MUTATED', bind(this, function(mutation) {
+			var itemSet = this._itemSetFactory.getItemSetById(mutation._id)
+			console.log("TODO handle item set mutation")
+		}))
+
+		this.handleEvent('FIN_EVENT_ITEMSET_SNAPSHOT', bind(this, function(mutation) {
+			console.log("TODO handle item set snapshot")
+		}))
+		
+		
 	}
 })

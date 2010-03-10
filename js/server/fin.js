@@ -7,6 +7,7 @@ jsio('import net');
 jsio('from common.javascript import Singleton')
 jsio('import server.Database');
 jsio('import server.Server');
+jsio('import server.ItemSetRedisStore');
 
 fin = Singleton(function() {
 	
@@ -14,7 +15,9 @@ fin = Singleton(function() {
 		var finDatabase = new server.Database(args.db);
 		finDatabase.ensureExists();
 		
-		var finServer = new server.Server(finDatabase);
+		var finItemStore = new server.ItemSetRedisStore(args.redisClient)
+
+		var finServer = new server.Server(finDatabase, finItemStore);
 		return net.listen(finServer, (args.transport || 'csp'), { port: args.port || 5555 });
 	}
 	

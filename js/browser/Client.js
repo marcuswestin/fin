@@ -59,15 +59,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
  ******/ 
 	// override for loggin
 	this.sendFrame = function(name, args) {
-		this._log('sendFrame', name, JSON.stringify(args));
+		logger.log('sendFrame', name, JSON.stringify(args))
 		supr(this, 'sendFrame', arguments);
-	}
-
-	this._log = function() {
-		var args = Array.prototype.slice.call(arguments);
-		if (this.transport._conn) {
-			args.unshift(this.transport._conn._sessionKey);
-		}
-		logger.log.apply(this, args);
 	}
 });

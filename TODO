@@ -31,6 +31,8 @@ Property chaining depends alot on recursive calls modifying the property chain, 
 
 Remove all semi colons
 
+Remove all old commented code, and save whatever should be saved as TODOs or snippets elsewhere
+
 Look over API again - would be nice to have something like fin.applyToElement
 
 Create ListDragNDrop view for drag and drop support to lists

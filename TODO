@@ -29,6 +29,8 @@ Property chaining depends alot on recursive calls modifying the property chain, 
 
 Sanitize property names and values?
 
+Unsubscribe once for each subscribe call - Publisher#unsubscribe is completely unused
+
 === P3 ====
 
 Remove all semi colons

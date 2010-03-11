@@ -51,5 +51,3 @@ exports = Class(browser.UIComponent, function(supr) {
 		this._propertyViews.push(view);
 	}
 })
-
-window.__gItemViewClass = exports;// jsio doesn't support circular imports...

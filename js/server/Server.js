@@ -18,26 +18,6 @@ exports = Class(Server, function(supr) {
 		this._itemSetSubscriberPool = new common.SubscriptionPool()
 	}
 	
-	// this.authenticate = function(email, password, callback) {
-	// 	this._database.getItemData(email, function(userDescription, error){
-	// 		logger.log("Checking credentials for", email, "found", JSON.stringify(userDescription));
-	// 		if (error) {
-	// 			callback(false, 'That email is not in our database');
-	// 		} else if (userDescription.properties.password != password) {
-	// 			callback(false, 'That password isn\'t correct');
-	// 		} else {
-	// 			callback(userDescription.properties.labels);
-	// 		}
-	// 	})
-	// }
-
-	// this.getLabelList = function(label, callback) {
-	// 	this._database.getList(label, function(response) {
-	// 		var list = map(response.rows, function(row) { return row.value });
-	// 		callback(list);
-	// 	});
-	// }
-
 	this.subscribeToItemMutations = function(itemId, subCallback, snapshotCallback) {
 		var subId = this._itemSubscriberPool.add(itemId, subCallback)
 		this._getItemSnapshot(itemId, snapshotCallback)
@@ -103,20 +83,6 @@ exports = Class(Server, function(supr) {
 			item.setRevision(response.rev);
 		}
 	}
-	
-  // this.createLabel = function(userId, labelName, mapCode, filterCode, callback) {
-  //  var views = { label: { map: mapCode } };
-  //  var filters = { label: filterCode };
-  //  var id = '_design/' + labelName;
-  //  this._database.storeItemData({ _id: id, views: views, filters: filters }, bind(this, function(respone){
-  //    this._database.getItemData(userId, bind(this, function(user) {
-  //      user.properties.labels = user.properties.labels.concat(labelName);
-  //      this._database.storeItemData(user, function(response){
-  //        callback(labelName);
-  //      });
-  //    }));
-  //  }));
-  // }
 	
 	this._getItemSnapshot = function(id, callback) {
 		if (common.itemFactory.hasItem(id)) {

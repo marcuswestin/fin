@@ -22,27 +22,3 @@ fin = Singleton(function() {
 	}
 	
 })
-
-// case 'AUTHENTICATE':
-// 		this.server.authenticate(args.email, args.password, bind(this, function(userLabels, errorMessage) {
-// 			if (!userLabels) {
-// 				this.sendFrame('DEMAND_AUTHENTICATION', { message: errorMessage });
-// 				return;
-// 			}
-// 			this._authenticatedEmail = args.email;
-// 			this.sendFrame('WELCOME');
-// 			this.sendFrame('LABELS', { labels: userLabels });
-// 		}));
-// 		break;
-// 	
-// case 'LABEL_GET_LIST':
-// 	this.server.getLabelList(args.label, bind(this, function(list) {
-// 		this.sendFrame('LABEL_LIST', { label: args.label, list: list });
-// 	}));
-// 	break;
-// case 'REQUEST_CREATE_LABEL':
-// 	this.server.createLabel(this._authenticatedEmail, args.label, args.map, args.filter, bind(this, function(label) {
-// 		this.sendFrame('LABELS', { labels: [label] });
-// 	}))
-// 	break;
-

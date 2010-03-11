@@ -61,18 +61,3 @@ Value, for example, goes something like
 
 	See view files in fin/js/browser/views/
 
-Running tests
--------------
-
-To run the tests
-	make run-tests
-
-Developing fin
---------------
-
-To check out editable versions of dependencies
-	make edit-init
-
-To have tests fun automatically every time you change a file
-	make edit-init
-	make monitor-tests

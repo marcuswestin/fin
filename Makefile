@@ -42,22 +42,13 @@ redis-node-client:
 	mv redis-node-client lib/
 	cd lib/redis-node-client/; git checkout e7a11ce67883919210f03c998b7cdc9b349daf2d
 
-###############
-### Testing ###
-###############
-.PHONY: run-tests
-run-tests:
-	cd tests; node run_tests.js
 
 
 
 ###################
 ### Development ###
 ###################
-.PHONY: monitor-tests edit-deps edit-jsio edit-node-couchdb edit-node-growl
-
-monitor-tests:
-	cd tests; node monitor_tests.js
+.PHONY: edit-deps edit-jsio edit-node-couchdb edit-node-growl
 
 edit-deps: edit-jsio edit-node-couchdb edit-node-growl
 

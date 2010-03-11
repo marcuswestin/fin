@@ -7,13 +7,7 @@ exports = Singleton(function() {
 	this._itemReferenceRegex = /([\w]+)?\.([\.\w]+)/
 	this._singleItemName = '__item'
 	
-	// this._listRegex = /\[\[[^\]]+?\]\]/g
-	
 	this.applyTemplate = function(templateString, items, singleItem) {
-		
-		// compile template
-		// templateString = this._replaceListsWithViews(templateString)
-		
 		// replace view template strings with elements we can later extract and replace with views
 		var templateElement = document.createElement('span')
 		var viewElements = []
@@ -43,19 +37,6 @@ exports = Singleton(function() {
 		return templateElement
 	}
 	
-	// this._replaceListsWithViews = function(template) {
-	// 	var matches = template.match(this._listRegex)
-	// 	if (!matches) { return template }
-	// 	for (var i=0, match; match = matches[i]; i++) {
-	// 		template = template.replace(match, function(str, proper) {
-	// 			str = str.substring(2, str.length - 2)
-	// 			var property = str.replace(/\s+/gi, '')
-	// 			return '(( List ' + property + ' ))'
-	// 		})
-	// 	}
-	// 	return template
-	// }
-
 	this._findViewsInTemplate = function(template, singleItem) {
 		var matches = template.match(this._widgetRegex)
 		var views = []

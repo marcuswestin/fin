@@ -27,6 +27,8 @@ Unsubscribe once for each subscribe call - Publisher#unsubscribe is completely u
 
 === P3 ====
 
+Create a store for couch that each item uses as to write its values to, and move the saving of item properties from the server into the item
+
 Remove all semi colons
 
 Remove all old commented code, and save whatever should be saved as TODOs or snippets elsewhere

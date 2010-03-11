@@ -33,17 +33,24 @@
 			fin.connect(function(){
 				var template = document.getElementById('template').innerHTML
 				document.body.appendChild(fin.getView(template, 'marcus'))
-				// 
-				var itemSet = fin.getItemSet(
-					['name', '=', 'marcus'],
-					['email', '=', 'marcus@meebo-inc.com']
-				)
+
+				var myImportantBugs = fin.getItemSet({
+					type: 'bug',
+					owner: 'marcus',
+					priority: ['>', 5]
+				})
+				
+				var marcusSet = fin.getItemSet({
+					name: 'Marcus',
+					email: 'marcus@meebo-inc.com'
+				})
+				
 				
 				var output = document.getElementById('output')
-				itemSet.subscribe('ItemAdded', function(){
+				marcusSet.subscribe('ItemAdded', function() {
 					output.innerHTML += "Item added!"
 				})
-				itemSet.subscribe('ItemRemoved', function(){
+				marcusSet.subscribe('ItemRemoved', function() {
 					output.innerHTML += "Item removed!"
 				})
 			})

@@ -43,3 +43,7 @@ var stripRegexp = /^\s*(.*?)\s*$/;
 exports.strip = function(str) {
 	return str.match(stripRegexp)[1];
 }
+
+exports.isArray = function(obj) {
+	return Object.prototype.toString.call(obj) === '[object Array]';
+}

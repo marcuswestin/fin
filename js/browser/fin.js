@@ -1,7 +1,7 @@
 jsio.path.browser = '../js';
 jsio.path.common = '../js';
 
-jsio('from common.javascript import Singleton, bind')
+jsio('from common.javascript import Singleton, bind, isArray')
 jsio('import common.itemFactory')
 jsio('import common.Item')
 jsio('import common.ItemSetFactory')
@@ -45,9 +45,16 @@ fin = Singleton(function(){
 	}
 	
 	// Grab an item set
-	this.getItemSet = function(/* condition1, condition2, ... */) {
-		var conditions = Array.prototype.slice.call(arguments, 0);
-		var itemSet = this._itemSetFactory.getItemSetByConditions(conditions)
+	// conditions == { type: 'bug', owner: 'marcus', priority: ['>', 4] }
+	this.getItemSet = function(conditions) {
+		var conditionArr = []
+		for (var matchProperty in conditions) {
+			var matchRule = conditions[matchProperty]
+			var matchOperator = isArray(matchRule) ? matchRule[0] : '=' // infer = for simple key-value pairs, e.g. type: 'bug'
+			var matchValue = isArray(matchRule) ? matchRule[1] : matchRule // if the match rule is not an array/tuple, it's the match value, e.g. owner: 'marcus'
+			conditionArr.push([matchProperty, matchOperator, matchValue])
+		}
+		var itemSet = this._itemSetFactory.getItemSetByConditions(conditionArr)
 		this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEMSET', { id: itemSet.getId() });
 		return itemSet
 	}

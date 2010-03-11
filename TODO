@@ -14,6 +14,9 @@ Make FakeDatabase use local storage
 
 On startup, load database from file or run conditions over all items in couchDB
 
+Node throws if I try to match whitespaces in a live set, e.g. var marcusSet = fin.getItemSet({name: 'Marcus Westin' })
+
+
 === P2 ====
 
 Property chaining depends alot on recursive calls modifying the property chain, which requires a bunch of dependancyChain.slice(0) copying of the dependancy chain array. Should use loops instead, without modifying the propertyChain

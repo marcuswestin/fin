@@ -55,8 +55,13 @@ exports = Singleton(function(){
 			var matchValue = isArray(matchRule) ? matchRule[1] : matchRule // if the match rule is not an array/tuple, it's the match value, e.g. owner: 'marcus'
 			conditionArr.push([matchProperty, matchOperator, matchValue])
 		}
-		var itemSet = this._itemSetFactory.getItemSetByConditions(conditionArr)
-		this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEMSET', { id: itemSet.getId() })
+		var itemSetId = this._itemSetFactory.getIdFromConditions(conditionArr)
+		var shouldSubscribe = !this._itemSetFactory.hasItemSet(itemSetId)
+		var itemSet = this._itemSetFactory.getItemSet(itemSetId)
+		if (shouldSubscribe) {
+			this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEMSET', { id: itemSetId })
+		}
+		
 		return itemSet
 	}
 	

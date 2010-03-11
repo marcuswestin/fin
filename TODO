@@ -4,6 +4,8 @@ TODO
 
 Server API for creating item sets at startup - it will take quite a while to create a new item set if it's not already in memory
 
+API for releasing items and item sets we no longer need!
+
 Lists
 	Local: uses array property. UI can change order
 	ItemSets: uses conditions to decide if items fit in or not. Client is responsible for order

@@ -15,12 +15,7 @@ exports = Class(common.Publisher, function(supr) {
 	
 	this.hasItemSet = function(id) { return !!this._itemSets[id] }
 	
-	this.getItemSetByConditions = function(conditions) {
-		var id = this.getIdFromConditions(conditions)
-		return this.getItemSetById(id)
-	}
-	
-	this.getItemSetById = function(id) {
+	this.getItemSet = function(id) {
 		if (this._itemSets[id]) { return this._itemSets[id] }
 		
 		var conditions = this._getConditionsFromId(id)

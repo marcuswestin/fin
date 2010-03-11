@@ -10,19 +10,29 @@ In fin, if you say
 
 then "name" in the span will update at every key stroke in the name Input. On all computers.
 
+Requirements
+------------
+Node 0.1.31
+Redis 1.2.0
+
+
 Getting started on OS X 10.6
 --------------
+Make sure you have node requirements installed and redis-server running locally
 
-Fin is alpha, unversioned and unstable. It is currently developed and tested only on OS X 10.6. 
+Download dependencies
 
-	sudo make install-node #install node v0.1.29
-	make deps #download all js dependencies
-	make run-couchdbx #run fin using a local instance of couchdbx
-	# Fire up a browser and navigate to localhost/path/to/fin/examples
+	make deps
+
+Start up CouchDB
 	
-If you already have couchdb running on localhost:5555, replace <code>make run-couchdbx</code> with <code>make run</code>
+	make run-couchdbx
 
-To get fin to run on OS X 10.5 you'd probably only need to replace the reference to CouchDBX for OS X 10.6 with the version for OS X 10.5 in Makefile 
+Start up fin
+	
+	make run
+
+Fire up a browser and navigate to localhost/path/to/fin/examples
 
 Using fin - API
 ---------------

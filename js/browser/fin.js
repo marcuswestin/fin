@@ -81,14 +81,11 @@ fin = Singleton(function(){
 		})
 
 		this.handleEvent('FIN_EVENT_ITEMSET_MUTATED', bind(this, function(mutation) {
-			var itemSet = this._itemSetFactory.getItemSetById(mutation._id)
-			console.log("TODO handle item set mutation")
+			this._itemSetFactory.handleMutation(mutation)
 		}))
 
-		this.handleEvent('FIN_EVENT_ITEMSET_SNAPSHOT', bind(this, function(mutation) {
-			console.log("TODO handle item set snapshot")
+		this.handleEvent('FIN_EVENT_ITEMSET_SNAPSHOT', bind(this, function(snapshot) {
+			this._itemSetFactory.handleSnapshot(snapshot)
 		}))
-		
-		
 	}
 })

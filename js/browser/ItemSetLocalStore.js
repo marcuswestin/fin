@@ -6,19 +6,27 @@ exports = Class(function() {
 		this._itemSets = {}
 	}
 	
+	this.setSnapshot = function(setId, items) {
+		this._itemSets[setId] = {}
+		if (!items) { return }
+		for (var i=0, item; item = items[i]; i++) {
+			this._itemSets[setId][item] = true
+		}
+	}
+	
 	this.isInSet = function(setId, itemId, callback) {
-		callback(!!(this._itemSets[setId] && this._itemSets[setId][itemId]))
+		var isIn = (this._itemSets[setId][itemId] ? true : false)
+		callback(null, isIn)
 	}
 	
 	this.addToSet = function(setId, itemId, callback) {
-		if (!this._itemSets[setId]) { this._itemSets[setId] = {} }
 		this._itemSets[setId][itemId] = true
-		callback()
+		callback(null)
 	}
 	
 	this.removeFromSet = function(setId, itemId, callback) {
-		if (!this._itemSets[setId]) { return }
 		delete this._itemSets[setId][itemId]
+		callback(null)
 	}
 	
 })

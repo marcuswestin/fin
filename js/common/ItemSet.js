@@ -22,15 +22,35 @@ exports = Class(common.Publisher, function(supr) {
 	this.handleItemUpdate = function(item, propertyName) {
 		var itemId = item.getId(),
 			shouldBeInSet = this._shouldBeInSet(item)
-		this._store.isInSet(this._id, itemId, bind(this, function(err, isInSet){
+		this._store.isInSet(this._id, itemId, bind(this, function(err, isInSet) {
 			if (err) { throw err }
 			if (isInSet == shouldBeInSet) { return }
 			if (isInSet) {
-				this._removeFromSet(itemId)
+				this._removeFromSet(itemId, true)
 			} else {
-				this._addToSet(itemId)
+				this._addToSet(itemId, true)
 			}
 		}))
+	}
+	
+	this.setSnapshot = function(snapshot) {
+		this._store.setSnapshot(this._id, snapshot.items)
+	}
+	
+	// this should only happen client-side. We can use local storage
+	this.applyMutation = function(mutation) {
+		if (mutation.remove) {
+			this._store.isInSet(this._id, mutation.remove, bind(this, function(err, isIn) {
+				if (!isIn) { return }
+				this._removeFromSet(mutation.remove)
+			}))
+		}
+		if (mutation.add) {
+			this._store.isInSet(this._id, mutation.add, bind(this, function(err, isIn) {
+				if (isIn) { return }
+				this._addToSet(mutation.add)
+			}))
+		}
 	}
 	
 	this._shouldBeInSet = function(item) {

@@ -23,17 +23,19 @@
 			<br />
 		</div>
 			
-		<div id="output">
-			
-		</div>
-		
+		<div id="items"></div>
+		<div id="output"></div>
+
 		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
 		<script type="text/javascript" src="../js/browser/fin.js"></script>
 		<script type="text/javascript">
 			fin.connect(function(){
-				var template = document.getElementById('template').innerHTML
-				document.body.appendChild(fin.getView(template, 'marcus'))
+				var output = document.getElementById('output')
+				var items = document.getElementById('items')
+				var template = document.getElementById('template')
 
+				items.appendChild(fin.getView(template.innerHTML, 'marcus'))
+				
 				var myImportantBugs = fin.getItemSet({
 					type: 'bug',
 					owner: 'marcus',
@@ -45,13 +47,13 @@
 					email: 'marcus@meebo-inc.com'
 				})
 				
-				
-				var output = document.getElementById('output')
-				marcusSet.subscribe('ItemAdded', function() {
-					output.innerHTML += "Item added!"
-				})
-				marcusSet.subscribe('ItemRemoved', function() {
-					output.innerHTML += "Item removed!"
+				marcusSet.subscribe('Mutated', function(mutation) {
+					if (mutation.add) {
+						output.innerHTML += "<div>Item " + mutation.add + " added</div>"
+					}
+					if (mutation.remove) {
+						output.innerHTML += "<div>Item " + mutation.remove + " removed</div>"
+					}
 				})
 			})
 		</script>

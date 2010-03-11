@@ -75,7 +75,7 @@ exports = Class(common.Publisher, function(supr) {
 		var dependentSets = this._itemSetsByProperty[propertyName]
 		if (!dependentSets) { return }
 		for (var i=0, itemSet; itemSet = dependentSets[i]; i++) {
-			itemSet.handleItemUpdate(item)
+			itemSet.handleItemUpdate(item.getProperties())
 		}
 	}
 	

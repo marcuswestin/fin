@@ -43,7 +43,7 @@ exports = Class(common.Publisher, function(supr) {
 		}
 		
 		this._properties[mutation.property] = value
-		this._notifySubscribers(mutation.property)
+		this._notifySubscribers(mutation.property, mutation)
 		this._scheduleStore()
 	}
 
@@ -63,17 +63,18 @@ exports = Class(common.Publisher, function(supr) {
 		this._properties._rev = response.rev
 	}
 	
-	this._notifySubscribers = function(propertyName) {
+	this._notifySubscribers = function(propertyName, mutation) {
 		var propertySubscribers = this._propertySubscriptions[propertyName]
 		if (!propertySubscribers) { return }
 		var newValue = this._properties[propertyName]
 		for (var i=0, callback; callback = propertySubscribers[i]; i++) {
-			callback(newValue)
+			callback(newValue, mutation)
 		}
 	}
 	
 	this.getId = function() { return this._properties._id }
 	this.getProperty = function(propertyName) { return this._properties[propertyName] }
+	this.getProperties = function() { return this._properties }
 	
 	this.setSnapshot = function(snapshot, dontNotify) {
 		this._properties = snapshot
@@ -107,8 +108,6 @@ exports = Class(common.Publisher, function(supr) {
 			return this._factory.getChainedItem(this, propertyChain)
 		}
 	}
-	
-	this.getProperties = function() { return this._properties }
 	
 	this.toString = function() { return this._properties._id }
 })

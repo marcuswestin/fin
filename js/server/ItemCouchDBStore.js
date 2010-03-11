@@ -11,6 +11,25 @@ exports = Class(function() {
 		}))
 	}
 	
+	this.getAllItems = function(callback) {
+		this._db.allDocs(bind(this, function(err, response) {
+			if (err) { throw err }
+			var outstandingItems = response.total_rows
+			
+			logger.info('Running through all items: ', outstandingItems)
+			function onResponse(err, itemData) {
+				if (err) { throw err }
+				outstandingItems--
+				logger.info('Running through item', itemData._id, "Outstanding:", outstandingItems)
+				callback(itemData)
+			}
+			
+			for (var i=0, row; row = response.rows[i]; i++) {
+				this.getItemData(row.id, onResponse)
+			}
+		}))
+	}
+	
 	this.getItemData = function(itemId, callback) {
 		this._db.getDoc(itemId, bind(this, function(err, doc){
 			if (err) {

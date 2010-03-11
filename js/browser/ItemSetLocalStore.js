@@ -6,6 +6,14 @@ exports = Class(function() {
 		this._itemSets = {}
 	}
 	
+	this.getItems = function(setId, callback) {
+		var items = []
+		for (var itemId in this._itemSets[setId]) {
+			items.push(itemId)
+		}
+		callback(null, items)
+	}
+	
 	this.setSnapshot = function(setId, items) {
 		this._itemSets[setId] = {}
 		if (!items) { return }

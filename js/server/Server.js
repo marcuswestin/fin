@@ -26,10 +26,13 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this.subscribeToItemSetMutations = function(id, subCallback, snapshotCallback) {
-		var shouldSubscribe = !this._itemSetFactory.hasItemSet(id)
+		var isNew = !this._itemSetFactory.hasItemSet(id)
 		var itemSet = this._itemSetFactory.getItemSetById(id)
-		if (shouldSubscribe) {
+		if (isNew) {
 			itemSet.subscribe('Mutated', bind(this, '_onItemSetMutated'))
+			this._itemStore.getAllItems(bind(this, function(properties) {
+				itemSet.handleItemUpdate(properties)
+			}))
 		}
 		var subId = this._itemSetSubscriberPool.add(id, subCallback)
 		itemSet.getItems(function(itemIds){

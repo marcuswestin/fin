@@ -23,3 +23,6 @@ Sanitize property names and values?
 
 Unsubscribe once for each subscribe call - Publisher#unsubscribe is completely unused
 
+=== P3 ====
+
+Make Class#init be called Class#_init

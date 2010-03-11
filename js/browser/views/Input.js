@@ -1,5 +1,4 @@
 jsio('from common.javascript import Class, bind')
-jsio('import browser.events as events')
 jsio('import browser.caret')
 jsio('import .Value as Value')
 
@@ -13,9 +12,9 @@ exports = Class(Value, function(supr){
 		this._propertyChain = this._property.split('.')
 		this._property = this._propertyChain.pop()
 		
-		events.add(this._element, 'focus', bind(this, '_onFocus'))
-		events.add(this._element, 'keypress', bind(this, '_onKeyPress'))
-		events.add(this._element, 'blur', bind(this, '_onBlur'))
+		this._element.onfocus = bind(this, '_onFocus')
+		this._element.onkeypress = bind(this, '_onKeyPress')
+		this._element.onBlur = bind(this, '_onBlur')
 	}
 	
 	this.getElement = function() {
@@ -49,25 +48,27 @@ exports = Class(Value, function(supr){
 	
 	this._onKeyPress = function(e) {
 		// TODO: Deal with pasting
-		if (e.metaKey && e.keyCode != events.keyCodes['enter']) { return }
+		e = e || event
+		var keys = { 'enter': 13, 'backspace': 8 }
+		if (e.metaKey && e.keyCode != keys['enter']) { return }
 		
 		var position = browser.caret.getPosition(this._element)
 		var selectionLength = position.end - position.start
 		var mutation = { position: position.caret - selectionLength }
 		
 		var shiftIsDown = false // we need to know if the shift key is down to enable adding breaklines :(
-		if (e.keyCode == events.keyCodes['enter'] && !shiftIsDown) {
+		if (e.keyCode == keys['enter'] && !shiftIsDown) {
 			this._element.blur()
 			e.cancel()
 			return
-		} else if (e.keyCode == events.keyCodes['backspace']) {
+		} else if (e.keyCode == keys['backspace']) {
 			if (selectionLength) {
 				mutation.deletion = selectionLength
 			} else {
 				mutation.position -= 1
 				mutation.deletion = 1
 			}
-		} else if (e.keyCode == events.keyCodes['enter']) {
+		} else if (e.keyCode == keys['enter']) {
 			mutation.addition = "\n"
 			if (selectionLength) {
 				mutation.deletion = selectionLength

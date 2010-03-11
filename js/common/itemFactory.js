@@ -16,7 +16,7 @@ exports = Singleton(common.Publisher, function(supr) {
 	}
 	
 	this.handleMutation = function(mutation) {
-		logger.log('handleMutation', JSON.stringify(mutation));
+		logger.log('handleMutation', JSON.stringify(mutation))
 		var item = this.getItem(mutation._id)
 		item.applyMutation(mutation)
 		

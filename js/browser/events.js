@@ -1,12 +1,12 @@
 var events = {}
-if (typeof exports != 'undefined') { exports = events };
+if (typeof exports != 'undefined') { exports = events }
 
-;(function() {
+(function() {
 	events.add = function(element, eventName, handler, dontIncludeEvent) {
 		// Is removeEvent going to work properly when we wrap the handler in another function?
 		function normalizeEvent(e) {
-			e = e || event;
-			if (!e.target) { e.target = e.srcElement; }
+			e = e || event
+			if (!e.target) { e.target = e.srcElement }
 			var eventObj = {
 				charCode: e.charCode,
 				keyCode: e.keyCode,
@@ -14,33 +14,33 @@ if (typeof exports != 'undefined') { exports = events };
 				__realEventObject: e
 			}
 			if (eventObj.charCode == 13 && eventObj.keyCode == 13) { 
-				eventObj.charCode = 0; // in Webkit, return gives a charCode as well as a keyCode. Should only be a keyCode
+				eventObj.charCode = 0 // in Webkit, return gives a charCode as well as a keyCode. Should only be a keyCode
 			}
-			handler(dontIncludeEvent ? null : eventObj);
+			handler(dontIncludeEvent ? null : eventObj)
 		}
 		
 		if (element.addEventListener) {
-			element.addEventListener(eventName, normalizeEvent, false);
+			element.addEventListener(eventName, normalizeEvent, false)
 		} else if (element.attachEvent){
-			element.attachEvent("on"+eventName, normalizeEvent);
+			element.attachEvent("on"+eventName, normalizeEvent)
 		}
-		return handler;
+		return handler
 	}
 
 	events.remove = function(element, eventName, handler) {
-		if (!handler) { return; }
+		if (!handler) { return }
 		if (element.removeEventListener) {
-			element.removeEventListener(eventName, handler, false);
-			return true;
+			element.removeEventListener(eventName, handler, false)
+			return true
 		} else if (element.detachEvent) {
-			return element.detachEvent("on"+eventName, handler);
+			return element.detachEvent("on"+eventName, handler)
 		}
 	} 
 	
 	events.cancel = function(e) {
-		var realEventObject = e.__realEventObject;
-		if (realEventObject.preventDefault) { realEventObject.preventDefault(); }
-		else { realEventObject.returnValue = false; }
+		var realEventObject = e.__realEventObject
+		if (realEventObject.preventDefault) { realEventObject.preventDefault() }
+		else { realEventObject.returnValue = false }
 	}
 	
 	events.keyCodes = {
@@ -146,16 +146,16 @@ if (typeof exports != 'undefined') { exports = events };
 	
 	// allow reverse lookup
 	for (var key in events.keyCodes) {
-		var value = events.keyCodes[key];
-		if (events.keyCodes[value]) { continue; } // the numbers clobber tab and backspace... really annoying! Hugly hack around for now
-		events.keyCodes[value] = key;
+		var value = events.keyCodes[key]
+		if (events.keyCodes[value]) { continue } // the numbers clobber tab and backspace... really annoying! Hugly hack around for now
+		events.keyCodes[value] = key
 	}
 	
-	events.charCodes = {};
+	events.charCodes = {}
 	// 128 could be made alot larger to include all the non-english keyboard characters
-	for (var i=0; i<128; i++) { 
-		var character = String.fromCharCode(i);
-		events.charCodes[i] = character;
-		events.charCodes[character] = i;
+	for (var i=0; i<128; i++) {
+		var character = String.fromCharCode(i)
+		events.charCodes[i] = character
+		events.charCodes[character] = i
 	}
 })()

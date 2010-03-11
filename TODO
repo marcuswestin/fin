@@ -19,20 +19,11 @@ Node throws if I try to match whitespaces in a live set, e.g. var marcusSet = fi
 
 === P2 ====
 
+Create a store for couch that each item uses as to write its values to, and move the saving of item properties from the server into the item
+
 Property chaining depends alot on recursive calls modifying the property chain, which requires a bunch of dependancyChain.slice(0) copying of the dependancy chain array. Should use loops instead, without modifying the propertyChain
 
 Sanitize property names and values?
 
 Unsubscribe once for each subscribe call - Publisher#unsubscribe is completely unused
 
-=== P3 ====
-
-Create a store for couch that each item uses as to write its values to, and move the saving of item properties from the server into the item
-
-Remove all semi colons
-
-Remove all old commented code, and save whatever should be saved as TODOs or snippets elsewhere
-
-Look over API again - would be nice to have something like fin.applyToElement
-
-Create ListDragNDrop view for drag and drop support to lists

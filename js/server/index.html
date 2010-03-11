@@ -43,7 +43,7 @@
 		})
 		
 		onload = function() {
-			var dir = '../../', postfix = '#fin-postmessage';
+			var dir = '../../', postfix = '#fin-postmessage'
 			function addButton(page) {
 				var button = postMessageListener.getButton(dir + page + postfix, page)
 				button.style.display = 'block'
@@ -54,12 +54,12 @@
 			addButton('examples/property-chain.html')
 		}
 		
-		var oldOnMessage = postMessageListener._onMessage;
+		var oldOnMessage = postMessageListener._onMessage
 		postMessageListener._onMessage = function(evt) {
-			oldOnMessage.apply(postMessageListener, arguments);
+			oldOnMessage.apply(postMessageListener, arguments)
 			
-			var monitor = document.getElementById('monitor');
-			var data = eval('(' + evt.data + ')');
+			var monitor = document.getElementById('monitor')
+			var data = eval('(' + evt.data + ')')
 			var msg = data.type + (data.payload ? ': ' + data.payload : '')
 			monitor.innerHTML = msg + '<hr />' + monitor.innerHTML
 		}

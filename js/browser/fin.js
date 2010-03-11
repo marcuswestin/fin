@@ -1,5 +1,5 @@
-jsio.path.browser = '../js';
-jsio.path.common = '../js';
+jsio.path.browser = '../js'
+jsio.path.common = '../js'
 
 jsio('from common.javascript import Singleton, bind, isArray')
 jsio('import common.itemFactory')
@@ -36,7 +36,7 @@ fin = Singleton(function(){
 				items[itemKey] = this.getItem(items[itemKey])
 			}
 		}
-		return browser.templateFactory.applyTemplate(templateString, items, singleItem);
+		return browser.templateFactory.applyTemplate(templateString, items, singleItem)
 	}
 	
 	// Register yourself to handle events from the server
@@ -55,21 +55,21 @@ fin = Singleton(function(){
 			conditionArr.push([matchProperty, matchOperator, matchValue])
 		}
 		var itemSet = this._itemSetFactory.getItemSetByConditions(conditionArr)
-		this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEMSET', { id: itemSet.getId() });
+		this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEMSET', { id: itemSet.getId() })
 		return itemSet
 	}
 	
 	// Private method - hook up all internals
 	this.init = function() {
-		this._client = new browser.Client();
+		this._client = new browser.Client()
 		var localStore = new browser.ItemSetLocalStore()
 		this._itemSetFactory = new common.ItemSetFactory(localStore)
 		
 		// Whenever a new item is created, subscribe to it and hook up to send mutations to server
 		common.itemFactory.subscribe('ItemCreated', bind(this, function(item) {
-			this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEM', { id: item.getId() });
+			this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEM', { id: item.getId() })
 			item.subscribe('Mutating', bind(this._client, 'sendFrame', 'FIN_REQUEST_MUTATE_ITEM'))
-		}));
+		}))
 		
 		this.handleEvent('FIN_EVENT_ITEM_SNAPSHOT', function(properties) {
 			common.itemFactory.handleItemSnapshot(properties)

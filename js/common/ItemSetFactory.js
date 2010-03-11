@@ -11,7 +11,7 @@ exports = Class(common.Publisher, function(supr) {
 		this._itemSetsByProperty = {}
 		this._store = store
 		
-		common.itemFactory.subscribe('ItemPropertyUpdated', bind(this, '_onItemPropertyUpdated'));
+		common.itemFactory.subscribe('ItemPropertyUpdated', bind(this, '_onItemPropertyUpdated'))
 	}
 	
 	this.hasItemSet = function(id) { return !!this._itemSets[id] }

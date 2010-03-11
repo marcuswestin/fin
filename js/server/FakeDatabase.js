@@ -1,4 +1,4 @@
-jsio('from common.javascript import Class, bind');
+jsio('from common.javascript import Class, bind')
 
 exports = Class(function() {
 	
@@ -9,25 +9,25 @@ exports = Class(function() {
 	}
 	
 	this.exists = function(callback) {
-		this._answer(callback, true);
+		this._answer(callback, true)
 	}
 	
 	this.getDoc = function(itemId, callback) { 
 		if (!this._items[itemId]) { this._items[itemId] = { _id: itemId, _rev: 1 } }
 		this._answer(callback, null, this._items[itemId])
-		return fakePromise;
+		return fakePromise
 	}
 	
 	this.saveDoc = function(itemId, data, callback) {
 		if (arguments.length == 2) { 
-			callback = arguments[1];
-			data = arguments[0];
-			itemId = data._id;
+			callback = arguments[1]
+			data = arguments[0]
+			itemId = data._id
 		}
-		data._rev = this._items[itemId]._rev + 1;
-		this._items[itemId] = data;
+		data._rev = this._items[itemId]._rev + 1
+		this._items[itemId] = data
 		this._answer(callback, null, { id: itemId, rev: data._rev })
-		return fakePromise;
+		return fakePromise
 	}
 	
 	this._answer = function(callback, arg1, arg2 /* ... */) {

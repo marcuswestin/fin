@@ -1,4 +1,4 @@
-jsio('from common.javascript import Class, bind');
+jsio('from common.javascript import Class, bind')
 
 exports = Class(function() {
 	this.init = function(db) {
@@ -14,17 +14,17 @@ exports = Class(function() {
 	this.getItemData = function(itemId, callback) {
 		this._db.getDoc(itemId, bind(this, function(err, doc){
 			if (err) {
-				this._onGetItemError(itemId, callback);
-				return;
+				this._onGetItemError(itemId, callback)
+				return
 			}
-			callback(err, doc);
-		}));
+			callback(err, doc)
+		}))
 	}
 	
 	this._onGetItemError = function(itemId, callback) {
 		this._db.saveDoc(itemId, {}, bind(this, function(err, ok){
 			if (err) throw err
-			this._db.getDoc(itemId, callback);
+			this._db.getDoc(itemId, callback)
 		}))
 	}
 	

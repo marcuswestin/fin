@@ -5,20 +5,20 @@ jsio('import common.ItemReference')
 exports = Class(common.Publisher, function(supr) {
 	
 	this.init = function(factory, id) {
-		supr(this, 'init');
-		this._properties = { _id: id, _rev: null };
-		this._factory = factory;
-		this._propertySubscriptions = {};
+		supr(this, 'init')
+		this._properties = { _id: id, _rev: null }
+		this._factory = factory
+		this._propertySubscriptions = {}
 	}
 	
 	this.mutate = function(mutation) {
-		mutation._id = this.getId();
-		logger.log('mutate', mutation._id, mutation);
-		this._publish('Mutating', mutation);
+		mutation._id = this.getId()
+		logger.log('mutate', mutation._id, mutation)
+		this._publish('Mutating', mutation)
 	}
 	
 	this.applyMutation = function(mutation) {
-		logger.log('apply mutation', mutation._id, mutation);
+		logger.log('apply mutation', mutation._id, mutation)
 		var value = this._properties[mutation.property] || ''
 		// Numbers
 		// if (mutation.value) {
@@ -27,12 +27,12 @@ exports = Class(common.Publisher, function(supr) {
 
 		// Strings
 		if (mutation.deletion) {
-			var startDelete = mutation.position;
-			var endDelete = mutation.position + mutation.deletion;
-			value = value.slice(0, startDelete) + value.slice(endDelete);
+			var startDelete = mutation.position
+			var endDelete = mutation.position + mutation.deletion
+			value = value.slice(0, startDelete) + value.slice(endDelete)
 		}
 		if (mutation.addition) {
-			value = value.slice(0, mutation.position) + mutation.addition + value.slice(mutation.position);
+			value = value.slice(0, mutation.position) + mutation.addition + value.slice(mutation.position)
 		}
 		
 		// Lists
@@ -41,7 +41,7 @@ exports = Class(common.Publisher, function(supr) {
 			value.splice(mutation.to, 0, item)
 		}
 		
-		this._properties[mutation.property] = value;
+		this._properties[mutation.property] = value
 		this._notifySubscribers(mutation.property)
 	}
 	
@@ -54,19 +54,19 @@ exports = Class(common.Publisher, function(supr) {
 		}
 	}
 	
-	this.getId = function() { return this._properties._id; }
+	this.getId = function() { return this._properties._id }
 	this.getProperty = function(propertyName) { return this._properties[propertyName] }
 	
 	this.setSnapshot = function(snapshot, dontNotify) {
 		this._properties = snapshot
-		if (dontNotify) { return; }
+		if (dontNotify) { return }
 		for (var propertyName in this._propertySubscriptions) {
 			this._notifySubscribers(propertyName)
 		}
 	}
 	this._subscribeToProperty = function(property, callback) {
-		if (!this._propertySubscriptions[property]) { this._propertySubscriptions[property] = []; }
-		this._propertySubscriptions[property].push(callback);
+		if (!this._propertySubscriptions[property]) { this._propertySubscriptions[property] = [] }
+		this._propertySubscriptions[property].push(callback)
 	}
 	
 	this.addDependant = function(propertyChain, dependantCallback) {
@@ -90,7 +90,7 @@ exports = Class(common.Publisher, function(supr) {
 		}
 	}
 	
-	this.setRevision = function(revision) { this._properties._rev = revision; }
+	this.setRevision = function(revision) { this._properties._rev = revision }
 	this.getProperties = function() { return this._properties }
 	
 	this.toString = function() { return this._properties._id }

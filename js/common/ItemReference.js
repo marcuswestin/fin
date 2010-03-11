@@ -1,35 +1,34 @@
-jsio('from common.javascript import Class, bind, forEach');
+jsio('from common.javascript import Class, bind, forEach')
 jsio('import common.Publisher')
 
 exports = Class(common.Publisher, function(supr) {
 	
 	this.init = function(factory, sourceItem, itemReferencePropertyName) {
-		supr(this, 'init');
-		this._factory = factory;
-		this._proxiedCalls = [];
-		this._dependants = [];
-		var referenceItemId = sourceItem.getProperty(itemReferencePropertyName, true);
+		supr(this, 'init')
+		this._factory = factory
+		this._proxiedCalls = []
+		this._dependants = []
+		var referenceItemId = sourceItem.getProperty(itemReferencePropertyName, true)
 		sourceItem.addDependant(itemReferencePropertyName, bind(this, '_onReferenceChanged'))
 	}
 	
-	this.getReferencedItem = function() { return this._referencedItem; }
+	this.getReferencedItem = function() { return this._referencedItem }
 	
 	this._onReferenceChanged = function(referencedItemId) {
 		if (typeof referencedItemId == 'undefined') { return }
-		this._referencedItem = this._factory.getItem(referencedItemId);
+		this._referencedItem = this._factory.getItem(referencedItemId)
 		for (var i=0, proxiedCall; proxiedCall = this._proxiedCalls[i]; i++) {
-			var methodName = proxiedCall[0];
-			var args = proxiedCall[1];
-			this[methodName].apply(this, args);
+			var methodName = proxiedCall[0]
+			var args = proxiedCall[1]
+			this[methodName].apply(this, args)
 		}
-		this._proxiedCalls = [];
+		this._proxiedCalls = []
 		for (var i=0, dependant; dependant = this._dependants[i]; i++) {
 			this._referencedItem.addDependant(dependant.propertyChain, dependant.dependantCallback)
 		}
 	}
 	
 	this.addDependant = function(propertyChain, dependantCallback) {
-		if (propertyChain.length == 0) { debugger; }
 		propertyChain = propertyChain.slice(0)
 		
 		this._dependants.push({ propertyChain: propertyChain, dependantCallback: dependantCallback })
@@ -38,30 +37,30 @@ exports = Class(common.Publisher, function(supr) {
 		}
 	}
 	
-	this.getId = function() { return this._referencedItem.getId(); }
-	this.toString = function() { return this._referencedItem.toString(); }
+	this.getId = function() { return this._referencedItem.getId() }
+	this.toString = function() { return this._referencedItem.toString() }
 	this.getProperty = function(propertyName) { 
 		if (this._referencedItem) { 
-			return this._referencedItem.getProperty(propertyName); 
+			return this._referencedItem.getProperty(propertyName) 
 		} else {
-			return undefined;
+			return undefined
 		}
 	}
 	
 	function createProxiedMethod(methodName) {
 		return function() {
 			if (!this._referencedItem) { 
-				this._proxiedCalls.push([methodName, arguments]);
-				return;
+				this._proxiedCalls.push([methodName, arguments])
+				return
 			}
-			this._referencedItem[methodName].apply(this._referencedItem, arguments);
+			this._referencedItem[methodName].apply(this._referencedItem, arguments)
 		}
 	}
 	
-	this.subscribe = createProxiedMethod('subscribe');
-	this.unsubscribe = createProxiedMethod('unsubscribe');
-	this.mutate = createProxiedMethod('mutate');
-	this.applyMutation = createProxiedMethod('applyMutation');
-	this.setSnapshot = createProxiedMethod('setSnapshot');
-	this.setRevision = createProxiedMethod('setRevision');
+	this.subscribe = createProxiedMethod('subscribe')
+	this.unsubscribe = createProxiedMethod('unsubscribe')
+	this.mutate = createProxiedMethod('mutate')
+	this.applyMutation = createProxiedMethod('applyMutation')
+	this.setSnapshot = createProxiedMethod('setSnapshot')
+	this.setRevision = createProxiedMethod('setRevision')
 })

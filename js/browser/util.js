@@ -2,7 +2,7 @@ exports.getSize = function(element) {
 	if (element.innerWidth) { // window object
 		return { width: element.innerWidth, height: element.innerHeight }
 	} else {
-		return { width: element.offsetWidth, height: element.offsetHeight };
+		return { width: element.offsetWidth, height: element.offsetHeight }
 	}
 }
 

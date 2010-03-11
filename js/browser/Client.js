@@ -1,38 +1,38 @@
 jsio('import net')
-jsio('import net.protocols.rtjp');
-jsio('from common.javascript import Class, bind, forEach');
-jsio('import common.itemFactory');
+jsio('import net.protocols.rtjp')
+jsio('from common.javascript import Class, bind, forEach')
+jsio('import common.itemFactory')
 
 exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 
 	// Hack to detect if we should use postmessage. See js/server/index.html
-	this.transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp';
-	this.url = "http://" + (document.domain || "127.0.0.1") + ":5555";
+	this.transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp'
+	this.url = "http://" + (document.domain || "127.0.0.1") + ":5555"
 
 	this.init = function(playerFactory) {
-		supr(this, 'init');
+		supr(this, 'init')
 
-		this._isConnected = false;
-		this._eventHandlers = {};
+		this._isConnected = false
+		this._eventHandlers = {}
 	}
 	
 /* Connection
  ************/
 	this.connect = function(onConnectedCallback) {
-		net.connect(this, this.transport, { url: this.url });
+		net.connect(this, this.transport, { url: this.url })
 		if (this._isConnected) { 
-			onConnectedCallback();
+			onConnectedCallback()
 		} else if (this._onConnectedCallbacks) { 
-			this._onConnectedCallbacks.push(onConnectedCallback);
+			this._onConnectedCallbacks.push(onConnectedCallback)
 		} else {
-			this._onConnectedCallbacks = [onConnectedCallback];
+			this._onConnectedCallbacks = [onConnectedCallback]
 		}
 	}
 
 	this.connectionMade = function() {
 		this._isConnected = true
 		for (var i=0, cb; cb = this._onConnectedCallbacks[i]; i++) { cb() }
-		delete this._onConnectedCallbacks;
+		delete this._onConnectedCallbacks
 	}
 
 	this.connectionLost = function() {
@@ -60,6 +60,6 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	// override for loggin
 	this.sendFrame = function(name, args) {
 		logger.log('sendFrame', name, JSON.stringify(args))
-		supr(this, 'sendFrame', arguments);
+		supr(this, 'sendFrame', arguments)
 	}
-});
+})

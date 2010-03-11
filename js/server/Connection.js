@@ -1,5 +1,5 @@
-jsio('from common.javascript import Class, bind');
-jsio('from net.protocols.rtjp import RTJPProtocol');
+jsio('from common.javascript import Class, bind')
+jsio('from net.protocols.rtjp import RTJPProtocol')
 
 exports = Class(RTJPProtocol, function(supr) {
 	
@@ -18,7 +18,7 @@ exports = Class(RTJPProtocol, function(supr) {
 		}))
 
 		this.handleRequest('FIN_REQUEST_MUTATE_ITEM', bind(this, function(mutation){
-			this.server.handleMutation(mutation);
+			this.server.handleMutation(mutation)
 		}))
 		
 		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEMSET', bind(this, function(request) {
@@ -31,18 +31,18 @@ exports = Class(RTJPProtocol, function(supr) {
 /* Connection
  ************/
 	this.connectionMade = function() {
-		this._log('connectionMade');
-		this._itemSubs = {};
-		this._itemSetSubs = {};
+		this._log('connectionMade')
+		this._itemSubs = {}
+		this._itemSetSubs = {}
 	}
 	
 	this.connectionLost = function() {
-		logger.log('connection lost - unsubscribing from item mutation subscriptions');
+		logger.log('connection lost - unsubscribing from item mutation subscriptions')
 		for (var itemId in this._itemSubs) {
-			this.server.unsubscribeFromItemMutations(itemId, this._itemSubs[itemId]);
+			this.server.unsubscribeFromItemMutations(itemId, this._itemSubs[itemId])
 		}
 		for (var itemSetId in this._itemSetSubs) {
-			this.server.unsubscribeFromItemSetMutations(itemSetId, this._itemSetSubs[itemId]);
+			this.server.unsubscribeFromItemSetMutations(itemSetId, this._itemSetSubs[itemId])
 		}
 	}
 	
@@ -53,7 +53,7 @@ exports = Class(RTJPProtocol, function(supr) {
 	}
 
 	this.frameReceived = function(id, name, args) {
-		this._log('frameReceived', id, name, JSON.stringify(args));
+		this._log('frameReceived', id, name, JSON.stringify(args))
 		if (!this._requestHandlers[name]) {
 			logger.warn('Received request without handler', name)
 			return
@@ -71,15 +71,15 @@ exports = Class(RTJPProtocol, function(supr) {
 /* Util
  ******/
 	this.sendFrame = function(name, args) {
-		this._log('sendFrame', name, JSON.stringify(args));
-		supr(this, 'sendFrame', arguments);
+		this._log('sendFrame', name, JSON.stringify(args))
+		supr(this, 'sendFrame', arguments)
 	}
 
 	this._log = function() {
-		var args = Array.prototype.slice.call(arguments);
+		var args = Array.prototype.slice.call(arguments)
 		if (this.transport._socket) {
-			args.unshift(this.transport._socket._session.key);
+			args.unshift(this.transport._socket._session.key)
 		}
-		logger.log.apply(this, args);
+		logger.log.apply(this, args)
 	}
 })

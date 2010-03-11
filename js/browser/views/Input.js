@@ -1,7 +1,6 @@
 jsio('from common.javascript import Class, bind')
 jsio('import browser.events as events')
 jsio('import browser.caret')
-jsio('import browser.keyboard')
 jsio('import .Value as Value')
 
 exports = Class(Value, function(supr){
@@ -56,9 +55,10 @@ exports = Class(Value, function(supr){
 		var selectionLength = position.end - position.start
 		var mutation = { position: position.caret - selectionLength }
 		
-		if (e.keyCode == events.keyCodes['enter'] && !browser.keyboard.shiftIsDown()) {
+		var shiftIsDown = false // we need to know if the shift key is down to enable adding breaklines :(
+		if (e.keyCode == events.keyCodes['enter'] && !shiftIsDown) {
 			this._element.blur()
-			events.cancel(e)
+			e.cancel()
 			return
 		} else if (e.keyCode == events.keyCodes['backspace']) {
 			if (selectionLength) {

@@ -1,17 +1,16 @@
 jsio('from common.javascript import Class, Publisher, bind')
 jsio('import common.Publisher')
-jsio('import common.itemFactory')
 jsio('import common.ItemSet')
 
 exports = Class(common.Publisher, function(supr) {
 	
-	this.init = function(store) {
+	this.init = function(itemFactory, store) {
 		supr(this, 'init')
 		this._itemSets = {}
 		this._itemSetsByProperty = {}
 		this._store = store
 		
-		common.itemFactory.subscribe('ItemPropertyUpdated', bind(this, '_onItemPropertyUpdated'))
+		itemFactory.subscribe('ItemPropertyUpdated', bind(this, '_onItemPropertyUpdated'))
 	}
 	
 	this.hasItemSet = function(id) { return !!this._itemSets[id] }

@@ -2,9 +2,10 @@ jsio.path.browser = '../js'
 jsio.path.common = '../js'
 
 jsio('from common.javascript import Singleton, bind, isArray')
-jsio('import common.itemFactory')
+jsio('import common.ItemFactory')
 jsio('import common.Item')
 jsio('import common.ItemSetFactory')
+jsio('import browser.ItemLocalStore')
 jsio('import browser.ItemSetLocalStore')
 jsio('import browser.Client')
 jsio('import browser.templateFactory')
@@ -18,7 +19,7 @@ fin = Singleton(function(){
 	
 	// Grab an item from the database
 	this.getItem = function(itemId) {
-		return common.itemFactory.getItem(itemId)
+		return this._itemFactory.getItem(itemId)
 	}
 	
 	// Get an input field for an item
@@ -62,23 +63,28 @@ fin = Singleton(function(){
 	// Private method - hook up all internals
 	this.init = function() {
 		this._client = new browser.Client()
-		var localStore = new browser.ItemSetLocalStore()
-		this._itemSetFactory = new common.ItemSetFactory(localStore)
 		
+		var localItemStore = new browser.ItemLocalStore()
+		this._itemFactory = new common.ItemFactory(localItemStore)
+
+		var localItemSetStore = new browser.ItemSetLocalStore()
+		this._itemSetFactory = new common.ItemSetFactory(this._itemFactory, localItemSetStore)
+
 		// Whenever a new item is created, subscribe to it and hook up to send mutations to server
-		common.itemFactory.subscribe('ItemCreated', bind(this, function(item) {
+		this._itemFactory.subscribe('ItemCreated', bind(this, function(item) {
 			this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEM', { id: item.getId() })
+			// TODO This should just listen to ItemPropertyUpdated instead
 			item.subscribe('Mutating', bind(this._client, 'sendFrame', 'FIN_REQUEST_MUTATE_ITEM'))
 		}))
 		
-		this.handleEvent('FIN_EVENT_ITEM_SNAPSHOT', function(properties) {
-			common.itemFactory.handleItemSnapshot(properties)
-		})
+		this.handleEvent('FIN_EVENT_ITEM_SNAPSHOT', bind(this, function(properties) {
+			this._itemFactory.handleItemSnapshot(properties)
+		}))
 		
 		// When an item has succesfully mutated, apply the mutation
-		this.handleEvent('FIN_EVENT_ITEM_MUTATED', function(mutation) {
-			common.itemFactory.handleMutation(mutation)
-		})
+		this.handleEvent('FIN_EVENT_ITEM_MUTATED', bind(this, function(mutation) {
+			this._itemFactory.handleMutation(mutation)
+		}))
 
 		this.handleEvent('FIN_EVENT_ITEMSET_MUTATED', bind(this, function(mutation) {
 			this._itemSetFactory.handleMutation(mutation)

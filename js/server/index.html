@@ -35,10 +35,11 @@
 		<div id="monitor"></div>
 		
 		<script>
-		jsio('import server.FakeDatabase')
+		jsio.path.browser = '../../js'
+		jsio('import browser.ItemLocalStore')
 		
 		var postMessageListener = fin.startServer({
-			db: new server.FakeDatabase(),
+			itemStore: new browser.ItemLocalStore(),
 			transport: 'postmessage'
 		})
 		

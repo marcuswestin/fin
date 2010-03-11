@@ -1,7 +1,6 @@
 jsio('import net')
 jsio('import net.protocols.rtjp')
 jsio('from common.javascript import Class, bind, forEach')
-jsio('import common.itemFactory')
 
 exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 

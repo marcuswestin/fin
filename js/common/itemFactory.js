@@ -1,13 +1,16 @@
-jsio('from common.javascript import Singleton, Publisher, bind')
+jsio('from common.javascript import Class, Publisher, bind')
 jsio('import common.Item')
 jsio('import common.Publisher')
 
-exports = Singleton(common.Publisher, function(supr) {
+exports = Class(common.Publisher, function(supr) {
 	
-	this.init = function() {
+	this.init = function(itemStore) {
 		supr(this, 'init')
+		this._store = itemStore
 		this._items = {}
 	}
+	
+	this.getStore = function() { return this._store }
 	
 	this.handleItemSnapshot = function(snapshot, callback) {
 		logger.log('Loading snapshot', snapshot._id, snapshot)

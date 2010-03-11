@@ -8,9 +8,7 @@ Lists
 	TODO: Associate order with ItemSets
 	TODO: Publish ItemSet updates when order updates
 
-Make FakeDatabase use local storage
-	Publish item mutations locally right away, and use local item sets to update views
-	Add support for locking item properties so that others know it's being edited
+Add support for locking item properties so that others know it's being edited
 
 On startup, load database from file or run conditions over all items in couchDB
 
@@ -18,8 +16,6 @@ Node throws if I try to match whitespaces in a live set, e.g. var marcusSet = fi
 
 
 === P2 ====
-
-Create a store for couch that each item uses as to write its values to, and move the saving of item properties from the server into the item
 
 Property chaining depends alot on recursive calls modifying the property chain, which requires a bunch of dependancyChain.slice(0) copying of the dependancy chain array. Should use loops instead, without modifying the propertyChain
 

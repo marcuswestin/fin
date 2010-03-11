@@ -8,6 +8,7 @@ exports = Class(common.Publisher, function(supr) {
 		supr(this, 'init')
 		this._properties = { _id: id, _rev: null }
 		this._factory = factory
+		this._store = factory.getStore()
 		this._propertySubscriptions = {}
 	}
 	
@@ -43,6 +44,23 @@ exports = Class(common.Publisher, function(supr) {
 		
 		this._properties[mutation.property] = value
 		this._notifySubscribers(mutation.property)
+		this._scheduleStore()
+	}
+
+	this._scheduleStore = function() {
+		if (this._scheduledWrite) { clearTimeout(this._scheduledWrite) }
+		this._scheduledWrite = setTimeout(bind(this, function() {
+			delete this._scheduledWrite
+			logger.log('Store item', this.getId())
+			logger.debug('Store item data', this._properties)
+			this._store.storeItemData(this._properties, bind(this, '_handleRevision'))
+		}), 2000)
+	}
+	
+	this._handleRevision = function(err, response) {
+		if (err) { throw err }
+		logger.debug('stored item and got new revision', response.id, response.rev)
+		this._properties._rev = response.rev
 	}
 	
 	this._notifySubscribers = function(propertyName) {
@@ -90,7 +108,6 @@ exports = Class(common.Publisher, function(supr) {
 		}
 	}
 	
-	this.setRevision = function(revision) { this._properties._rev = revision }
 	this.getProperties = function() { return this._properties }
 	
 	this.toString = function() { return this._properties._id }

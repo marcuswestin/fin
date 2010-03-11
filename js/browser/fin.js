@@ -6,6 +6,9 @@ jsio('import browser.ItemLocalStore')
 jsio('import browser.ItemSetLocalStore')
 jsio('import browser.Client')
 jsio('import browser.templateFactory')
+jsio('import browser.viewFactory')
+jsio('import browser.views.Value')
+jsio('import browser.views.Input')
 
 exports = Singleton(function(){
 	
@@ -57,8 +60,15 @@ exports = Singleton(function(){
 		return itemSet
 	}
 	
+	this.registerView = function(viewName, viewConstructor) {
+		browser.viewFactory.registerView(viewName, viewConstructor)
+	}
+	
 	// Private method - hook up all internals
 	this.init = function() {
+		this.registerView('Value', browser.views.Value)
+		this.registerView('Input', browser.views.Input)
+		
 		this._client = new browser.Client()
 		
 		var localItemStore = new browser.ItemLocalStore()

@@ -1,13 +1,17 @@
 jsio('from common.javascript import Singleton')
 
-jsio('import browser.views.Value')
-jsio('import browser.views.Input')
-jsio('import browser.views.List')
-
 exports = Singleton(function() {
 	
-	this.getView = function(items, name, references) {
-		var view = new browser.views[name](items, references)
+	this.init = function() {
+		this._viewConstructors = {}
+	}
+	
+	this.registerView = function(viewName, viewConstructor) {
+		this._viewConstructors[viewName] = viewConstructor
+	}
+	
+	this.getView = function(items, viewName, references) {
+		var view = new this._viewConstructors[viewName](items, references)
 		return view
 	}
 })

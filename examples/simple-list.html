@@ -10,15 +10,8 @@
 			jsio('import browser.fin as fin')
 			
 			fin.connect(function(){
-				var itemId = 'marcus';
-				var item = fin.getItem(itemId);
-				
 				var templateString = '<div style="margin-left: 40px"> List: (( List friends )) </div>';
-
-				var viewEl = fin.getView(templateString, itemId)
-				// var inputEl = fin.getInput(itemId, 'model')
-				document.body.appendChild(viewEl)
-				// document.body.appendChild(inputEl)
+				document.body.appendChild(fin.getView(templateString, 'marcus'))
 			})
 		</script>
 	</body>

@@ -1,6 +1,4 @@
 jsio('from common.javascript import Class, bind')
-jsio('import browser.events as events')
-jsio('import browser.dom as dom')
 jsio('import .Value as Value')
 
 exports = Class(Value, function(supr){
@@ -26,16 +24,25 @@ exports = Class(Value, function(supr){
 	}
 	
 	this._renderItem = function(itemValue) {
-		var el = dom.create({ parent: this._element, style: { position: 'relative' } })
-		var text = dom.create({ parent: el, text: itemValue })
-
-		var style = { position: 'absolute', left: -10, cursor: 'pointer', fontSize: 9, top: 3 }
-		var up = dom.create({ parent: el, style: style, text: '^' })
-		style.top = 7
-		var down = dom.create({ parent: el, style: style, text: 'v' })
+		var el = this._element.appendChild(document.createElement('div'))
+		el.style.position = 'relative'
 		
-		events.add(up, 'click', bind(this, '_moveItem', itemValue, -1))
-		events.add(down, 'click', bind(this, '_moveItem', itemValue, 1))
+		var text = el.appendChild(document.createElement('div'))
+		el.appendChild(document.createTextNode(itemValue))
+		
+		function createArrow(self, direction) {
+			var arrow = el.appendChild(document.createElement('div'))
+			arrow.style.position = 'absolute'
+			arrow.style.left = '-10px'
+			arrow.style.cursor = 'pointer'
+			arrow.style.fontSize = '9px'
+			arrow.style.top = (direction == 1 ? '7px' : '3px')
+			arrow.appendChild(document.createTextNode(direction == 1 ? 'v' : '^'))
+			arrow.onclick = bind(self, '_moveItem', itemValue, direction)
+		}
+		
+		createArrow(this, -1)
+		createArrow(this, 1)
 	}
 	
 	this._moveItem = function(itemValue, delta) {

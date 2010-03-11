@@ -7,15 +7,18 @@ exports = Class(function() {
 	}
 	
 	this.isInSet = function(setId, itemId, callback) {
-		logger.warn("NOT IMPLEMENTED", 'isInSet')
+		callback(!!(this._itemSets[setId] && this._itemSets[setId][itemId]))
 	}
 	
 	this.addToSet = function(setId, itemId, callback) {
-		logger.warn("NOT IMPLEMENTED", 'addToSet')
+		if (!this._itemSets[setId]) { this._itemSets[setId] = {} }
+		this._itemSets[setId][itemId] = true
+		callback()
 	}
 	
 	this.removeFromSet = function(setId, itemId, callback) {
-		logger.warn("NOT IMPLEMENTED", 'removeFromSet')
+		if (!this._itemSets[setId]) { return }
+		delete this._itemSets[setId][itemId]
 	}
 	
 })

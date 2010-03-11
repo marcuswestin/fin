@@ -1,6 +1,3 @@
-jsio.path.browser = '../js'
-jsio.path.common = '../js'
-
 jsio('from common.javascript import Singleton, bind, isArray')
 jsio('import common.ItemFactory')
 jsio('import common.Item')
@@ -10,7 +7,7 @@ jsio('import browser.ItemSetLocalStore')
 jsio('import browser.Client')
 jsio('import browser.templateFactory')
 
-fin = Singleton(function(){
+exports = Singleton(function(){
 	
 	// Make sure you have a connection with the server before using fin
 	this.connect = function(callback) {

@@ -27,8 +27,11 @@
 		<div id="output"></div>
 
 		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
-		<script type="text/javascript" src="../js/browser/fin.js"></script>
 		<script type="text/javascript">
+			jsio.path.browser = '../js'
+			jsio.path.common='../js'
+			jsio('import browser.fin as fin')
+			
 			fin.connect(function(){
 				var output = document.getElementById('output')
 				var items = document.getElementById('items')

@@ -36,19 +36,20 @@ Fire up a browser and navigate to localhost/path/to/fin/examples
 
 Using fin - API
 ---------------
-Get a view of an item
-	var viewEl = fin.getView('<div>(( task.dueDate ))</div>', 'item-id')
+Apply a template to an item
+	var viewEl = fin.applyTemplate('<div>(( task.dueDate ))</div>', 'item-id')
 	document.body.appendChild(viewEl)
 	
-Get a view of an array (a list)
-	fin.getView('<div>(( List names ))</div>', 'item-id')
-
 Create an input field for an item property
-	fin.getView('<div>(( name ))</div><div>(( Input name ))</div>', 'item-id')
+	fin.applyTemplate('<div>(( name ))</div><div>(( Input name ))</div>', 'item-id')
 
-Get a view using multiple items
-	fin.getView('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', 
+Apply a template to multiple items
+	fin.applyTemplate('<div class="dueDate">(( user.task.dueDate ))</div><div class="messageSender">(( message.sender.name ))', 
 		{ user: userItem, message: messageItem })
+
+Get a specific view of an item property
+	var view = fin.getView('Input', 'item-id', 'name')
+	document.appendChild(view.getElement())
 
 *Under the hood* - Get an item by id
 	var item = fin.getItem('itemId')

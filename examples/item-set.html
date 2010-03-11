@@ -37,7 +37,7 @@
 				var items = document.getElementById('items')
 				var template = document.getElementById('template')
 
-				items.appendChild(fin.getView(template.innerHTML, 'marcus'))
+				items.appendChild(fin.applyTemplate(template.innerHTML, 'marcus'))
 				
 				var myImportantBugs = fin.getItemSet({
 					type: 'bug',

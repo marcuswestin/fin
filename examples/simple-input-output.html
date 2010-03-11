@@ -21,10 +21,8 @@
 						<br />Model: (( Input model ))\
 					</div>';
 
-				var viewEl = fin.getView(templateString, itemId)
-				var inputEl = fin.getInput(itemId, 'model')
+				var viewEl = fin.applyTemplate(templateString, itemId)
 				document.body.appendChild(viewEl)
-				document.body.appendChild(inputEl)
 			})
 		</script>
 	</body>

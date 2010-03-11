@@ -22,13 +22,13 @@ exports = Singleton(function(){
 		return this._itemFactory.getItem(itemId)
 	}
 	
-	// Get an input field for an item
-	this.getInput = function(itemId, propertyName) {
-		return this.getView('(( Input ' + propertyName + '))', itemId)
+	this.getView = function(viewName, itemId, propertyName) {
+		var item = this.getItem(itemId)
+		return browser.viewFactory.getView({ item: item }, viewName, [{ item: 'item', property: propertyName }])
 	}
 	
 	// Apply an item to a fin template string
-	this.getView = function(templateString, items) {
+	this.applyTemplate = function(templateString, items) {
 		if (typeof items == 'string') { items = this.getItem(items) }
 		var singleItem = (items instanceof common.Item)
 		if (!singleItem) {

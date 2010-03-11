@@ -8,13 +8,14 @@ if (typeof exports != 'undefined') { exports = events }
 			e = e || event
 			if (!e.target) { e.target = e.srcElement }
 			var eventObj = {
-				charCode: e.charCode,
 				keyCode: e.keyCode,
 				metaKey: e.metaKey,
 				__realEventObject: e
 			}
-			if (eventObj.charCode == 13 && eventObj.keyCode == 13) { 
-				eventObj.charCode = 0 // in Webkit, return gives a charCode as well as a keyCode. Should only be a keyCode
+			if (e.type == 'keypress') {
+				eventObj.charCode = (eventObj.charCode == 13 && eventObj.keyCode == 13) 
+					? 0 // in Webkit, return gives a charCode as well as a keyCode. Should only be a keyCode
+					: e.charCode
 			}
 			handler(dontIncludeEvent ? null : eventObj)
 		}

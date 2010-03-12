@@ -21,7 +21,7 @@ exports = Class(common.Publisher, function(supr) {
 		if (this._snapshotCallbacks[snapshot._id]) {
 			var callbacks = this._snapshotCallbacks[snapshot._id]
 			for (var i=0, callback; callback = callbacks[i]; i++) {
-				callback()
+				callback(item)
 			}
 		}
 	}

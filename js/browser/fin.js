@@ -1,16 +1,16 @@
 jsio('from common.javascript import Singleton, bind, isArray')
 jsio('import common.ItemFactory')
-jsio('import common.Item')
 jsio('import common.ItemSetFactory')
 jsio('import browser.ItemLocalStore')
 jsio('import browser.ItemSetLocalStore')
 jsio('import browser.Client')
-jsio('import browser.templateFactory')
-jsio('import browser.viewFactory')
+jsio('import browser.TemplateFactory')
+jsio('import browser.ViewFactory')
 jsio('import browser.views.Value')
 jsio('import browser.views.Input')
 
-exports = Singleton(function(){
+// expose fin to global namespace
+window.fin = Singleton(function(){
 	
 	// Make sure you have a connection with the server before using fin
 	this.connect = function(callback) {
@@ -22,22 +22,18 @@ exports = Singleton(function(){
 		return this._itemFactory.getItem(itemId, callback)
 	}
 	
-	this.getView = function(viewName, itemId, propertyName) {
-		var item = this.getItem(itemId)
-		return browser.viewFactory.getView({ item: item }, viewName, [{ item: 'item', property: propertyName }])
+	this.getView = function(viewName /* viewArg1, viewArg2, ... */) {
+		var args = Array.prototype.slice.call(arguments, 1)
+		return this._viewFactory.getView(viewName, args)
+	}
+	
+	this.getListView = function(viewName /* , viewArg1, viewArg2, ... */) {
+		return this._viewFactory.getView(viewName, args)
 	}
 	
 	// Apply an item to a fin template string
-	this.applyTemplate = function(templateString, items) {
-		if (typeof items == 'string') { items = this.getItem(items) }
-		var singleItem = (items instanceof common.Item)
-		if (!singleItem) {
-			for (var itemKey in items) {
-				if (items[itemKey] instanceof common.Item) { continue }
-				items[itemKey] = this.getItem(items[itemKey])
-			}
-		}
-		return browser.templateFactory.applyTemplate(templateString, items, singleItem)
+	this.applyTemplate = function(templateString, itemIds) {
+		return this._templateFactory.applyTemplate(templateString, itemIds)
 	}
 	
 	// Register yourself to handle events from the server
@@ -66,7 +62,7 @@ exports = Singleton(function(){
 	}
 	
 	this.registerView = function(viewName, viewConstructor) {
-		browser.viewFactory.registerView(viewName, viewConstructor)
+		this._viewFactory.registerView(viewName, viewConstructor)
 	}
 	
 	this.exists = function(itemId, callback) {
@@ -78,9 +74,6 @@ exports = Singleton(function(){
 	this.init = function() {
 		this._existsCallbacks = {}
 		
-		this.registerView('Value', browser.views.Value)
-		this.registerView('Input', browser.views.Input)
-		
 		this._client = new browser.Client()
 		
 		var localItemStore = new browser.ItemLocalStore()
@@ -88,7 +81,13 @@ exports = Singleton(function(){
 
 		var localItemSetStore = new browser.ItemSetLocalStore()
 		this._itemSetFactory = new common.ItemSetFactory(this._itemFactory, localItemSetStore)
+		
+		this._viewFactory = new browser.ViewFactory(this)
+		this._templateFactory = new browser.TemplateFactory(this._viewFactory)
 
+		this.registerView('Value', browser.views.Value)
+		this.registerView('Input', browser.views.Input)
+		
 		// Whenever a new item is created, subscribe to it and hook up to send mutations to server
 		this._itemFactory.subscribe('ItemCreated', bind(this, function(item) {
 			this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEM', { id: item.getId() })

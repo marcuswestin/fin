@@ -4,26 +4,27 @@ exports = Class(function(supr){
 	
 	this._domType = 'span'
 	
-	this.init = function(items, references) {
-		this._element = document.createElement(this._domType)
-		var reference = references[0] // only take one argument
-		this._property = reference.property
-		this._item = items[reference.item]
+	this.init = function(jsArgs, viewArgs) {
+		var itemIds = jsArgs[0],
+			property = viewArgs[0]
 		
-		this._item.addDependant(this._property, bind(this, '_onPropertyUpdated'))
+		this._element = document.createElement(this._domType)
+
+		this._propertyChain = property.split('.')
+		var itemId = (typeof itemIds == 'string' 
+				? itemIds 
+				: itemIds[this._propertyChain.shift()])
+		this._item = fin.getItem(itemId)
+		this._item.addDependant(this._propertyChain, bind(this, '_setValue'))
 	}
 	
 	this.getElement = function() { return this._element }
 	
 	this._setValue = function(value) {
-		if (typeof value == 'undefined') { value = 'loading ' + this._property + '...' }
-		value = value || this._property
+		if (typeof value == 'undefined') { return }
+		value = value || this._propertyChain
 		value = value.replace(/\n/g, '<br />')
 		value = value.replace(/ $/, '&nbsp;')
 		this._element.innerHTML = value
-	}
-	
-	this._onPropertyUpdated = function(newValue) { 
-		this._setValue(newValue)
 	}
 })

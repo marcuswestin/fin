@@ -1,6 +1,6 @@
 jsio('from common.javascript import Singleton')
 
-exports = Singleton(function() {
+exports = Class(function() {
 	
 	this.init = function() {
 		this._viewConstructors = {}
@@ -10,9 +10,8 @@ exports = Singleton(function() {
 		this._viewConstructors[viewName] = viewConstructor
 	}
 	
-	this.getView = function(items, viewName, references) {
-		var view = new this._viewConstructors[viewName](items, references)
-		return view
+	this.getView = function(viewName, jsArgs, templateArgs) {
+		return new this._viewConstructors[viewName](jsArgs, templateArgs)
 	}
 })
 

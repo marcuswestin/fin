@@ -9,7 +9,10 @@ jsio('import server.ItemCouchDBStore')
 jsio('import server.Server')
 jsio('import server.ItemSetRedisStore')
 
+// expose fin to global namespace
 fin = Singleton(function() {
+	
+	this._server = null
 	
 	this.startServer = function(args) {
 		var finDatabase = new server.ItemCouchDBStore(args.couchClient)
@@ -17,8 +20,12 @@ fin = Singleton(function() {
 		
 		var finItemStore = new server.ItemSetRedisStore(args.redisClient)
 
-		var finServer = new server.Server(finDatabase, finItemStore)
-		return net.listen(finServer, (args.transport || 'csp'), { port: args.port || 5555 })
+		this._server = new server.Server(finDatabase, finItemStore)
+		return net.listen(this._server, (args.transport || 'csp'), { port: args.port || 5555 })
+	}
+	
+	this.getItem = function(itemId, callback) {
+		this._server.getItem(itemId, callback)
 	}
 	
 })

@@ -19,6 +19,10 @@ exports = Class(Server, function(supr) {
 		this._itemSetSubscriberPool = new common.SubscriptionPool()
 	}
 	
+	this.getItem = function(itemId, callback) {
+		this._itemStore.getItem(itemId, callback)
+	}
+	
 	this.exists = function(itemId, callback) {
 		this._itemStore.exists(itemId, callback)
 	}

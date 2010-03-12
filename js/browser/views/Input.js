@@ -9,20 +9,11 @@ exports = Class(Value, function(supr){
 	this.init = function() {
 		supr(this, 'init', arguments)
 		
-		this._propertyChain = this._property.split('.')
 		this._property = this._propertyChain.pop()
 		
 		this._element.onfocus = bind(this, '_onFocus')
 		this._element.onkeypress = bind(this, '_onKeyPress')
 		this._element.onBlur = bind(this, '_onBlur')
-	}
-	
-	this.getElement = function() {
-		return this._element
-	}
-	
-	this._setValue = function(value) {
-		this._element.value = typeof value == 'string' ? value : this._property
 	}
 	
 	this._onFocus = function() { 
@@ -34,18 +25,15 @@ exports = Class(Value, function(supr){
 		if (this._element.value == '') { this._element.value = this._property }
 	}
 	
-	this._onPropertyUpdated = function(newValue) {
-		if (typeof newValue == 'undefined') { 
-			this._onBlur()
-			return
-		}
+	this._setValue = function(value) {
+		if (typeof value == 'undefined') { return }
 		if (this._focused) { return }
 		this._element.disabled = false
-		this._setValue(newValue)
+		this._element.value = typeof value == 'string' ? value : this._property
 		if (typeof newValue == 'undefined') { return }
 		this._onBlur()
 	}
-	
+		
 	this._onKeyPress = function(e) {
 		// TODO: Deal with pasting
 		e = e || event

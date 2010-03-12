@@ -17,6 +17,10 @@ exports = Class(RTJPProtocol, function(supr) {
 				bind(this, 'sendFrame', 'FIN_EVENT_ITEM_SNAPSHOT'))
 		}))
 
+		this.handleRequest('FIN_REQUEST_ITEM_EXISTS', bind(this, function(request) {
+			this.server.exists(request._id, bind(this, 'sendFrame', 'FIN_RESPONSE_ITEM_EXISTS'))
+		}))
+		
 		this.handleRequest('FIN_REQUEST_MUTATE_ITEM', bind(this, function(mutation){
 			this.server.handleMutation(mutation)
 		}))

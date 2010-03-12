@@ -12,6 +12,10 @@ exports = Class(common.Publisher, function(supr) {
 		this._propertySubscriptions = {}
 	}
 	
+	this.setProperty = function(propertyName, propertyValue) {
+		this.mutate({ property: propertyName, value: propertyValue })
+	}
+	
 	this.mutate = function(mutation) {
 		mutation._id = this.getId()
 		logger.log('mutate', mutation._id, mutation)
@@ -21,11 +25,10 @@ exports = Class(common.Publisher, function(supr) {
 	this.applyMutation = function(mutation) {
 		logger.log('apply mutation', mutation._id, mutation)
 		var value = this._properties[mutation.property] || ''
-		// Numbers
-		// if (mutation.value) {
-		// 	value = mutation.value
-		// }
-
+		if (mutation.value) {
+			value = mutation.value
+		}
+		
 		// Strings
 		if (mutation.deletion) {
 			var startDelete = mutation.position
@@ -77,6 +80,7 @@ exports = Class(common.Publisher, function(supr) {
 	this.getProperties = function() { return this._properties }
 	
 	this.setSnapshot = function(snapshot, dontNotify) {
+		this._snapshotHasLoaded = true
 		this._properties = snapshot
 		if (dontNotify) { return }
 		for (var propertyName in this._propertySubscriptions) {

@@ -17,9 +17,9 @@ exports = Singleton(function(){
 		this._client.connect(callback)
 	}
 	
-	// Grab an item from the database
-	this.getItem = function(itemId) {
-		return this._itemFactory.getItem(itemId)
+	// Grab an item from the database. If callback is given, it'll wait until the snapshot has loaded
+	this.getItem = function(itemId, callback) {
+		return this._itemFactory.getItem(itemId, callback)
 	}
 	
 	this.getView = function(viewName, itemId, propertyName) {
@@ -69,8 +69,15 @@ exports = Singleton(function(){
 		browser.viewFactory.registerView(viewName, viewConstructor)
 	}
 	
+	this.exists = function(itemId, callback) {
+		this._existsCallbacks[itemId] = callback
+		this._client.sendFrame('FIN_REQUEST_ITEM_EXISTS', { _id: itemId })
+	}
+	
 	// Private method - hook up all internals
 	this.init = function() {
+		this._existsCallbacks = {}
+		
 		this.registerView('Value', browser.views.Value)
 		this.registerView('Input', browser.views.Input)
 		
@@ -87,6 +94,12 @@ exports = Singleton(function(){
 			this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEM', { id: item.getId() })
 			// TODO This should just listen to ItemPropertyUpdated instead
 			item.subscribe('Mutating', bind(this._client, 'sendFrame', 'FIN_REQUEST_MUTATE_ITEM'))
+		}))
+		
+		this.handleEvent('FIN_RESPONSE_ITEM_EXISTS', bind(this, function(response) {
+			var callback = this._existsCallbacks[response._id]
+			delete this._existsCallbacks[response._id]
+			callback(response.exists)
 		}))
 		
 		this.handleEvent('FIN_EVENT_ITEM_SNAPSHOT', bind(this, function(properties) {

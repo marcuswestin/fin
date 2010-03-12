@@ -7,6 +7,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	// Hack to detect if we should use postmessage. See js/server/index.html
 	this.transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp'
 	this.url = "http://" + (document.domain || "127.0.0.1") + ":5555"
+	this._uniqueId = 0
 
 	this.init = function(playerFactory) {
 		supr(this, 'init')

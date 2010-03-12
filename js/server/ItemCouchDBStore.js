@@ -5,6 +5,12 @@ exports = Class(function() {
 		this._db = db
 	}
 	
+	this.exists = function(itemId, callback) {
+		this._db.getDoc(itemId, bind(this, function(err, doc){
+			callback({ _id: itemId, exists: !err })
+		}))
+	}
+	
 	this.ensureExists = function() {
 		this._db.exists(bind(this, function(exists){
 			if (!exists) { this._db.create() }

@@ -22,7 +22,6 @@ exports = Class(function(supr){
 	
 	this._setValue = function(value) {
 		if (typeof value == 'undefined') { return }
-		value = value || this._propertyChain
 		value = value.replace(/\n/g, '<br />')
 		value = value.replace(/ $/, '&nbsp;')
 		this._element.innerHTML = value

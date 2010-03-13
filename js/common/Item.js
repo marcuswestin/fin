@@ -112,9 +112,7 @@ exports = Class(common.Publisher, function(supr) {
 		var propertyName = propertyChain.shift()
 		if (propertyChain.length == 0) { 
 			this._subscribeToProperty(propertyName, dependantCallback)
-			if (typeof this._properties[propertyName] != 'undefined') {
-				dependantCallback(this._properties[propertyName])
-			}
+			dependantCallback(this._properties[propertyName])
 			return
 		}
 		var item = new common.ItemReference(this._factory, this, propertyName)

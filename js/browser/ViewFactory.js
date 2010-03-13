@@ -11,7 +11,7 @@ exports = Class(function() {
 	}
 	
 	this.getView = function(viewName, jsArgs, templateArgs) {
-		return new this._viewConstructors[viewName](jsArgs, templateArgs)
+		return new this._viewConstructors[viewName](jsArgs, templateArgs || [])
 	}
 })
 

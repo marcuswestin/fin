@@ -2,6 +2,8 @@ TODO
 
 === P1 ====
 
+Replace "Properties" with "Data"
+
 Server API for creating item sets at startup - it will take quite a while to create a new item set if it's not already in memory
 
 API for releasing items and item sets we no longer need!

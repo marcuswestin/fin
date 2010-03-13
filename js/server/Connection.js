@@ -9,7 +9,6 @@ exports = Class(RTJPProtocol, function(supr) {
 		
 		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEM', bind(this, function(args){
 			var itemId = args.id
-			this._log('subscribing to item', itemId)
 			var onMutated = bind(this, function(mutation) {
 				this.sendFrame('FIN_EVENT_ITEM_MUTATED', mutation)
 			})
@@ -18,9 +17,19 @@ exports = Class(RTJPProtocol, function(supr) {
 		}))
 
 		this.handleRequest('FIN_REQUEST_ITEM_EXISTS', bind(this, function(request) {
-			this.server.exists(request._id, bind(this, 'sendFrame', 'FIN_RESPONSE_ITEM_EXISTS'))
+			this.server.exists(request._id, bind(this, function(response) {
+				response._requestId = request._requestId
+				this.sendFrame('FIN_RESPONSE_ITEM_EXISTS', response)
+			}))
 		}))
-		
+
+		this.handleRequest('FIN_REQUEST_CREATE_ITEM', bind(this, function(request) {
+			this.server.createItem(request.data, bind(this, function(item) {
+				var response = { _requestId: request._requestId, item: item.getData() }
+				this.sendFrame('FIN_RESPONSE_CREATE_ITEM', response)
+			}))
+		}))
+
 		this.handleRequest('FIN_REQUEST_MUTATE_ITEM', bind(this, function(mutation){
 			this.server.handleMutation(mutation)
 		}))
@@ -57,7 +66,7 @@ exports = Class(RTJPProtocol, function(supr) {
 	}
 
 	this.frameReceived = function(id, name, args) {
-		this._log('frameReceived', id, name, JSON.stringify(args))
+		this._log('recv', id, name, JSON.stringify(args))
 		if (!this._requestHandlers[name]) {
 			logger.warn('Received request without handler', name)
 			return
@@ -75,7 +84,7 @@ exports = Class(RTJPProtocol, function(supr) {
 /* Util
  ******/
 	this.sendFrame = function(name, args) {
-		this._log('sendFrame', name, JSON.stringify(args))
+		this._log('send', name, JSON.stringify(args))
 		supr(this, 'sendFrame', arguments)
 	}
 
@@ -84,6 +93,6 @@ exports = Class(RTJPProtocol, function(supr) {
 		if (this.transport._socket) {
 			args.unshift(this.transport._socket._session.key)
 		}
-		logger.log.apply(this, args)
+		logger.log.apply(logger, args)
 	}
 })

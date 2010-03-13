@@ -18,8 +18,8 @@ window.fin = Singleton(function(){
 	}
 	
 	// Grab an item from the database. If callback is given, it'll wait until the snapshot has loaded
-	this.getItem = function(itemId, callback) {
-		return this._itemFactory.getItem(itemId, callback)
+	this.getItem = function(itemId) {
+		return this._itemFactory.getItem(itemId)
 	}
 	
 	this.getView = function(viewName /* viewArg1, viewArg2, ... */) {
@@ -65,14 +65,22 @@ window.fin = Singleton(function(){
 		this._viewFactory.registerView(viewName, viewConstructor)
 	}
 	
+	var uniqueRequestId = 0
 	this.exists = function(itemId, callback) {
-		this._existsCallbacks[itemId] = callback
-		this._client.sendFrame('FIN_REQUEST_ITEM_EXISTS', { _id: itemId })
+		var requestId = 'r' + uniqueRequestId++
+		this._requestCallbacks[requestId] = callback
+		this._client.sendFrame('FIN_REQUEST_ITEM_EXISTS', { _requestId: requestId, _id: itemId })
+	}
+	
+	this.createItem = function(data, callback) {
+		var requestId = 'r' + uniqueRequestId++
+		this._requestCallbacks[requestId] = callback
+		this._client.sendFrame('FIN_REQUEST_CREATE_ITEM', { _requestId: requestId, data: data })
 	}
 	
 	// Private method - hook up all internals
 	this.init = function() {
-		this._existsCallbacks = {}
+		this._requestCallbacks = {}
 		
 		this._client = new browser.Client()
 		
@@ -96,9 +104,16 @@ window.fin = Singleton(function(){
 		}))
 		
 		this.handleEvent('FIN_RESPONSE_ITEM_EXISTS', bind(this, function(response) {
-			var callback = this._existsCallbacks[response._id]
-			delete this._existsCallbacks[response._id]
+			var callback = this._requestCallbacks[response._requestId]
+			delete this._requestCallbacks[response._requestId]
 			callback(response.exists)
+		}))
+		
+		this.handleEvent('FIN_RESPONSE_CREATE_ITEM', bind(this, function(response) {
+			var callback = this._requestCallbacks[response._requestId]
+			delete this._requestCallbacks[response._requestId]
+			var item = this._itemFactory.getItem(response.item)
+			callback(item)
 		}))
 		
 		this.handleEvent('FIN_EVENT_ITEM_SNAPSHOT', bind(this, function(properties) {
@@ -109,11 +124,11 @@ window.fin = Singleton(function(){
 		this.handleEvent('FIN_EVENT_ITEM_MUTATED', bind(this, function(mutation) {
 			this._itemFactory.handleMutation(mutation)
 		}))
-
+		
 		this.handleEvent('FIN_EVENT_ITEMSET_MUTATED', bind(this, function(mutation) {
 			this._itemSetFactory.handleMutation(mutation)
 		}))
-
+		
 		this.handleEvent('FIN_EVENT_ITEMSET_SNAPSHOT', bind(this, function(snapshot) {
 			this._itemSetFactory.handleSnapshot(snapshot)
 		}))

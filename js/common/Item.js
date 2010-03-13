@@ -4,9 +4,9 @@ jsio('import common.ItemReference')
 
 exports = Class(common.Publisher, function(supr) {
 	
-	this.init = function(factory, id) {
+	this.init = function(factory, itemData) {
 		supr(this, 'init')
-		this._properties = { _id: id, _rev: null }
+		this._properties = (typeof itemData == 'string') ? { _id : itemData } : itemData
 		this._factory = factory
 		this._store = factory.getStore()
 		this._propertySubscriptions = {}
@@ -77,7 +77,7 @@ exports = Class(common.Publisher, function(supr) {
 	
 	this.getId = function() { return this._properties._id }
 	this.getProperty = function(propertyName) { return this._properties[propertyName] }
-	this.getProperties = function() { return this._properties }
+	this.getData = function() { return this._properties }
 	
 	this.setSnapshot = function(snapshot, dontNotify) {
 		this._snapshotHasLoaded = true
@@ -113,5 +113,7 @@ exports = Class(common.Publisher, function(supr) {
 		}
 	}
 	
-	this.toString = function() { return this._properties._id }
+	this.toString = function() { 
+		return this._properties._id 
+	}
 })

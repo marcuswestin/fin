@@ -10,6 +10,7 @@ exports = Class(common.Publisher, function(supr) {
 		this._itemSetsByProperty = {}
 		this._store = store
 		
+		itemFactory.subscribe('ItemCreated', bind(this, '_onItemCreated'))
 		itemFactory.subscribe('ItemPropertyUpdated', bind(this, '_onItemPropertyUpdated'))
 	}
 	
@@ -66,11 +67,18 @@ exports = Class(common.Publisher, function(supr) {
 		return conditions
 	}
 	
+	this._onItemCreated = function(item) {
+		var properties = item.getData()
+		for (var propertyName in properties) {
+			this._onItemPropertyUpdated(item, propertyName)
+		}
+	}
+	
 	this._onItemPropertyUpdated = function(item, propertyName) {
 		var dependentSets = this._itemSetsByProperty[propertyName]
 		if (!dependentSets) { return }
 		for (var i=0, itemSet; itemSet = dependentSets[i]; i++) {
-			itemSet.handleItemUpdate(item.getProperties())
+			itemSet.handleItemUpdate(item.getData())
 		}
 	}
 	

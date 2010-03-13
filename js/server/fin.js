@@ -24,8 +24,4 @@ fin = Singleton(function() {
 		return net.listen(this._server, (args.transport || 'csp'), { port: args.port || 5555 })
 	}
 	
-	this.getItem = function(itemId, callback) {
-		this._server.getItem(itemId, callback)
-	}
-	
 })

@@ -8,8 +8,6 @@ exports = Class(common.Publisher, function(supr) {
 		supr(this, 'init')
 		this._store = itemStore
 		this._items = {}
-		this._snapshots = {}
-		this._snapshotCallbacks = {}
 	}
 	
 	this.getStore = function() { return this._store }
@@ -18,12 +16,6 @@ exports = Class(common.Publisher, function(supr) {
 		logger.log('Loading snapshot', snapshot._id, snapshot)
 		var item = this.getItem(snapshot._id)
 		item.setSnapshot(snapshot)
-		if (this._snapshotCallbacks[snapshot._id]) {
-			var callbacks = this._snapshotCallbacks[snapshot._id]
-			for (var i=0, callback; callback = callbacks[i]; i++) {
-				callback(item)
-			}
-		}
 	}
 	
 	this.handleMutation = function(mutation) {
@@ -34,19 +26,11 @@ exports = Class(common.Publisher, function(supr) {
 		this._publish('ItemPropertyUpdated', item, mutation.property)
 	}
 	
-	this.getItem = function(id, callback) {
-		if (callback) {
-			if (this._snapshots[id]) { 
-				callback() 
-			} else if (this._snapshotCallbacks[id]) {
-				this._snapshotCallbacks[id].push(callback)
-			} else {
-				this._snapshotCallbacks[id] = [callback]
-			}
-		}
+	this.getItem = function(itemData) {
+		var id = (typeof itemData == 'string' ? itemData : itemData._id)
 		if (this._items[id]) { return this._items[id] }
 		logger.log("Create item", id)
-		this._items[id] = new common.Item(this, id)
+		this._items[id] = new common.Item(this, itemData)
 		this._publish('ItemCreated', this._items[id])
 		return this._items[id]
 	}

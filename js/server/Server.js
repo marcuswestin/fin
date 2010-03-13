@@ -19,12 +19,18 @@ exports = Class(Server, function(supr) {
 		this._itemSetSubscriberPool = new common.SubscriptionPool()
 	}
 	
-	this.getItem = function(itemId, callback) {
-		this._itemStore.getItem(itemId, callback)
-	}
-	
 	this.exists = function(itemId, callback) {
 		this._itemStore.exists(itemId, callback)
+	}
+	
+	this.createItem = function(itemData, callback) {
+		this._itemStore.storeItemData(itemData, bind(this, function(err, result) {
+			if (err) { throw err }
+			itemData._id = result.id
+			itemData._rev = result.rev
+			var item = this._itemFactory.getItem(itemData)
+			callback(item)
+		}));
 	}
 	
 	this.subscribeToItemMutations = function(itemId, subCallback, snapshotCallback) {
@@ -75,21 +81,20 @@ exports = Class(Server, function(supr) {
 	this._getItemSnapshot = function(id, callback) {
 		if (this._itemFactory.hasItem(id)) {
 			var item = this._itemFactory.getItem(id)
-			logger.log('get item from memory', id)
-			logger.debug('item data from memory', JSON.stringify(item.getProperties()))
-			callback(item.getProperties())
+			logger.log('retrieved item from memory', id)
+			logger.debug('item data from memory', JSON.stringify(item.getData()))
+			callback(item.getData())
 		} else {
-			logger.log('get item from database', id)
 			this._itemStore.getItemData(id, bind(this, function(err, data) {
 				if (err) {
 					logger.warn("Could not retrieve item from db", id, err)
 					return
 				}
-				logger.log('retrieved item from database')
+				logger.log('retrieved item from database', id)
 				logger.debug('item data from database', JSON.stringify(data))
 				var item = this._itemFactory.getItem(data._id)
 				item.setSnapshot(data, true)
-				callback(item.getProperties())
+				callback(item.getData())
 			}))
 		}
 	}

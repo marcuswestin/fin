@@ -12,6 +12,20 @@ exports = Class(common.Publisher, function(supr) {
 		this._propertySubscriptions = {}
 	}
 	
+	this.requestFocus = function(editDeniedCallback) {
+		this._subscribeToProperty('editing', bind(this, '_onEditing'))
+		this._editDeniedCallback = editDeniedCallback
+		// TODO would be nice not to have to reference fin here... Should the item factory have the session id?
+		this.setProperty('editing', fin.getSessionId())
+	}
+	
+	this._onEditing = function(editor) {
+		if (!editor || editor == fin.getSessionId()) { return }
+		if (!this._editDeniedCallback) { return }
+		this._editDeniedCallback()
+		delete this._editDeniedCallback
+	}
+	
 	this.setProperty = function(propertyName, propertyValue) {
 		this.mutate({ property: propertyName, value: propertyValue })
 	}

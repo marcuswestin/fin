@@ -10,17 +10,23 @@ exports = Class(Value, function(supr){
 		supr(this, 'init', arguments)
 		
 		this._property = this._propertyChain.pop()
+		this._chainedItem = this._item.getChainedItem(this._propertyChain)
 		
 		this._element.onfocus = bind(this, '_onFocus')
 		this._element.onkeypress = bind(this, '_onKeyPress')
 		this._element.onBlur = bind(this, '_onBlur')
 	}
 	
-	this._onFocus = function() { 
+	this._onFocus = function(e) { 
+		this._getItem().requestFocus(bind(this, function(){
+			this._element.blur()
+			this._onBlur()
+		}))
 		this._focused = true
 		if (this._element.value == this._property) { this._element.value = '' }
 	}
-	this._onBlur = function() { 
+	
+	this._onBlur = function() {
 		this._focused = false 
 		if (this._element.value == '') { this._element.value = this._property }
 	}
@@ -72,6 +78,10 @@ exports = Class(Value, function(supr){
 		if (!mutation.deletion && !mutation.addition) { return }
 		
 		mutation.property = this._property
-		this._item.getChainedItem(this._propertyChain).mutate(mutation)
+		this._getItem().mutate(mutation)
+	}
+	
+	this._getItem = function() {
+		return this._item.getChainedItem(this._propertyChain)
 	}
 })

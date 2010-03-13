@@ -41,6 +41,10 @@ window.fin = Singleton(function(){
 		this._client.registerEventHandler(eventName, callback)
 	}
 	
+	this.getSessionId = function() {
+		return this._client.transport._conn._sessionKey
+	}
+	
 	// Grab an item set
 	// conditions == { type: 'bug', owner: 'marcus', priority: ['>', 4] }
 	this.getItemSet = function(conditions) {

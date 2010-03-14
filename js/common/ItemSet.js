@@ -21,7 +21,12 @@ exports = Class(common.Publisher, function(supr) {
 		}) 
 	}
 
-	this.addDependant = function(callback) { this._dependants.push(callback) }
+	this.addDependant = function(callback) { 
+		this._dependants.push(callback)
+		this.getItems(function(itemIds) {
+			callback({ add: itemIds })
+		})
+	}
 	this._queueMutation = function(mutation) {
 		if (mutation.add) { 
 			this._queuedMutation.add = this._queuedMutation.add.concat(mutation.add)

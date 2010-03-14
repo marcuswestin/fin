@@ -14,12 +14,13 @@ exports = Class(function() {
 		callback(null, items)
 	}
 	
-	this.setSnapshot = function(setId, items) {
+	this.setSnapshot = function(setId, items, callback) {
 		this._itemSets[setId] = {}
 		if (!items) { return }
 		for (var i=0, item; item = items[i]; i++) {
 			this._itemSets[setId][item] = true
 		}
+		callback(null)
 	}
 	
 	this.isInSet = function(setId, itemId, callback) {

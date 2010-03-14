@@ -30,7 +30,7 @@ exports = Class(Value, function(supr){
 		if (this._element.value == '') { this._element.value = this._property }
 	}
 	
-	this._setValue = function(value) {
+	this.setValue = function(value) {
 		if (typeof value == 'undefined') { return }
 		if (this._focused) { return }
 		this._element.disabled = false

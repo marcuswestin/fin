@@ -9,16 +9,17 @@ exports = Class(function() {
 	this.subscribe = function(signal, callback) {
 		if (!this._subscribers[signal]) { this._subscribers[signal] = []; }
 		this._subscribers[signal].push(callback);
+		return callback
 	}
 
-	// this.unsubscribe = function(signal, targetCallback) {
-	// 	var subscribers = this._subscribers[signal] || []
-	// 	for (var i=0, callback; callback = subscribers[i]; i++) {
-	// 		if (callback != targetCallback) { continue }
-	// 		subscribers.splice(i, 1)
-	// 		return
-	// 	}
-	// }
+	this.unsubscribe = function(signal, targetCallback) {
+		var subscribers = this._subscribers[signal] || []
+		for (var i=0, callback; callback = subscribers[i]; i++) {
+			if (callback != targetCallback) { continue }
+			subscribers.splice(i, 1)
+			return
+		}
+	}
 	
 	this._publish = function(signal) {
 		var args = Array.prototype.slice.call(arguments, 1)

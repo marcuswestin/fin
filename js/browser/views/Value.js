@@ -15,12 +15,16 @@ exports = Class(function(supr){
 				? itemIds 
 				: itemIds[this._propertyChain.shift()])
 		this._item = fin.getItem(itemId)
-		this._item.addDependant(this._propertyChain, bind(this, '_setValue'))
+		this._item.addDependant(this._propertyChain, bind(this, '_onMutation'))
+	}
+	
+	this._onItemMutation = function(mutation) {
+		this.setValue(mutation.value)
 	}
 	
 	this.getElement = function() { return this._element }
 	
-	this._setValue = function(value) {
+	this.setValue = function(value) {
 		if (typeof value == 'undefined') { return }
 		value = value.replace(/\n/g, '<br />')
 		value = value.replace(/ $/, '&nbsp;')

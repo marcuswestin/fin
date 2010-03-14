@@ -14,7 +14,8 @@ exports = Class(common.Publisher, function(supr) {
 	
 	this.getReferencedItem = function() { return this._referencedItem }
 	
-	this._onReferenceChanged = function(referencedItemId) {
+	this._onReferenceChanged = function(mutation) {
+		var referencedItemId = mutation.value
 		if (typeof referencedItemId == 'undefined') { return }
 		this._referencedItem = this._factory.getItem(referencedItemId)
 		for (var i=0, proxiedCall; proxiedCall = this._proxiedCalls[i]; i++) {

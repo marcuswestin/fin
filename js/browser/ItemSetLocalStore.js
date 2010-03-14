@@ -38,4 +38,15 @@ exports = Class(function() {
 		callback(null)
 	}
 	
+	// The client side currently depends on this being blocking
+	this.addItems = function(setId, itemIds) {
+		var itemSet = this._itemSets[setId]
+		for (var i=0, itemId; itemId = itemIds[i]; i++) { itemSet[itemId] = true }
+	}
+	// The client side currently depends on this being blocking
+	this.removeItems = function(setId, itemIds) {
+		var itemSet = this._itemSets[setId]
+		for (var i=0, itemId; itemId = itemIds[i]; i++) { delete itemSet[itemId] }
+	}
+
 })

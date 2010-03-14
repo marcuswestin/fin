@@ -31,6 +31,17 @@ exports.Class = function(parent, proto) {
 		}
 		throw new Error('supr: parent method ' + method + ' does not exist')
 	})
+	
+	// Sometimes you want a method that renders UI to only execute once if it's called 
+	// multiple times within a short time period. Delayed methods do just that
+	cls.prototype.createDelayedMethod = function(methodName, fn) {
+		var delayedExecution
+		this[methodName] = function() {
+			clearTimeout(delayedExecution)
+			delayedExecution = setTimeout(bind(this, fn), 10)
+		}
+	}
+	
 	cls.prototype.constructor = cls
 	return cls
 }

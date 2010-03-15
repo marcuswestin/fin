@@ -92,8 +92,8 @@ exports = Class(common.Publisher, function(supr) {
 	
 	// An item updated remotelly - this only gets called on the client side
 	this.applyMutation = function(mutation) {
-		this._store.removeItems(this._id, mutation.remove)
-		this._store.addItems(this._id, mutation.add)
+		if (mutation.remove) { this._store.removeItems(this._id, mutation.remove) }
+		if (mutation.add) { this._store.addItems(this._id, mutation.add) }
 		this._queueMutation(mutation)
 	}
 	

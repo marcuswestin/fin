@@ -18,8 +18,8 @@ exports = Class(function(supr){
 		this._item.addDependant(this._propertyChain, bind(this, '_onMutation'))
 	}
 	
-	this._onItemMutation = function(mutation) {
-		this.setValue(mutation.value)
+	this._onItemMutation = function(mutation, newValue) {
+		this.setValue(newValue)
 	}
 	
 	this.getElement = function() { return this._element }

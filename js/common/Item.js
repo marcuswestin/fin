@@ -106,7 +106,7 @@ exports = Class(common.Publisher, function(supr) {
 		this._properties = snapshot
 		if (dontNotify) { return }
 		for (var propertyName in this._propertySubscriptions) {
-			this._notifySubscribers({ value: this._properties[propertyName] })
+			this._notifySubscribers({ property: propertyName, value: this._properties[propertyName] })
 		}
 	}
 	this._subscribeToProperty = function(property, callback) {
@@ -120,7 +120,8 @@ exports = Class(common.Publisher, function(supr) {
 		var propertyName = propertyChain.shift()
 		if (propertyChain.length == 0) { 
 			this._subscribeToProperty(propertyName, dependantCallback)
-			dependantCallback({ value: this._properties[propertyName] }, this._properties[propertyName])
+			var value = this._properties[propertyName]
+			dependantCallback({ property: propertyName, value: value }, value)
 			return
 		}
 		var item = new common.ItemReference(this._factory, this, propertyName)

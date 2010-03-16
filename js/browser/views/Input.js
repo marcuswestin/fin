@@ -4,7 +4,7 @@ jsio('import .Value as Value')
 
 exports = Class(Value, function(supr){
 	
-	this._domType = 'input'
+	this._domTag = 'input'
 	
 	this.init = function() {
 		supr(this, 'init', arguments)

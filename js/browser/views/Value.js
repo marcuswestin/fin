@@ -2,13 +2,13 @@ jsio('from common.javascript import Class, bind')
 
 exports = Class(function(supr){
 	
-	this._domType = 'span'
+	this._domTag = 'span'
 	
 	this.init = function(jsArgs, viewArgs) {
 		var itemIds = jsArgs[0],
 			property = viewArgs[0]
 		
-		this._element = document.createElement(this._domType)
+		this._element = document.createElement(this._domTag)
 
 		this._propertyChain = property.split('.')
 		var itemId = (typeof itemIds == 'string' 

@@ -41,8 +41,7 @@ exports = Class(RTJPProtocol, function(supr) {
 		
 		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEMSET', bind(this, function(request) {
 			var onMutated = bind(this, '_onItemSetMutated')
-			this._itemSetSubs = this.server.subscribeToItemSetMutations(request.id, onMutated, 
-				bind(this, 'sendFrame', 'FIN_EVENT_ITEMSET_SNAPSHOT'))
+			this._itemSetSubs = this.server.subscribeToItemSet(request.id, onMutated)
 		}))
 	}
 	

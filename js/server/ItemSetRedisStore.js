@@ -1,4 +1,4 @@
-jsio('from common.javascript import Class, Publisher, bind')
+jsio('from common.javascript import Class, Publisher, bind, isArray')
 
 exports = Class(function() {
 	
@@ -14,11 +14,27 @@ exports = Class(function() {
 		this._redisClient.sismember(setId, itemId, callback)
 	}
 	
-	this.addToSet = function(setId, itemId, callback) {
-		this._redisClient.sadd(setId, itemId, callback)
+	this.addToSet = function(setId, itemIds, callback) {
+		if (!isArray(itemIds)) { itemIds = [itemIds] }
+		var remaining = itemIds.length
+		function onItemAdded(err) {
+			if (err) { throw err }
+			if (--remaining == 0) { callback(null) }
+		}
+		for (var i=0, itemId; itemId = itemIds[i]; i++) {
+			this._redisClient.sadd(setId, itemId, onItemAdded)
+		}
 	}
 	
 	this.removeFromSet = function(setId, itemId, callback) {
-		this._redisClient.srem(setId, itemId, callback)
+		if (!isArray(itemIds)) { itemIds = [itemIds] }
+		var remaining = itemIds.length
+		function onItemRemoved(err) {
+			if (err) { throw err }
+			if (--remaining == 0) { callback(null) }
+		}
+		for (var i=0, itemId; itemId = itemIds[i]; i++) {
+			this._redisClient.sadd(setId, itemId, onItemRemoved)
+		}
 	}
 })

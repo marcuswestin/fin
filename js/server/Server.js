@@ -39,19 +39,18 @@ exports = Class(Server, function(supr) {
 		return subId
 	}
 	
-	this.subscribeToItemSetMutations = function(id, subCallback, snapshotCallback) {
+	this.subscribeToItemSet = function(id, callback) {
 		var isNew = !this._itemSetFactory.hasItemSet(id)
 		var itemSet = this._itemSetFactory.getItemSet(id)
 		if (isNew) {
 			itemSet.subscribe('Mutated', bind(this, '_onItemSetMutated'))
-			this._itemStore.getAllItems(bind(this, function(properties) {
-				itemSet.handleItemUpdate(properties)
+			this._itemStore.getAllItems(bind(this, function(itemProperties) {
+				itemSet.handleItemUpdate(itemProperties)
 			}))
 		}
-		var subId = this._itemSetSubscriberPool.add(id, subCallback)
+		var subId = this._itemSetSubscriberPool.add(id, callback)
 		itemSet.getItems(function(itemIds){
-			var snapshot = { _id: id, items: itemIds }
-			snapshotCallback(snapshot)
+			callback({ _id: id, add: itemIds })
 		})
 		return subId
 	}

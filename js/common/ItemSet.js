@@ -44,16 +44,6 @@ exports = Class(common.Publisher, function(supr) {
 		this._queuedMutation = { add: [], remove: [] }
 	})
 	
-	// Item set snapshot was loaded - this only gets called on the client side
-	this.setSnapshot = function(snapshot) {
-		var items = snapshot.items
-		this._store.setSnapshot(this._id, items, bind(this, function(err) {
-			if (err) { throw err }
-			var mutation = { add: items }
-			this._queueMutation(mutation)
-		}))
-	}
-	
 	// An item updated locally - happens both on client and server side 
 	this.handleItemUpdate = function(properties) {
 		var itemId = properties._id

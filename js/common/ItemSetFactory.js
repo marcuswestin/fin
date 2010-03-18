@@ -86,9 +86,4 @@ exports = Class(common.Publisher, function(supr) {
 		var itemSet = this._itemSets[mutation._id]
 		itemSet.applyMutation(mutation)
 	}
-	
-	this.handleSnapshot = function(snapshot) {
-		var itemSet = this._itemSets[snapshot._id]
-		itemSet.setSnapshot(snapshot)
-	}
 })

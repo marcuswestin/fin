@@ -34,9 +34,10 @@ exports = Class(RTJPProtocol, function(supr) {
 			this.server.handleMutation(mutation)
 		}))
 		
-		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEMSET', bind(this, function(request) {
-			var onMutated = bind(this, '_onItemSetMutated')
-			this._itemSetSubs = this.server.subscribeToItemSetMutations(request.id, onMutated, 
+		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEMSET', bind(this, function(args) {
+			var itemSetId = args.id
+				onMutated = bind(this, '_onItemSetMutated')
+			this._itemSetSubs[itemSetId] = this.server.subscribeToItemSetMutations(itemSetId, onMutated, 
 				bind(this, 'sendFrame', 'FIN_EVENT_ITEMSET_SNAPSHOT'))
 		}))
 	}
@@ -55,7 +56,7 @@ exports = Class(RTJPProtocol, function(supr) {
 			this.server.unsubscribeFromItemMutations(itemId, this._itemSubs[itemId])
 		}
 		for (var itemSetId in this._itemSetSubs) {
-			this.server.unsubscribeFromItemSetMutations(itemSetId, this._itemSetSubs[itemId])
+			this.server.unsubscribeFromItemSetMutations(itemSetId, this._itemSetSubs[itemSetId])
 		}
 	}
 	

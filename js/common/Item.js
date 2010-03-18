@@ -19,7 +19,12 @@ exports = Class(common.Publisher, function(supr) {
 		this.setProperty('editing', fin.getSessionId())
 	}
 	
-	this._onEditing = function(editor) {
+	this.releaseFocus = function() {
+		if (this._properties.editing != fin.getSessionId()) { return }
+		this.setProperty('editing', '')
+	}
+	
+	this._onEditing = function(mutation, editor) {
 		if (!editor || editor == fin.getSessionId()) { return }
 		if (!this._editDeniedCallback) { return }
 		this._editDeniedCallback()
@@ -30,10 +35,12 @@ exports = Class(common.Publisher, function(supr) {
 		this.mutate({ property: propertyName, value: propertyValue })
 	}
 	
+	// Called locally to change an item, either through setProperty or directly
 	this.mutate = function(mutation) {
 		mutation._id = this.getId()
 		logger.log('mutate', mutation._id, mutation)
 		this._publish('Mutating', mutation)
+		this.applyMutation(mutation)
 	}
 	
 	this.applyMutation = function(mutation) {
@@ -60,7 +67,7 @@ exports = Class(common.Publisher, function(supr) {
 		}
 		
 		this._properties[mutation.property] = value
-		this._notifySubscribers(mutation.property, mutation)
+		this._notifySubscribers(mutation)
 		this._scheduleStore()
 	}
 
@@ -80,12 +87,13 @@ exports = Class(common.Publisher, function(supr) {
 		this._properties._rev = response.rev
 	}
 	
-	this._notifySubscribers = function(propertyName, mutation) {
+	this._notifySubscribers = function(mutation) {
+		var propertyName = mutation.property
 		var propertySubscribers = this._propertySubscriptions[propertyName]
 		if (!propertySubscribers) { return }
 		var newValue = this._properties[propertyName]
 		for (var i=0, callback; callback = propertySubscribers[i]; i++) {
-			callback(newValue, mutation)
+			callback(mutation, newValue)
 		}
 	}
 	
@@ -98,7 +106,7 @@ exports = Class(common.Publisher, function(supr) {
 		this._properties = snapshot
 		if (dontNotify) { return }
 		for (var propertyName in this._propertySubscriptions) {
-			this._notifySubscribers(propertyName)
+			this._notifySubscribers({ property: propertyName, value: this._properties[propertyName] })
 		}
 	}
 	this._subscribeToProperty = function(property, callback) {
@@ -112,7 +120,8 @@ exports = Class(common.Publisher, function(supr) {
 		var propertyName = propertyChain.shift()
 		if (propertyChain.length == 0) { 
 			this._subscribeToProperty(propertyName, dependantCallback)
-			dependantCallback(this._properties[propertyName])
+			var value = this._properties[propertyName]
+			dependantCallback({ property: propertyName, value: value }, value)
 			return
 		}
 		var item = new common.ItemReference(this._factory, this, propertyName)

@@ -52,10 +52,10 @@
 				
 				marcusSet.subscribe('Mutated', function(mutation) {
 					if (mutation.add) {
-						output.innerHTML += "<div>Item " + mutation.add + " added</div>"
+						output.innerHTML += "<div>Items " + mutation.add + " added</div>"
 					}
 					if (mutation.remove) {
-						output.innerHTML += "<div>Item " + mutation.remove + " removed</div>"
+						output.innerHTML += "<div>Items " + mutation.remove + " removed</div>"
 					}
 				})
 			})

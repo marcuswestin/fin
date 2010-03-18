@@ -4,13 +4,12 @@ jsio('import .Value as Value')
 
 exports = Class(Value, function(supr){
 	
-	this._domType = 'input'
+	this._domTag = 'input'
 	
 	this.init = function() {
 		supr(this, 'init', arguments)
 		
 		this._property = this._propertyChain.pop()
-		this._chainedItem = this._item.getChainedItem(this._propertyChain)
 		
 		this._element.onfocus = bind(this, '_onFocus')
 		this._element.onkeypress = bind(this, '_onKeyPress')
@@ -31,7 +30,7 @@ exports = Class(Value, function(supr){
 		if (this._element.value == '') { this._element.value = this._property }
 	}
 	
-	this._setValue = function(value) {
+	this.setValue = function(value) {
 		if (typeof value == 'undefined') { return }
 		if (this._focused) { return }
 		this._element.disabled = false

@@ -2,6 +2,8 @@ TODO
 
 === P1 ====
 
+Move the views out of fin into the examples of fin. Views tend to be application specific and require so much UI code that it's better to keep them seperate (e.g. in fan)
+
 Replace "Properties" with "Data"
 
 Server API for creating item sets at startup - it will take quite a while to create a new item set if it's not already in memory

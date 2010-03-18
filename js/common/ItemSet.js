@@ -10,6 +10,7 @@ exports = Class(common.Publisher, function(supr) {
 		this._id = id
 		this._conditions = conditions
 		this._dependants = []
+		this._queuedMutation = { add: [], remove: [] }
 	}
 	
 	this.getId = function() { return this._id }
@@ -20,46 +21,80 @@ exports = Class(common.Publisher, function(supr) {
 		}) 
 	}
 
-	this.addDependant = function(callback) { this._dependants.push(callback) }
-	this._notifyDependants = function(mutation) {
-		for (var i=0, callback; callback = this._dependants[i]; i++) {
-			callback(mutation)
+	this.addDependant = function(callback) { 
+		this._dependants.push(callback)
+		this.getItems(function(itemIds) {
+			callback({ add: itemIds })
+		})
+	}
+	this._queueMutation = function(mutation) {
+		if (mutation.add) { 
+			this._queuedMutation.add = this._queuedMutation.add.concat(mutation.add)
 		}
+		if (mutation.remove) {
+			this._queuedMutation.remove = this._queuedMutation.add.concat(mutation.remove)
+		}
+		this._flushMutations()
+	}
+	this.createDelayedMethod('_flushMutations', function() {
+		
+		for (var i=0, callback; callback = this._dependants[i]; i++) {
+			callback(this._queuedMutation)
+		}
+		this._queuedMutation = { add: [], remove: [] }
+	})
+	
+	// Item set snapshot was loaded - this only gets called on the client side
+	this.setSnapshot = function(snapshot) {
+		var items = snapshot.items
+		this._store.setSnapshot(this._id, items, bind(this, function(err) {
+			if (err) { throw err }
+			var mutation = { add: items }
+			this._queueMutation(mutation)
+		}))
 	}
 	
+	// An item updated locally - happens both on client and server side 
 	this.handleItemUpdate = function(properties) {
-		var itemId = properties._id,
-			shouldBeInSet = this._shouldBeInSet(properties)
+		var itemId = properties._id
 		this._store.isInSet(this._id, itemId, bind(this, function(err, isInSet) {
 			if (err) { throw err }
-			if (isInSet == shouldBeInSet) { return }
+			if (isInSet == this._shouldBeInSet(properties)) { return }
 			if (isInSet) {
-				this._removeFromSet(itemId, true)
+				this._removeFromSet(itemId)
 			} else {
-				this._addToSet(itemId, true)
+				this._addToSet(itemId)
 			}
 		}))
 	}
 	
-	this.setSnapshot = function(snapshot) {
-		this._store.setSnapshot(this._id, snapshot.items)
-		this._notifyDependants()
+	// An item was removed locally - happens both client and server side
+	this._removeFromSet = function(itemId) {
+		this._store.removeFromSet(this._id, itemId, bind(this, function(err, position) {
+			if (err) { throw err }
+			var mutation = { _id: this._id, remove: itemId }
+			this._publish('Mutated', mutation)
+			// TODO Maybe there should only be dependants, and no publications
+			this._queueMutation(mutation)
+		}))
 	}
 	
-	// this should only happen client-side. We can use local storage
+	// An item was added locally - happens both client and server side
+	this._addToSet = function(itemId) {
+		this._store.addToSet(this._id, itemId, bind(this, function(err, position) {
+			if (err) { throw err }
+			var mutation = { _id: this._id, add: itemId }
+			this._publish('Mutated', mutation)
+			// TODO Maybe there should only be dependants, and no publications
+			this._queueMutation(mutation)
+		}))
+	}
+	
+	// An item updated remotelly - this only gets called on the client side
 	this.applyMutation = function(mutation) {
-		if (mutation.remove) {
-			this._store.isInSet(this._id, mutation.remove, bind(this, function(err, isIn) {
-				if (!isIn) { return }
-				this._removeFromSet(mutation.remove)
-			}))
-		}
-		if (mutation.add) {
-			this._store.isInSet(this._id, mutation.add, bind(this, function(err, isIn) {
-				if (isIn) { return }
-				this._addToSet(mutation.add)
-			}))
-		}
+		if (mutation.remove) { this._store.removeItems(this._id, mutation.remove) }
+		if (mutation.add) { this._store.addItems(this._id, mutation.add) }
+		this._queueMutation(mutation)
 	}
 	
 	this._shouldBeInSet = function(properties) {
@@ -83,25 +118,5 @@ exports = Class(common.Publisher, function(supr) {
 			}
 		}
 		return true
-	}
-	
-	this._removeFromSet = function(itemId) {
-		this._store.removeFromSet(this._id, itemId, bind(this, function(err, position) {
-			if (err) { throw err }
-			var mutation = { _id: this._id, remove: itemId }
-			this._publish('Mutated', mutation)
-			// TODO Maybe there should only be dependants, and no publications
-			this._notifyDependants(mutation)
-		}))
-	}
-	
-	this._addToSet = function(itemId) {
-		this._store.addToSet(this._id, itemId, bind(this, function(err, position) {
-			if (err) { throw err }
-			var mutation = { _id: this._id, add: itemId }
-			this._publish('Mutated', mutation)
-			// TODO Maybe there should only be dependants, and no publications
-			this._notifyDependants(mutation)
-		}))
 	}
 })

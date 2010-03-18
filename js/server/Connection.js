@@ -3,6 +3,8 @@ jsio('from net.protocols.rtjp import RTJPProtocol')
 
 exports = Class(RTJPProtocol, function(supr) {
 	
+	this.getSessionId = function() { return this.transport._socket._session.key }
+
 	this.init = function() {
 		supr(this, 'init')
 		this._requestHandlers = {}
@@ -10,6 +12,7 @@ exports = Class(RTJPProtocol, function(supr) {
 		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEM', bind(this, function(args){
 			var itemId = args.id
 			var onMutated = bind(this, function(mutation) {
+				if (mutation._session == this.getSessionId()) { return }
 				this.sendFrame('FIN_EVENT_ITEM_MUTATED', mutation)
 			})
 			this._itemSubs[itemId] = this.server.subscribeToItemMutations(itemId, onMutated, 
@@ -31,6 +34,8 @@ exports = Class(RTJPProtocol, function(supr) {
 		}))
 
 		this.handleRequest('FIN_REQUEST_MUTATE_ITEM', bind(this, function(mutation){
+			// TODO We should label which user made the change here
+			mutation._session = this.getSessionId()
 			this.server.handleMutation(mutation)
 		}))
 		

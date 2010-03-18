@@ -91,7 +91,9 @@ exports = Class(RTJPProtocol, function(supr) {
 	this._log = function() {
 		var args = Array.prototype.slice.call(arguments)
 		if (this.transport._socket) {
-			args.unshift(this.transport._socket._session.key)
+			if (this.transport._socket._session) {
+				args.unshift(this.transport._socket._session.key)
+			}
 		}
 		logger.log.apply(logger, args)
 	}

@@ -37,11 +37,14 @@
 		<script>
 		jsio.path.browser = '../../js'
 		jsio('import browser.ItemLocalStore')
+		jsio('import browser.ItemSetLocalStore')
 		
-		var postMessageListener = fin.startServer({
+		var server = fin.startServer({ 
 			itemStore: new browser.ItemLocalStore(),
-			transport: 'postmessage'
+			itemSetStore: new browser.ItemSetLocalStore()
 		})
+		
+		var postMessageListener = net.listen(server, 'postmessage')
 		
 		onload = function() {
 			var dir = '../../', postfix = '#fin-postmessage'

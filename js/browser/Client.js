@@ -3,23 +3,19 @@ jsio('import net.protocols.rtjp')
 jsio('from common.javascript import Class, bind, forEach')
 
 exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
-
-	// Hack to detect if we should use postmessage. See js/server/index.html
-	this.transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp'
-	this.url = "http://" + (document.domain || "127.0.0.1") + ":5555"
+	
 	this._uniqueId = 0
 
-	this.init = function(playerFactory) {
+	this.init = function() {
 		supr(this, 'init')
-
 		this._isConnected = false
 		this._eventHandlers = {}
 	}
 	
 /* Connection
  ************/
-	this.connect = function(onConnectedCallback) {
-		net.connect(this, this.transport, { url: this.url })
+	this.connect = function(transport, connectParams, onConnectedCallback) {
+		net.connect(this, transport, connectParams)
 		if (this._isConnected) { 
 			onConnectedCallback()
 		} else if (this._onConnectedCallbacks) { 

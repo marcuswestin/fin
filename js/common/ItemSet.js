@@ -82,9 +82,19 @@ exports = Class(common.Publisher, function(supr) {
 	
 	// An item updated remotelly - this only gets called on the client side
 	this.applyMutation = function(mutation) {
-		if (mutation.remove) { this._store.removeItems(this._id, mutation.remove) }
-		if (mutation.add) { this._store.addItems(this._id, mutation.add) }
-		this._queueMutation(mutation)
+		var block = {
+			remove: !!mutation.remove,
+			add: !!mutation.add
+		}
+		function onStored(operation) {
+			block[operation] = false
+			if (block.add || block.remove) { return }
+			this._queueMutation(mutation)
+		}
+		if (mutation.remove) { this._store.removeFromSet(this._id, mutation.remove, 
+			bind(this, onStored, 'remove')) }
+		if (mutation.add) { this._store.addToSet(this._id, mutation.add, 
+			bind(this, onStored, 'add')) }
 	}
 	
 	this._shouldBeInSet = function(properties) {

@@ -15,7 +15,7 @@ exports = Class(function(supr){
 				? itemIds 
 				: itemIds[this._propertyChain.shift()])
 		this._item = fin.getItem(itemId)
-		this._item.addDependant(this._propertyChain, bind(this, '_onMutation'))
+		this._item.addDependant(this._propertyChain, bind(this, '_onItemMutation'))
 	}
 	
 	this._onItemMutation = function(mutation, newValue) {

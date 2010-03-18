@@ -17,7 +17,7 @@ exports = Class(function() {
 	}
 	
 	this.getItemData = function(itemId, callback) {
-		if (!this._items[itemId]) { this._items[itemId] = {} }
+		if (!this._items[itemId]) { this._items[itemId] = { _id: itemId } }
 		callback(null, this._items[itemId])
 	}
 	

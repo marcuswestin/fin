@@ -11,12 +11,12 @@ exports = Class(function() {
 		for (var itemId in this._itemSets[setId]) {
 			items.push(itemId)
 		}
-		setTimeout(bind(callback(null, items))
+		setTimeout(function() { callback(null, items) })
 	}
 	
 	this.isInSet = function(setId, itemId, callback) {
 		var isIn = (this._itemSets[setId][itemId] ? true : false)
-		setTimeout(bind(callback, null, isIn))
+		setTimeout(function() { callback(null, isIn) })
 	}
 	
 	this.addToSet = function(setId, itemIds, callback) {
@@ -25,7 +25,7 @@ exports = Class(function() {
 		for (var i=0, itemId; itemId = itemIds[i]; i++) {
 			this._itemSets[setId][itemId] = true
 		}
-		setTimeout(bind(callback, null))
+		setTimeout(function() { callback(null) })
 	}
 	
 	this.removeFromSet = function(setId, itemId, callback) {
@@ -33,6 +33,6 @@ exports = Class(function() {
 		for (var i=0, itemId; itemId = itemIds[i]; i++) {
 			delete this._itemSets[setId][itemId]
 		}
-		setTimeout(bind(callback, null))
+		setTimeout(function() { callback(null) })
 	}
 })

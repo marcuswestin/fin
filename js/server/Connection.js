@@ -3,7 +3,14 @@ jsio('from net.protocols.rtjp import RTJPProtocol')
 
 exports = Class(RTJPProtocol, function(supr) {
 	
-	this.getSessionId = function() { return this.transport._socket._session.key }
+	this.getSessionId = function() { 
+		if (this.transport._socket && this.transport._socket._session) {
+			return this.transport._socket._session.key
+		} else {
+			return (this._fakeSessionId || (this._fakeSessionId = 'FAKE_CONNECTION_ID_' + new Date().getTime()))
+		}
+		
+	}
 
 	this.init = function() {
 		supr(this, 'init')
@@ -39,9 +46,10 @@ exports = Class(RTJPProtocol, function(supr) {
 			this.server.handleMutation(mutation)
 		}))
 		
-		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEMSET', bind(this, function(request) {
-			var onMutated = bind(this, '_onItemSetMutated')
-			this._itemSetSubs = this.server.subscribeToItemSet(request.id, onMutated)
+		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEMSET', bind(this, function(args) {
+			var itemSetId = args.id,
+				onMutated = bind(this, '_onItemSetMutated')
+			this._itemSetSubs = this.server.subscribeToItemSet(itemSetId, onMutated)
 		}))
 	}
 	
@@ -59,7 +67,7 @@ exports = Class(RTJPProtocol, function(supr) {
 			this.server.unsubscribeFromItemMutations(itemId, this._itemSubs[itemId])
 		}
 		for (var itemSetId in this._itemSetSubs) {
-			this.server.unsubscribeFromItemSetMutations(itemSetId, this._itemSetSubs[itemId])
+			this.server.unsubscribeFromItemSetMutations(itemSetId, this._itemSetSubs[itemSetId])
 		}
 	}
 	
@@ -95,7 +103,9 @@ exports = Class(RTJPProtocol, function(supr) {
 	this._log = function() {
 		var args = Array.prototype.slice.call(arguments)
 		if (this.transport._socket) {
-			args.unshift(this.transport._socket._session.key)
+			if (this.transport._socket._session) {
+				args.unshift(this.transport._socket._session.key)
+			}
 		}
 		logger.log.apply(logger, args)
 	}

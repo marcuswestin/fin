@@ -15,13 +15,13 @@ fin = Singleton(function() {
 	this._server = null
 	
 	this.startServer = function(args) {
-		var finDatabase = new server.ItemCouchDBStore(args.couchClient)
-		finDatabase.ensureExists()
+		var itemStore = args.itemStore
+		var itemSetStore = args.itemSetStore
 		
-		var finItemStore = new server.ItemSetRedisStore(args.redisClient)
-
-		this._server = new server.Server(finDatabase, finItemStore)
-		return net.listen(this._server, (args.transport || 'csp'), { port: args.port || 5555 })
+		itemStore.ensureExists()
+		this._server = new server.Server(itemStore, itemSetStore)
+		
+		return this._server
 	}
 	
 })

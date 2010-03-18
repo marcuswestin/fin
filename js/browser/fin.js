@@ -10,11 +10,23 @@ jsio('import browser.views.Value')
 jsio('import browser.views.Input')
 
 // expose fin to global namespace
-window.fin = Singleton(function(){
+fin = Singleton(function(){
 	
 	// Make sure you have a connection with the server before using fin
 	this.connect = function(callback) {
-		this._client.connect(callback)
+		var transport, connectParams = {}
+		switch(jsio.__env.name) {
+			case 'node':
+				transport = 'tcp'
+				connectParams.host = '127.0.0.1'
+				connectParams.port = 5556
+				break;
+			case 'browser':
+				transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp'
+				connectParams.url = 'http://' + (document.domain || '127.0.0.1') + ':5555'
+				break;
+		}
+		this._client.connect(transport, connectParams, callback)
 	}
 	
 	// Grab an item from the database. If callback is given, it'll wait until the snapshot has loaded
@@ -42,7 +54,11 @@ window.fin = Singleton(function(){
 	}
 	
 	this.getSessionId = function() {
-		return this._client.transport._conn._sessionKey
+		if (this._client.transport._conn && this._client.transport._conn._sessionKey) {
+			return this._client.transport._conn._sessionKey
+		} else {
+			return (this._fakeSessionId || (this._fakeSessionId = 'FAKE_CONNECTION_ID_' + new Date().getTime()))
+		}
 	}
 	
 	// Grab an item set

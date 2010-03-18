@@ -76,6 +76,10 @@ exports = Class(Server, function(supr) {
 	this.unsubscribeFromItemMutations = function(itemId, subId) {
 		this._itemSubscriberPool.remove(itemId, subId)
 	}
+	
+	this.unsubscribeFromItemSetMutations = function(itemSetId, subId) {
+		this._itemSetSubscriberPool.remove(itemSetId, subId)
+	}
 
 	this._getItemSnapshot = function(id, callback) {
 		if (this._itemFactory.hasItem(id)) {

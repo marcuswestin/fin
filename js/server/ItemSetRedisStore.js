@@ -11,7 +11,9 @@ exports = Class(function() {
 	}
 	
 	this.isInSet = function(setId, itemId, callback) {
-		this._redisClient.sismember(setId, itemId, callback)
+		this._redisClient.sismember(setId, itemId, function(err, isInSet) {
+			callback(err, Boolean(isInSet));
+		})
 	}
 	
 	this.addToSet = function(setId, itemIds, callback) {
@@ -26,7 +28,7 @@ exports = Class(function() {
 		}
 	}
 	
-	this.removeFromSet = function(setId, itemId, callback) {
+	this.removeFromSet = function(setId, itemIds, callback) {
 		if (!isArray(itemIds)) { itemIds = [itemIds] }
 		var remaining = itemIds.length
 		function onItemRemoved(err) {
@@ -34,7 +36,7 @@ exports = Class(function() {
 			if (--remaining == 0) { callback(null) }
 		}
 		for (var i=0, itemId; itemId = itemIds[i]; i++) {
-			this._redisClient.sadd(setId, itemId, onItemRemoved)
+			this._redisClient.srem(setId, itemId, onItemRemoved)
 		}
 	}
 })

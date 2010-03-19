@@ -28,7 +28,7 @@ exports = Class(function() {
 		setTimeout(function() { callback(null) })
 	}
 	
-	this.removeFromSet = function(setId, itemId, callback) {
+	this.removeFromSet = function(setId, itemIds, callback) {
 		if (!isArray(itemIds)) { itemIds = [itemIds] }
 		for (var i=0, itemId; itemId = itemIds[i]; i++) {
 			delete this._itemSets[setId][itemId]

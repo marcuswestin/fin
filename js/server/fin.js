@@ -1,10 +1,10 @@
 // jsio
-jsio.path.common = '../../js'
+jsio.path.shared = '../../js'
 jsio.path.server = '../../js'
 
 // Let's do it
 jsio('import net')
-jsio('from common.javascript import Singleton')
+jsio('from shared.javascript import Singleton')
 jsio('import server.ItemCouchDBStore')
 jsio('import server.Server')
 jsio('import server.ItemSetRedisStore')

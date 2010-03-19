@@ -1,7 +1,7 @@
-jsio('from common.javascript import Class, bind')
-jsio('import common.Publisher')
+jsio('from shared.javascript import Class, bind')
+jsio('import shared.Publisher')
 
-exports = Class(common.Publisher, function(supr) {
+exports = Class(shared.Publisher, function(supr) {
 	
 	// conditions == [['name', '=', 'marcus'], ['age', '<', 18], ['age', '>', 15] ...]
 	this.init = function(factory, id, conditions) {

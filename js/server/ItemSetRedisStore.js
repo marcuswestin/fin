@@ -1,4 +1,4 @@
-jsio('from common.javascript import Class, Publisher, bind, isArray')
+jsio('from shared.javascript import Class, Publisher, bind, isArray')
 
 exports = Class(function() {
 	

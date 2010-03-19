@@ -1,8 +1,8 @@
-jsio('from common.javascript import Class, bind')
-jsio('import common.Publisher')
-jsio('import common.ItemReference')
+jsio('from shared.javascript import Class, bind')
+jsio('import shared.Publisher')
+jsio('import shared.ItemReference')
 
-exports = Class(common.Publisher, function(supr) {
+exports = Class(shared.Publisher, function(supr) {
 	
 	this.init = function(factory, itemData) {
 		supr(this, 'init')
@@ -124,7 +124,7 @@ exports = Class(common.Publisher, function(supr) {
 			dependantCallback({ property: propertyName, value: value }, value)
 			return
 		}
-		var item = new common.ItemReference(this._factory, this, propertyName)
+		var item = new shared.ItemReference(this._factory, this, propertyName)
 		item.addDependant(propertyChain, dependantCallback)
 	}
 	

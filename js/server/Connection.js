@@ -1,4 +1,4 @@
-jsio('from common.javascript import Class, bind')
+jsio('from shared.javascript import Class, bind')
 jsio('from net.protocols.rtjp import RTJPProtocol')
 
 exports = Class(RTJPProtocol, function(supr) {

@@ -1,13 +1,13 @@
-jsio('from common.javascript import Singleton, bind, isArray')
-jsio('import common.ItemFactory')
-jsio('import common.ItemSetFactory')
-jsio('import browser.ItemLocalStore')
-jsio('import browser.ItemSetLocalStore')
-jsio('import browser.Client')
-jsio('import browser.TemplateFactory')
-jsio('import browser.ViewFactory')
-jsio('import browser.views.Value')
-jsio('import browser.views.Input')
+jsio('from shared.javascript import Singleton, bind, isArray')
+jsio('import shared.ItemFactory')
+jsio('import shared.ItemSetFactory')
+jsio('import client.ItemLocalStore')
+jsio('import client.ItemSetLocalStore')
+jsio('import client.Client')
+jsio('import client.TemplateFactory')
+jsio('import client.ViewFactory')
+jsio('import client.views.Value')
+jsio('import client.views.Input')
 
 // expose fin to global namespace
 fin = Singleton(function(){
@@ -102,19 +102,19 @@ fin = Singleton(function(){
 	this.init = function() {
 		this._requestCallbacks = {}
 		
-		this._client = new browser.Client()
+		this._client = new client.Client()
 		
-		var localItemStore = new browser.ItemLocalStore()
-		this._itemFactory = new common.ItemFactory(localItemStore)
+		var localItemStore = new client.ItemLocalStore()
+		this._itemFactory = new shared.ItemFactory(localItemStore)
 
-		var localItemSetStore = new browser.ItemSetLocalStore()
-		this._itemSetFactory = new common.ItemSetFactory(this._itemFactory, localItemSetStore)
+		var localItemSetStore = new client.ItemSetLocalStore()
+		this._itemSetFactory = new shared.ItemSetFactory(this._itemFactory, localItemSetStore)
 		
-		this._viewFactory = new browser.ViewFactory(this)
-		this._templateFactory = new browser.TemplateFactory(this._viewFactory)
+		this._viewFactory = new client.ViewFactory(this)
+		this._templateFactory = new client.TemplateFactory(this._viewFactory)
 
-		this.registerView('Value', browser.views.Value)
-		this.registerView('Input', browser.views.Input)
+		this.registerView('Value', client.views.Value)
+		this.registerView('Input', client.views.Input)
 		
 		// Whenever a new item is created, subscribe to it and hook up to send mutations to server
 		this._itemFactory.subscribe('ItemCreated', bind(this, function(item) {

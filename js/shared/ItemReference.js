@@ -1,7 +1,7 @@
-jsio('from common.javascript import Class, bind, forEach')
-jsio('import common.Publisher')
+jsio('from shared.javascript import Class, bind, forEach')
+jsio('import shared.Publisher')
 
-exports = Class(common.Publisher, function(supr) {
+exports = Class(shared.Publisher, function(supr) {
 	
 	this.init = function(factory, sourceItem, itemReferencePropertyName) {
 		supr(this, 'init')

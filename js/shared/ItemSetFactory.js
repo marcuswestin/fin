@@ -1,8 +1,8 @@
-jsio('from common.javascript import Class, Publisher, bind')
-jsio('import common.Publisher')
-jsio('import common.ItemSet')
+jsio('from shared.javascript import Class, Publisher, bind')
+jsio('import shared.Publisher')
+jsio('import shared.ItemSet')
 
-exports = Class(common.Publisher, function(supr) {
+exports = Class(shared.Publisher, function(supr) {
 	
 	this.init = function(itemFactory, store) {
 		supr(this, 'init')
@@ -20,7 +20,7 @@ exports = Class(common.Publisher, function(supr) {
 		if (this._itemSets[id]) { return this._itemSets[id] }
 		
 		var conditions = this._getConditionsFromId(id)
-		this._itemSets[id] = new common.ItemSet(this, id, conditions)
+		this._itemSets[id] = new shared.ItemSet(this, id, conditions)
 		
 		for (var i=0, condition; condition = conditions[i]; i++) {
 			var propName = condition[0]

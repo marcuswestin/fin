@@ -28,9 +28,9 @@
 
 		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
 		<script type="text/javascript">
-			jsio.path.browser = '../js'
-			jsio.path.common = '../js'
-			jsio('import browser.fin')
+			jsio.path.client = '../js'
+			jsio.path.shared = '../js'
+			jsio('import client.fin')
 			
 			fin.connect(function(){
 				var output = document.getElementById('output')

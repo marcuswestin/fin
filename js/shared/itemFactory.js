@@ -1,8 +1,8 @@
-jsio('from common.javascript import Class, Publisher, bind')
-jsio('import common.Item')
-jsio('import common.Publisher')
+jsio('from shared.javascript import Class, Publisher, bind')
+jsio('import shared.Item')
+jsio('import shared.Publisher')
 
-exports = Class(common.Publisher, function(supr) {
+exports = Class(shared.Publisher, function(supr) {
 	
 	this.init = function(itemStore) {
 		supr(this, 'init')
@@ -31,7 +31,7 @@ exports = Class(common.Publisher, function(supr) {
 		var id = (typeof itemData == 'string' ? itemData : itemData._id)
 		if (this._items[id]) { return this._items[id] }
 		logger.log("Create item", id)
-		this._items[id] = new common.Item(this, itemData)
+		this._items[id] = new shared.Item(this, itemData)
 		this._publish('ItemCreated', this._items[id])
 		return this._items[id]
 	}

@@ -25,9 +25,9 @@
 		
 	</head>
 	<body>
-		This is a fin server, in your browser. Yup.
+		This is a fin server, in your client. Yup.
 		<br /><br />
-		Fin is all javascript. Even the server can run in a browser.
+		Fin is all javascript. Even the server can run in a client.
 		<br /><br />
 		Click the buttons to open clients. They'll connect using postmessage.
 		<br /><br />
@@ -35,13 +35,13 @@
 		<div id="monitor"></div>
 		
 		<script>
-		jsio.path.browser = '../../js'
-		jsio('import browser.ItemLocalStore')
-		jsio('import browser.ItemSetLocalStore')
+		jsio.path.client = '../../js'
+		jsio('import client.ItemLocalStore')
+		jsio('import client.ItemSetLocalStore')
 		
 		var server = fin.startServer({ 
-			itemStore: new browser.ItemLocalStore(),
-			itemSetStore: new browser.ItemSetLocalStore()
+			itemStore: new client.ItemLocalStore(),
+			itemSetStore: new client.ItemSetLocalStore()
 		})
 		
 		var postMessageListener = net.listen(server, 'postmessage')

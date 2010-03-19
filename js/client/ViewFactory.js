@@ -1,4 +1,4 @@
-jsio('from common.javascript import Singleton')
+jsio('from shared.javascript import Singleton')
 
 exports = Class(function() {
 	

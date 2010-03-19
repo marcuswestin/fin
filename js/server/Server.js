@@ -1,9 +1,9 @@
-jsio('from common.javascript import Class, map, bind')
+jsio('from shared.javascript import Class, map, bind')
 jsio('from net.interfaces import Server')
 jsio('import server.Connection')
-jsio('import common.ItemFactory')
-jsio('import common.ItemSetFactory')
-jsio('import common.SubscriptionPool')
+jsio('import shared.ItemFactory')
+jsio('import shared.ItemSetFactory')
+jsio('import shared.SubscriptionPool')
 
 exports = Class(Server, function(supr) {
 
@@ -11,12 +11,12 @@ exports = Class(Server, function(supr) {
 		supr(this, 'init', [server.Connection])
 		this._uniqueId = 0
 		this._itemStore = itemStore
-		this._itemFactory = new common.ItemFactory(itemStore)
-		this._itemSetFactory = new common.ItemSetFactory(this._itemFactory, itemSetStore)
+		this._itemFactory = new shared.ItemFactory(itemStore)
+		this._itemSetFactory = new shared.ItemSetFactory(this._itemFactory, itemSetStore)
 		this._databaseScheduledWrites = {}
 		
-		this._itemSubscriberPool = new common.SubscriptionPool()
-		this._itemSetSubscriberPool = new common.SubscriptionPool()
+		this._itemSubscriberPool = new shared.SubscriptionPool()
+		this._itemSetSubscriberPool = new shared.SubscriptionPool()
 	}
 	
 	this.exists = function(itemId, callback) {

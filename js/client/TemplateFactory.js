@@ -1,4 +1,4 @@
-jsio('from common.javascript import Singleton, strip, forEach')
+jsio('from shared.javascript import Singleton, strip, forEach')
 
 exports = Class(function() {
 	

@@ -18,15 +18,24 @@ Redis 1.2.0
 
 Getting started on OS X 10.6
 --------------
-Make sure you have node requirements installed and redis-server running locally
 
-Download dependencies
+Fin requires node and redis. I suggest you install them both with brew.
+
+	# Install brew
+	sudo chown -R $USER /usr/local
+	curl -Lsf http://github.com/mxcl/homebrew/tarball/master | tar xvz -C/usr/local --strip 1
+	
+	# Brew node and redis
+	brew install redis
+	brew install node
+
+Download dependencies (js.io, node-couchdb, redis-node-client, CouchDBX)
 
 	make deps
 
-Start up CouchDB
+Start up databases
 	
-	make run-couchdbx
+	make run-dbs
 
 Start up fin
 	

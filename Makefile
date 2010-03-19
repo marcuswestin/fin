@@ -9,8 +9,9 @@ deps: lib/js.io lib/node-couchdb lib/redis-node-client lib/CouchDBX.app
 run:
 	cd js/server; node run_server.js
 
-run-couchdbx: 
+run-dbs: 
 	open lib/CouchDBX.app &
+	redis-server
 
 clean:
 	rm -rf lib/*

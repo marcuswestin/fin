@@ -15,7 +15,8 @@ exports = Class(function() {
 	}
 	
 	this.isInSet = function(setId, itemId, callback) {
-		var isIn = (this._itemSets[setId][itemId] ? true : false)
+		var itemSet = this._itemSets[setId],
+			isIn = Boolean(itemSet && itemSet[itemId])
 		setTimeout(function() { callback(null, isIn) })
 	}
 	

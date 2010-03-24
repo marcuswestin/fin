@@ -44,26 +44,24 @@ exports = Class(Value, function(supr){
 	this._onKeyPress = function(e) {
 		// TODO: Deal with pasting
 		e = e || event
-		var keys = { 'enter': 13, 'backspace': 8 }
-		if (e.metaKey && e.keyCode != keys['enter']) { return }
+		if (e.metaKey && e.keyCode != this._keys['enter']) { return }
 		
 		var position = client.caret.getPosition(this._element)
 		var selectionLength = position.end - position.start
 		var mutation = { position: position.caret - selectionLength }
 		
-		var shiftIsDown = false // we need to know if the shift key is down to enable adding breaklines :(
-		if (e.keyCode == keys['enter'] && !shiftIsDown) {
+		if (e.keyCode == this._keys['enter']) {
 			this._element.blur()
 			e.cancel()
 			return
-		} else if (e.keyCode == keys['backspace']) {
+		} else if (e.keyCode == this._keys['backspace']) {
 			if (selectionLength) {
 				mutation.deletion = selectionLength
 			} else {
 				mutation.position -= 1
 				mutation.deletion = 1
 			}
-		} else if (e.keyCode == keys['enter']) {
+		} else if (e.keyCode == this._keys['enter']) {
 			mutation.addition = "\n"
 			if (selectionLength) {
 				mutation.deletion = selectionLength

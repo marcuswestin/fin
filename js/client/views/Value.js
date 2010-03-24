@@ -3,6 +3,9 @@ jsio('from shared.javascript import Class, bind')
 exports = Class(function(supr){
 	
 	this._domTag = 'span'
+
+	this._keys = { 'enter': 13, 'backspace': 8 }
+	
 	
 	this.init = function(jsArgs, viewArgs) {
 		var itemIds = jsArgs[0],

@@ -44,8 +44,8 @@ exports = Class(Server, function(supr) {
 		var itemSet = this._itemSetFactory.getItemSet(id)
 		if (isNew) {
 			itemSet.subscribe('Mutated', bind(this, '_onItemSetMutated'))
-			this._itemStore.getAllItems(bind(this, function(itemProperties) {
-				itemSet.handleItemUpdate(itemProperties)
+			this._itemStore.getAllItems(bind(this, function(itemData) {
+				itemSet.handleItemUpdate(itemData)
 			}))
 		}
 		var subId = this._itemSetSubscriberPool.add(id, callback)
@@ -58,6 +58,15 @@ exports = Class(Server, function(supr) {
 	this._onItemSetMutated = function(mutation) {
 		var subs = this._itemSetSubscriberPool.get(mutation._id)
 		this._executeMutationSubs(subs, mutation)
+	}
+	
+	this.addItemSetReduction = function(itemSetId, reductionId, subscriptionId) {
+		var itemSet = this._itemSetFactory.getItemSet(itemSetId)
+		itemSet.registerReductionById(reductionId)
+		// Send back a message to the subscriber. This is super hacky... Should just be a dependant
+		var subs = this._itemSetSubscriberPool.get(itemSetId)
+		var itemSet = this._itemSetFactory.getItemSet(itemSetId)
+		subs[subscriptionId]({ _id: itemSetId, reduce: itemSet.getReductions() })
 	}
 	
 	this.handleMutation = function(mutation) {

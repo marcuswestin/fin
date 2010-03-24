@@ -18,23 +18,32 @@ exports = Class(shared.Publisher, function(supr) {
 	
 	this.getItemSet = function(id) {
 		if (this._itemSets[id]) { return this._itemSets[id] }
-		
 		var conditions = this._getConditionsFromId(id)
-		this._itemSets[id] = new shared.ItemSet(this, id, conditions)
-		
 		for (var i=0, condition; condition = conditions[i]; i++) {
-			var propName = condition[0]
-			if (!this._itemSetsByProperty[propName]) { this._itemSetsByProperty[propName] = [] }
-			this._itemSetsByProperty[propName].push(this._itemSets[id])
+			this.addPropertyDependance(condition[0], id)
 		}
-		return this._itemSets[id]
+		return this._itemSets[id] = new shared.ItemSet(this, id, conditions)
+	}
+	
+	this.addPropertyDependance = function(property, itemSetId, checkIfExists) {
+		if (!this._itemSetsByProperty[property]) { this._itemSetsByProperty[property] = [] }
+		if (checkIfExists) {
+			var dependantSets = this._itemSetsByProperty[property]
+			for (var i=0, anItemSetId; anItemSetId = dependantSets[i]; i++) {
+				// We are already registered to this property - return
+				if (anItemSetId == itemSetId) { return }
+			}
+		}
+		this._itemSetsByProperty[property].push(itemSetId)
+	}
+	
+	this.registerPropertyReduce = function(reductionId, itemSetId, property) {
+		if (!property) { property = reductionId.split(':')[1] }
+		this.addPropertyDependance(property, itemSetId, true)
+		this._publish('ReductionAdded', itemSetId, reductionId)
 	}
 	
 	this.getStore = function() { return this._store }
-	
-	this.getItemSetsByDependency = function(propertyName) {
-		return this._itemSetsByProperty[propertyName]
-	}
 	
 	// Return in alphabetical order of the property name. 
 	// If property name is equal, order by alpha order of the property value
@@ -74,11 +83,11 @@ exports = Class(shared.Publisher, function(supr) {
 		}
 	}
 	
-	this._onItemPropertyUpdated = function(item, propertyName) {
-		var dependentSets = this._itemSetsByProperty[propertyName]
+	this._onItemPropertyUpdated = function(item, property, oldValue) {
+		var dependentSets = this._itemSetsByProperty[property]
 		if (!dependentSets) { return }
-		for (var i=0, itemSet; itemSet = dependentSets[i]; i++) {
-			itemSet.handleItemUpdate(item.getData())
+		for (var i=0, itemSetId; itemSetId = dependentSets[i]; i++) {
+			this._itemSets[itemSetId].handleItemUpdate(item.getData(), property, oldValue)
 		}
 	}
 	

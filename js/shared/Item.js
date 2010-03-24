@@ -15,6 +15,7 @@ exports = Class(shared.Publisher, function(supr) {
 	this.requestFocus = function(editDeniedCallback) {
 		this._subscribeToProperty('editing', bind(this, '_onEditing'))
 		this._editDeniedCallback = editDeniedCallback
+
 		// TODO would be nice not to have to reference fin here... Should the item factory have the session id?
 		this.setProperty('editing', fin.getSessionId())
 	}
@@ -31,16 +32,15 @@ exports = Class(shared.Publisher, function(supr) {
 		delete this._editDeniedCallback
 	}
 	
-	this.setProperty = function(propertyName, propertyValue) {
-		this.mutate({ property: propertyName, value: propertyValue })
+	this.setProperty = function(property, value) {
+		if (value == this._properties[property]) { return }
+		this.mutate({ property: property, value: value })
 	}
 	
-	// Called locally to change an item, either through setProperty or directly
+	// Shorthand for applying a local mutation to change an item, either through setProperty or directly
 	this.mutate = function(mutation) {
 		mutation._id = this.getId()
-		logger.log('mutate', mutation._id, mutation)
-		this._publish('Mutating', mutation)
-		this.applyMutation(mutation)
+		this._factory.handleMutation(mutation)
 	}
 	
 	this.applyMutation = function(mutation) {
@@ -66,9 +66,12 @@ exports = Class(shared.Publisher, function(supr) {
 			value.splice(mutation.to, 0, item)
 		}
 		
+		if (value == this._properties[mutation.property]) { return false } // no change
+		
 		this._properties[mutation.property] = value
 		this._notifySubscribers(mutation)
 		this._scheduleStore()
+		return true
 	}
 
 	this._scheduleStore = function() {

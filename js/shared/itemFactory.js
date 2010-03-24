@@ -18,13 +18,18 @@ exports = Class(shared.Publisher, function(supr) {
 		item.setSnapshot(snapshot)
 	}
 	
-	this.handleMutation = function(mutation) {
+	this.handleMutation = function(mutation, silent) {
 		logger.log('handleMutation', JSON.stringify(mutation))
-		var item = this.getItem(mutation._id)
+		if (!silent) { this._publish('ItemMutating', mutation) }
+
+		var item = this.getItem(mutation._id),
+			property = mutation.property,
+			oldValue = item.getProperty(property),
+			changed = item.applyMutation(mutation)
 		
-		item.applyMutation(mutation)
-		
-		this._publish('ItemPropertyUpdated', item, mutation.property)
+		if (!silent && changed) {
+			this._publish('ItemPropertyUpdated', item, property, oldValue)
+		}
 	}
 	
 	this.getItem = function(itemData) {

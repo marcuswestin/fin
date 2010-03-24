@@ -8,6 +8,7 @@ jsio('import client.TemplateFactory')
 jsio('import client.ViewFactory')
 jsio('import client.views.Value')
 jsio('import client.views.Input')
+jsio('import client.views.Number')
 
 // expose fin to global namespace
 fin = Singleton(function(){
@@ -115,12 +116,19 @@ fin = Singleton(function(){
 
 		this.registerView('Value', client.views.Value)
 		this.registerView('Input', client.views.Input)
+		this.registerView('Number', client.views.Number)
 		
 		// Whenever a new item is created, subscribe to it and hook up to send mutations to server
 		this._itemFactory.subscribe('ItemCreated', bind(this, function(item) {
 			this._client.sendFrame('FIN_REQUEST_SUBSCRIBE_ITEM', { id: item.getId() })
-			// TODO This should just listen to ItemPropertyUpdated instead
-			item.subscribe('Mutating', bind(this._client, 'sendFrame', 'FIN_REQUEST_MUTATE_ITEM'))
+		}))
+
+		this._itemFactory.subscribe('ItemMutating', bind(this, function(mutation) {
+			this._client.sendFrame('FIN_REQUEST_MUTATE_ITEM', mutation)
+		}))
+		
+		this._itemSetFactory.subscribe('ReductionAdded', bind(this, function(itemSetId, reductionId) {
+			this._client.sendFrame('FIN_REQUEST_ADD_REDUCTION', { id: itemSetId, reductionId: reductionId })
 		}))
 		
 		this.handleEvent('FIN_RESPONSE_ITEM_EXISTS', bind(this, function(response) {
@@ -142,7 +150,7 @@ fin = Singleton(function(){
 		
 		// When an item has succesfully mutated, apply the mutation
 		this.handleEvent('FIN_EVENT_ITEM_MUTATED', bind(this, function(mutation) {
-			this._itemFactory.handleMutation(mutation)
+			this._itemFactory.handleMutation(mutation, true)
 		}))
 		
 		this.handleEvent('FIN_EVENT_ITEMSET_MUTATED', bind(this, function(mutation) {

@@ -1,0 +1,69 @@
+<html>
+	<head>
+		<title>fin-test</title>
+		<style type="text/css" media="screen">
+			.task input {
+				float: right;
+			}
+			.task div {
+				clear: both;
+			}
+		</style>
+	</head>
+	<body>
+
+		<iframe id="sum-frame"></iframe>
+		<button id="button">Create new item</button>
+		<div id="items"></div>
+		
+		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
+		<script type="text/javascript">
+			jsio.path.client = '../js'
+			jsio.path.shared = '../js'
+			jsio('import client.fin')
+
+			fin.connect(function(){
+				var template = document.getElementById('template').innerHTML,
+					itemType = "task",
+					property = 'sum_property',
+					bugs = fin.getItemSet({ type: itemType }),
+					items = document.getElementById('items')
+					
+				document.getElementById('sum-frame').src = './item-set-reduce-frame.html?type=' + itemType + '&property=' + property
+				bugs.addDependant(function(mutation) {
+					if (mutation.add) { 
+						for (var i=0, id; id = mutation.add[i]; i++) {
+							var domId = 'test-item-el-' + id
+							if (document.getElementById(domId)) { continue; }
+							var el = fin.applyTemplate(template, id)
+							el.id = domId
+							items.appendChild(el)
+						}
+					}
+					if (mutation.remove) {
+						for (var i=0, id; id = mutation.remove[i]; i++) {
+							var domId = 'test-item-el-' + id
+							var el = document.getElementById(domId)
+							if (!el) { return }
+							el.parentNode.removeChild(el)
+						}
+					}
+				})
+				
+				document.getElementById('button').onclick = function() {
+					fin.createItem({ type: itemType }, function(){} )
+				}
+			})
+		</script>
+		
+		<div id="template" style="display: none;">
+
+			<div class="task" style="width: 300px">
+				<br />
+				<div>Type: (( Input type )) </div>
+				<div>Sum property: (( Number sum_property )) </div>
+			</div>
+
+		</div>
+	</body>
+</html>

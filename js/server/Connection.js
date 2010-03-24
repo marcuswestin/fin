@@ -49,7 +49,13 @@ exports = Class(RTJPProtocol, function(supr) {
 		this.handleRequest('FIN_REQUEST_SUBSCRIBE_ITEMSET', bind(this, function(args) {
 			var itemSetId = args.id,
 				onMutated = bind(this, '_onItemSetMutated')
-			this._itemSetSubs = this.server.subscribeToItemSet(itemSetId, onMutated)
+			this._itemSetSubs[itemSetId] = this.server.subscribeToItemSet(itemSetId, onMutated)
+		}))
+		
+		this.handleRequest('FIN_REQUEST_ADD_REDUCTION', bind(this, function(args) {
+			var itemSetId = args.id,
+				reductionId = args.reductionId
+			this.server.addItemSetReduction(itemSetId, reductionId, this._itemSetSubs[itemSetId])
 		}))
 	}
 	

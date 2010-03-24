@@ -5,6 +5,7 @@ jsio('import .Value as Value')
 exports = Class(Value, function(supr){
 	
 	this._domTag = 'input'
+	this._expectedType = 'string'
 	
 	this.init = function() {
 		supr(this, 'init', arguments)
@@ -34,7 +35,7 @@ exports = Class(Value, function(supr){
 		if (typeof value == 'undefined') { return }
 		if (this._focused) { return }
 		this._element.disabled = false
-		this._element.value = typeof value == 'string' ? value : this._property
+		this._element.value = typeof value == this._expectedType ? value : this._property
 		if (typeof newValue == 'undefined') { return }
 		this._onBlur()
 	}
@@ -77,6 +78,10 @@ exports = Class(Value, function(supr){
 		if (!mutation.deletion && !mutation.addition) { return }
 		
 		mutation.property = this._property
+		this._mutateItem(mutation)
+	}
+	
+	this._mutateItem = function(mutation) {
 		this._getItem().mutate(mutation)
 	}
 	

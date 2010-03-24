@@ -44,9 +44,8 @@ exports = Class(shared.Publisher, function(supr) {
 	}
 	
 	this.applyMutation = function(mutation) {
-		logger.log('apply mutation', mutation._id, mutation)
-		var value = this._properties[mutation.property] || ''
-		if (mutation.value) {
+		var value = this._properties[mutation.property]
+		if (typeof mutation.value != 'undefined') {
 			value = mutation.value
 		}
 		
@@ -57,6 +56,7 @@ exports = Class(shared.Publisher, function(supr) {
 			value = value.slice(0, startDelete) + value.slice(endDelete)
 		}
 		if (mutation.addition) {
+			if (typeof value != 'string') { value = '' }
 			value = value.slice(0, mutation.position) + mutation.addition + value.slice(mutation.position)
 		}
 		
@@ -64,6 +64,11 @@ exports = Class(shared.Publisher, function(supr) {
 		if (typeof mutation.from != 'undefined' && typeof mutation.to != 'undefined') {
 			var item = value.splice(mutation.from, 1)[0]
 			value.splice(mutation.to, 0, item)
+		}
+		
+		if (mutation.append) {
+			if (!isArray(value)) { value = [] }
+			value.push(mutation.append)
 		}
 		
 		if (value == this._properties[mutation.property]) { return false } // no change

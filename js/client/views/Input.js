@@ -5,6 +5,7 @@ jsio('import .Value as Value')
 exports = Class(Value, function(supr){
 	
 	this._domTag = 'input'
+	this._domType = 'text'
 	this._expectedType = 'string'
 	
 	this.init = function() {
@@ -83,9 +84,5 @@ exports = Class(Value, function(supr){
 	
 	this._mutateItem = function(mutation) {
 		this._getItem().mutate(mutation)
-	}
-	
-	this._getItem = function() {
-		return this._item.getChainedItem(this._propertyChain)
 	}
 })

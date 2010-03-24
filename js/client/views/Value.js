@@ -9,7 +9,8 @@ exports = Class(function(supr){
 			property = viewArgs[0]
 		
 		this._element = document.createElement(this._domTag)
-
+		if (this._domType) { this._element.type = this._domType }
+		
 		this._propertyChain = property.split('.')
 		var itemId = (typeof itemIds == 'string' 
 				? itemIds 
@@ -29,5 +30,9 @@ exports = Class(function(supr){
 		value = value.replace(/\n/g, '<br />')
 		value = value.replace(/ $/, '&nbsp;')
 		this._element.innerHTML = value
+	}
+	
+	this._getItem = function() {
+		return this._item.getChainedItem(this._propertyChain)
 	}
 })

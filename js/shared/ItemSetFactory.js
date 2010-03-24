@@ -18,7 +18,7 @@ exports = Class(shared.Publisher, function(supr) {
 	
 	this.getItemSet = function(id) {
 		if (this._itemSets[id]) { return this._itemSets[id] }
-		var conditions = this._getConditionsFromId(id)
+		var conditions = JSON.parse(id)
 		for (var i=0, condition; condition = conditions[i]; i++) {
 			this.addPropertyDependance(condition[0], id)
 		}
@@ -51,29 +51,13 @@ exports = Class(shared.Publisher, function(supr) {
 	// e.g. conditions == [['name', '=', 'marcus'], ['age', '<', 18], ['age', '>', 15] ...]
 	// 		returns 'age>15:age<18:name=marcus'
 	this.getIdFromConditions = function(conditions) {
-		var id = ''
 		conditions.sort(function(a, b){
 			if (a[0] != b[0]) { return a[0] < b[0] ? -1 : 1 }
 			else if (a[2] != b[2]) { return a[1] < b[1] ? -1 : 1 }
 			else if (a[1] != b[1]) { return a[1] < b[1] ? -1 : 1 }
 			else { return 0 }
 		})
-		var idArr = []
-		for (var i=0, condition; condition = conditions[i]; i++) {
-			idArr.push(condition.join(''))
-		}
-		return idArr.join(';')
-	}
-	
-	this._conditionRegexp = /([^<=>]*)([<=>])([^<=>]*)/ // a string followed by <, > or =, followed by another string
-	this._getConditionsFromId = function(id) {
-		var conditions = []
-		var list = id.split(';')
-		for (var i=0, listItem; listItem = list[i]; i++) {
-			var match = listItem.match(this._conditionRegexp) // "name=marcus" => ["name=marcus", "name", "=", "marcus"]
-			conditions.push([match[1], match[2], match[3]])
-		}
-		return conditions
+		return JSON.stringify(conditions);
 	}
 	
 	this._onItemCreated = function(item) {

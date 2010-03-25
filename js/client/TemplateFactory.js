@@ -15,6 +15,7 @@ exports = Class(function() {
 			viewElements = [],
 			jsArgs = Array.prototype.slice.call(arguments, 1)
 		
+		templateElement.className = 'fin-Template'
 		viewMatches = this._findViewsInTemplate(templateString)
 		for (var i=0, viewMatch; viewMatch = viewMatches[i]; i++) {
 			

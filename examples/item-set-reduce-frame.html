@@ -8,25 +8,17 @@
 		
 		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
 		<script type="text/javascript">
-			jsio.path.client = '../js'
-			jsio.path.shared = '../js'
-			jsio('import client.fin')
-			
-			fin.connect(function(){
-				var kvps = document.location.search.substr(1).split('&'),
-					query = {}
-				for (var i=0, kvp; kvp = kvps[i]; i++) {
-					kvp = kvp.split('=')
-					query[kvp[0]] = kvp[1]
-				}
+			function onConnected() {
 				
+				var output = document.getElementById('totalTime')
 				
-				
-				var allBugs = fin.getItemSet({ type: query['type'] })
-				allBugs.sum(query['property'], function(mutation, value) {
-					document.getElementById('totalTime').innerHTML = 'Total ' + query['property'] + ' for all ' + query['type'] + 's: ' + value
+				var items = fin.getItemSet({ type: gItemType })
+				items.sum(gProperty, function(mutation, value) {
+					output.innerHTML = 'Total ' + gProperty + ' for all ' + gItemType + 's: ' + value
 				})
-			})
+				
+			}
 		</script>
+		<script type="text/javascript" src="item-set-reduce.js"></script>
 	</body>
 </html>

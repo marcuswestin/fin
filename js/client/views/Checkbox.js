@@ -6,6 +6,7 @@ exports = Class(Value, function(supr){
 	
 	this._domTag = 'input'
 	this._domType = 'checkbox'
+	this._className += ' Checkbox'
 	this._expectedType = 'boolean'
 	
 	this.init = function() {

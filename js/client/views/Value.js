@@ -3,9 +3,8 @@ jsio('from shared.javascript import Class, bind')
 exports = Class(function(supr){
 	
 	this._domTag = 'span'
-
+	this._className = 'Value'
 	this._keys = { 'enter': 13, 'backspace': 8 }
-	
 	
 	this.init = function(jsArgs, viewArgs) {
 		var itemIds = jsArgs[0],
@@ -13,6 +12,7 @@ exports = Class(function(supr){
 		
 		this._element = document.createElement(this._domTag)
 		if (this._domType) { this._element.type = this._domType }
+		this._element.className = this._className
 		
 		this._propertyChain = property.split('.')
 		var itemId = (typeof itemIds == 'string' 

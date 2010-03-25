@@ -6,6 +6,7 @@ exports = Class(Value, function(supr){
 	
 	this._domTag = 'input'
 	this._domType = 'text'
+	this._className += ' Input'
 	this._expectedType = 'string'
 	
 	this.init = function() {

@@ -87,17 +87,27 @@ fin = Singleton(function(){
 		this._viewFactory.registerView(viewName, viewConstructor)
 	}
 	
-	var uniqueRequestId = 0
 	this.exists = function(itemId, callback) {
-		var requestId = 'r' + uniqueRequestId++
-		this._requestCallbacks[requestId] = callback
+		var requestId = this._scheduleCallback(callback)
 		this._client.sendFrame('FIN_REQUEST_ITEM_EXISTS', { _requestId: requestId, _id: itemId })
 	}
 	
 	this.createItem = function(data, callback) {
+		var requestId = this._scheduleCallback(callback)
+		this._client.sendFrame('FIN_REQUEST_CREATE_ITEM', { _requestId: requestId, data: data })
+	}
+	
+	var uniqueRequestId = 0
+	this._scheduleCallback = function(callback) {
 		var requestId = 'r' + uniqueRequestId++
 		this._requestCallbacks[requestId] = callback
-		this._client.sendFrame('FIN_REQUEST_CREATE_ITEM', { _requestId: requestId, data: data })
+		return requestId
+	}
+	
+	this._executeCallback = function(requestId, response) {
+		var callback = this._requestCallbacks[requestId]
+		delete this._requestCallbacks[requestId]
+		callback(response)
 	}
 	
 	// Private method - hook up all internals
@@ -134,16 +144,12 @@ fin = Singleton(function(){
 		}))
 		
 		this.handleEvent('FIN_RESPONSE_ITEM_EXISTS', bind(this, function(response) {
-			var callback = this._requestCallbacks[response._requestId]
-			delete this._requestCallbacks[response._requestId]
-			callback(response.exists)
+			this._executeCallback(response._requestId, response.exists)
 		}))
 		
 		this.handleEvent('FIN_RESPONSE_CREATE_ITEM', bind(this, function(response) {
-			var callback = this._requestCallbacks[response._requestId]
-			delete this._requestCallbacks[response._requestId]
 			var item = this._itemFactory.getItem(response.item)
-			callback(item)
+			this._executeCallback(response._requestId, item)
 		}))
 		
 		this.handleEvent('FIN_EVENT_ITEM_SNAPSHOT', bind(this, function(properties) {

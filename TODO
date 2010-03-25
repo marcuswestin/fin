@@ -1,5 +1,11 @@
 TODO
 
+=== BUGS ===
+
+If a client makes a change that adds the item from an item set, then the item set publishes an add mutation twice - once locally directly, and once when the event comes in from the server
+
+
+
 === P1 ====
 
 Replace "Properties" with "Data"

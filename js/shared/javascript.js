@@ -8,6 +8,7 @@ exports.bind = function(context, method/*, args... */) {
 }
 
 exports.forEach = function(items, fn) {
+	if (!items) { return }
 	for (var i=0, item; item = items[i]; i++) { fn(item) }
 }
 
@@ -53,6 +54,10 @@ exports.Singleton = function(parent, proto) {
 var stripRegexp = /^\s*(.*?)\s*$/
 exports.strip = function(str) {
 	return str.match(stripRegexp)[1]
+}
+
+exports.capitalize = function(str) {
+	return str[0].toUpperCase() + str.substring(1)
 }
 
 exports.isArray = function(obj) {

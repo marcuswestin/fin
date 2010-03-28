@@ -32,6 +32,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	}
 
 	this.connectionLost = function() {
+		logger.info("Connection lost", arguments)
 		this._isConnected = false
 	}
 

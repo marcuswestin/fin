@@ -33,7 +33,7 @@ exports = Class(function(supr){
 		value = value.replace(/\n/g, '<br />')
 		value = value.replace(/ $/, '&nbsp;')
 		this._element.innerHTML = value
-		this._element.className = this._className + ' fin-Value-' + this._property + '-' + value
+		this._element.className = this._className + ' fin-Value-' + this._property + '-' + value.replace(/ /g, '_')
 	}
 	
 	this._getItem = function() {

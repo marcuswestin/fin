@@ -7,9 +7,10 @@ exports.bind = function(context, method/*, args... */) {
 	}
 }
 
-exports.forEach = function(items, fn) {
+exports.forEach = function(items, ctx, fn) {
 	if (!items) { return }
-	for (var i=0, item; item = items[i]; i++) { fn(item) }
+	if (!fn) { fn = ctx, ctx = this }
+	for (var i=0, item; item = items[i]; i++) { fn.call(ctx, item) }
 }
 
 exports.map = function(items, fn) {
@@ -57,6 +58,7 @@ exports.strip = function(str) {
 }
 
 exports.capitalize = function(str) {
+	if (!str) { return '' }
 	return str[0].toUpperCase() + str.substring(1)
 }
 

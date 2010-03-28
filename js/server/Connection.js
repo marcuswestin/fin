@@ -9,7 +9,6 @@ exports = Class(RTJPProtocol, function(supr) {
 		} else {
 			return (this._fakeSessionId || (this._fakeSessionId = 'FAKE_CONNECTION_ID_' + new Date().getTime()))
 		}
-		
 	}
 
 	this.init = function() {

@@ -20,7 +20,6 @@ redisClient.connect(function(){
 		})
 		
 		net.listen(finServer, 'csp', { port: 5555 }) // for browser clients
-		net.listen(finServer, 'tcp', { port: 5556 }) // for robots
+		net.listen(finServer, 'tcp', { port: 5556, timeout: 0 }) // for robots
 	})
 })
-

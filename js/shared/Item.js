@@ -1,4 +1,4 @@
-jsio('from shared.javascript import Class, bind')
+jsio('from shared.javascript import Class, bind, isArray')
 jsio('import shared.Publisher')
 jsio('import shared.ItemReference')
 

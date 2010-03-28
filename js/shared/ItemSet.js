@@ -95,6 +95,7 @@ exports = Class(shared.Publisher, function(supr) {
 	this.handleItemUpdate = function(data, changedProperty, oldValue) {
 		var itemId = data._id
 		// TODO The changed property may have been a reduce. We should only test the condition who's property just changed
+		// TODO We can do a remove/add to the redis set, and be told afterwards if it was already in the set or not. If it was already in the set, then don't publish
 		this._store.isInSet(this._id, itemId, bind(this, function(err, isInSet) {
 			if (err) { throw err }
 

@@ -22,6 +22,7 @@ fin = Singleton(function(){
 				transport = 'tcp'
 				connectParams.host = '127.0.0.1'
 				connectParams.port = 5556
+				connectParams.timeout = 0
 				break;
 			case 'browser':
 				transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp'

@@ -102,7 +102,11 @@ exports = Class(RTJPProtocol, function(supr) {
  ******/
 	this.sendFrame = function(name, args) {
 		this._log('send', name, JSON.stringify(args))
-		supr(this, 'sendFrame', arguments)
+		try {
+			supr(this, 'sendFrame', arguments)
+		} catch(e) {
+			logger.error("when writing", e, name, JSON.stringify(args))
+		}
 	}
 
 	this._log = function() {

@@ -44,9 +44,12 @@ exports = Class(shared.Publisher, function(supr) {
 	}
 	
 	this.applyMutation = function(mutation) {
-		var value = this._properties[mutation.property]
+		var value = this._properties[mutation.property],
+			changed = false
+			
 		if (typeof mutation.value != 'undefined') {
 			value = mutation.value
+			changed = true
 		}
 		
 		// Strings
@@ -54,24 +57,27 @@ exports = Class(shared.Publisher, function(supr) {
 			var startDelete = mutation.position
 			var endDelete = mutation.position + mutation.deletion
 			value = value.slice(0, startDelete) + value.slice(endDelete)
+			changed = true
 		}
 		if (mutation.addition) {
 			if (typeof value != 'string') { value = '' }
 			value = value.slice(0, mutation.position) + mutation.addition + value.slice(mutation.position)
+			changed = true
 		}
 		
 		// Lists
 		if (typeof mutation.from != 'undefined' && typeof mutation.to != 'undefined') {
 			var item = value.splice(mutation.from, 1)[0]
 			value.splice(mutation.to, 0, item)
+			changed = true
 		}
-		
 		if (mutation.append) {
 			if (!isArray(value)) { value = [] }
 			value.push(mutation.append)
+			changed = true
 		}
 		
-		if (value == this._properties[mutation.property]) { return false } // no change
+		if (!changed) { return false } // no change
 		
 		this._properties[mutation.property] = value
 		this._notifySubscribers(mutation)

@@ -26,8 +26,8 @@ clean:
 lib/js.io:
 	git clone git://github.com/mcarter/js.io.git
 	mv js.io lib/
-	cd lib/js.io/; git checkout 3bfa0b33d02fadf29d5d1ee4605f8a9a1a5cdf9f 
-	# previous known stable at f4a9d4939201992173f1612db972e04adf01c6ed
+	cd lib/js.io/; git checkout e0020c1c4b569db4062dbcc9fe008af691c40471
+	# previous known stable at 3bfa0b33d02fadf29d5d1ee4605f8a9a1a5cdf9f 
 
 lib/node-couchdb:
 	git clone git://github.com/felixge/node-couchdb.git

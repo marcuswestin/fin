@@ -8,14 +8,14 @@ exports = Class(function(){
 		this._uniqueId = 0
 	}
 	
-	this.add = function(name, callback) {
+	this.add = function(name, item) {
 		if (!this._pool[name]) { 
 			this._pool[name] = {}
 			this._counts[name] = 0
 		}
 		this._counts[name]++
 		var id = 'p' + this._uniqueId++
-		this._pool[name][id] = callback
+		this._pool[name][id] = item
 		return id
 	}
 	

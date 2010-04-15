@@ -36,15 +36,14 @@
 		
 		<script>
 		jsio.path.client = '../../js'
-		jsio('import client.ItemLocalStore')
-		jsio('import client.ItemSetLocalStore')
+		jsio.path.shared = '../../js'
+		jsio.path.server = '../../js'
 		
-		var server = fin.startServer({ 
-			itemStore: new client.ItemLocalStore(),
-			itemSetStore: new client.ItemSetLocalStore()
-		})
+		jsio('import client.RedisMock')
+		jsio('import server.Server')
 		
-		var postMessageListener = net.listen(server, 'postmessage')
+		var server = new server.Server(client.RedisMock)
+		var postMessageListener = server.listen('postmessage')
 		
 		onload = function() {
 			var dir = '../../', postfix = '#fin-postmessage'
@@ -54,6 +53,7 @@
 				button.style.margin = 'auto'
 				document.getElementById('buttons').appendChild(button)
 			}
+			addButton('examples/create_and_subscribe.html')
 			addButton('examples/from-html.html')
 			addButton('examples/property-chain.html')
 		}

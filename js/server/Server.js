@@ -1,114 +1,83 @@
-jsio('from shared.javascript import Class, map, bind')
+jsio('from shared.javascript import Class, map, bind, blockCallback')
 jsio('from net.interfaces import Server')
 jsio('import server.Connection')
-jsio('import shared.ItemFactory')
-jsio('import shared.ItemSetFactory')
-jsio('import shared.SubscriptionPool')
+jsio('import shared.keys')
 
 exports = Class(Server, function(supr) {
-
-	this.init = function(itemStore, itemSetStore) {
+	
+	this.init = function(redis, subscriptionStore) {
 		supr(this, 'init', [server.Connection])
+		this._redis = redis
 		this._uniqueId = 0
-		this._itemStore = itemStore
-		this._itemFactory = new shared.ItemFactory(itemStore)
-		this._itemSetFactory = new shared.ItemSetFactory(this._itemFactory, itemSetStore)
-		this._databaseScheduledWrites = {}
-		
-		this._itemSubscriberPool = new shared.SubscriptionPool()
-		this._itemSetSubscriberPool = new shared.SubscriptionPool()
+		this._redisClient = this._createRedisClient()
 	}
 	
-	this.exists = function(itemId, callback) {
-		this._itemStore.exists(itemId, callback)
+	this._createRedisClient = function() {
+		var client = this._redis.createClient()
+		client.stream.setTimeout(0) // the stream is the redis client's net connection
+		return client
+	}
+
+	var connectionId = 0 // TODO Each server will need a unique id as well to make each connection id globally unique
+	this.buildProtocol = function() {
+		return new this._protocolClass('c' + connectionId++, this._createRedisClient());
+	}
+
+/*******************************
+ * Connection request handlers *
+ *******************************/
+	this.data = function(op, key, callback) {
+		this._redisClient[op](key, bind(this, function(err, byteValue) {
+			if (err) { throw logger.error('could not retrieve properties for item', key, err) }
+			callback(byteValue)
+		}))
+	}
+
+	this.getQuerySet = function(queryJSON, callback) {
+		var queryKey = shared.keys.getQueryKey(queryJSON),
+			lockKey = shared.keys.getQueryLockKey(queryJSON)
+		
+		this._redisClient.get(lockKey, bind(this, function(err, holder) {
+			if (err) { throw logger.error('could not check for query lock', lockKey, err) }
+			if (holder) { return }
+			// publish a request for a robot to start monitoring this query
+			this._redisClient.publish('query_request_monitor', queryJSON)
+		}))
+		this._redisClient.smembers(queryKey, bind(this, function(err, members) {
+			if (err) { throw logger.error('could not retrieve set members', queryKey, err) }
+			callback(members || [])
+		}))
 	}
 	
 	this.createItem = function(itemData, callback) {
-		this._itemStore.storeItemData(itemData, bind(this, function(err, result) {
-			if (err) { throw err }
-			itemData._id = result.id
-			itemData._rev = result.rev
-			var item = this._itemFactory.getItem(itemData)
-			callback(item)
-		}));
+		this._redisClient.incr('__uniqueFinId', bind(this, function(err, newItemId) {
+			var blockedCallback = blockCallback(bind(this, callback, newItemId))
+			
+			for (var property in itemData) {
+				var releaseBlockFn = blockedCallback.addBlock(),
+					itemPropKey = shared.keys.getItemPropertyKey(newItemId, property)
+				
+				this._redisClient.set(itemPropKey, itemData[property], releaseBlockFn)
+			}
+			blockedCallback.tryNow() // in case there was no itemData and no blocks were added
+		}))
 	}
 	
-	this.subscribeToItemMutations = function(itemId, subCallback, snapshotCallback) {
-		var subId = this._itemSubscriberPool.add(itemId, subCallback)
-		this._getItemSnapshot(itemId, snapshotCallback)
-		return subId
-	}
-	
-	this.subscribeToItemSet = function(id, callback) {
-		var isNew = !this._itemSetFactory.hasItemSet(id)
-		var itemSet = this._itemSetFactory.getItemSet(id)
-		if (isNew) {
-			itemSet.subscribe('Mutated', bind(this, '_onItemSetMutated'))
-			this._itemStore.getAllItems(bind(this, function(itemData) {
-				itemSet.handleItemUpdate(itemData)
-			}))
-		}
-		var subId = this._itemSetSubscriberPool.add(id, callback)
-		itemSet.getItems(function(itemIds){
-			callback({ _id: id, add: itemIds })
-		})
-		return subId
-	}
-	
-	this._onItemSetMutated = function(mutation) {
-		var subs = this._itemSetSubscriberPool.get(mutation._id)
-		this._executeMutationSubs(subs, mutation)
-	}
-	
-	this.addItemSetReduction = function(itemSetId, reductionId, subscriptionId) {
-		var itemSet = this._itemSetFactory.getItemSet(itemSetId)
-		itemSet.registerReductionById(reductionId)
-		// Send back a message to the subscriber. This is super hacky... Should just be a dependant
-		var subs = this._itemSetSubscriberPool.get(itemSetId)
-		var itemSet = this._itemSetFactory.getItemSet(itemSetId)
-		subs[subscriptionId]({ _id: itemSetId, reduce: itemSet.getReductions() })
-	}
-	
-	this.handleMutation = function(mutation) {
-		this._itemFactory.handleMutation(mutation)
-		var subs = this._itemSubscriberPool.get(mutation._id)
-		this._executeMutationSubs(subs, mutation)
-	}
-	
-	this._executeMutationSubs = function(subs, mutation) {
-		for (var key in subs) {
-			try { subs[key](mutation) } 
-			catch (e) { logger.error('Error when handling mutation', JSON.stringify(e)) }
-		}
-	}
-	
-	this.unsubscribeFromItemMutations = function(itemId, subId) {
-		this._itemSubscriberPool.remove(itemId, subId)
-	}
-	
-	this.unsubscribeFromItemSetMutations = function(itemSetId, subId) {
-		this._itemSetSubscriberPool.remove(itemSetId, subId)
-	}
-
-	this._getItemSnapshot = function(id, callback) {
-		if (this._itemFactory.hasItem(id)) {
-			var item = this._itemFactory.getItem(id)
-			logger.log('retrieved item from memory', id)
-			logger.debug('item data from memory', JSON.stringify(item.getData()))
-			callback(item.getData())
-		} else {
-			this._itemStore.getItemData(id, bind(this, function(err, data) {
-				if (err) {
-					logger.warn("Could not retrieve item from db", id, err)
-					return
-				}
-				logger.log('retrieved item from database', id)
-				logger.debug('item data from database', JSON.stringify(data))
-				var item = this._itemFactory.getItem(data._id)
-				item.setSnapshot(data, true)
-				callback(item.getData())
-			}))
-		}
+	this.mutateItem = function(mutation, originConnectionId) {
+		var key = mutation.args[0],
+			keyInfo = shared.keys.getKeyInfo(key),
+			operation = mutation.op,
+			args = mutation.args,
+			itemChannel = shared.keys.getItemPropertyChannel(keyInfo.id, keyInfo.prop),
+			propertyChannel = shared.keys.getPropertyChannel(keyInfo.prop),
+			mutationBytes = originConnectionId.length + originConnectionId + JSON.stringify(mutation)
+		
+		logger.log('Apply mutation', operation, args)
+		this._redisClient[operation].apply(this._redisClient, args)
+		
+		logger.log('Publish channels', itemChannel, propertyChannel, mutation)
+		this._redisClient.publish(itemChannel, mutationBytes)
+		this._redisClient.publish(propertyChannel, mutationBytes)
 	}
 })
 

@@ -1,3 +1,24 @@
+This README is wildly out of date as of April 13th
+All the templating views are being moved to fan, just leaving the realtime pubsub/query and template construction in fin
+
+	fin.subscribe(itemId, itemProperty, function(mutation, newValue) { ... })
+	fin.query(query, function(mutation) { ... })
+	fin.mutate(itemId, operation, propName /*, arg1, arg2, ... */)
+	
+	fin.subscribe(20, 'name', function(mutation) {
+		console.log("user's name changed", mutation, newValue)
+	})
+	
+	fin.query({ type: 'task', owner: 20 }, function(mutation) {
+		if (mutation.add) {
+			console.log("Items added to my list tasks!", mutation)
+		}
+	})
+	
+	fin.mutate(20, 'set', 'name', 'marcus')
+
+ - - - - - - - - - - - - - - - - - - -
+
 Realtime templating language
 ============================
 

@@ -4,14 +4,10 @@
 ### Commands ###
 ################
 
-deps: lib/js.io lib/node-couchdb lib/redis-node-client lib/CouchDBX.app
+deps: lib/js.io lib/redis-node-client
 
 run:
 	cd js/server; node run_server.js
-
-run-dbs: 
-	open lib/CouchDBX.app &
-	redis-server
 
 clean:
 	rm -rf lib/*
@@ -26,21 +22,23 @@ clean:
 lib/js.io:
 	git clone git://github.com/mcarter/js.io.git
 	mv js.io lib/
-	cd lib/js.io/; git checkout 3bfa0b33d02fadf29d5d1ee4605f8a9a1a5cdf9f 
-	# previous known stable at f4a9d4939201992173f1612db972e04adf01c6ed
-
-lib/node-couchdb:
-	git clone git://github.com/felixge/node-couchdb.git
-	mv node-couchdb lib/
-	cd lib/node-couchdb/; git checkout cb4d08b727f1dc47ee82170bb3b644783d445f68
+	cd lib/js.io/; git checkout e0020c1c4b569db4062dbcc9fe008af691c40471 
+	# previous known stable at 3bfa0b33d02fadf29d5d1ee4605f8a9a1a5cdf9f
 
 lib/redis-node-client:
 	git clone git://github.com/fictorial/redis-node-client.git 
 	mv redis-node-client lib/
-	cd lib/redis-node-client/; git checkout e7a11ce67883919210f03c998b7cdc9b349daf2d
+	# Checks out "works with just-released node v0.1.90"
+	cd lib/redis-node-client/; git checkout abf4c4bf4c3f13873fe65b45ddee664066e442dd
 
-lib/CouchDBX.app:
-	curl http://cloud.github.com/downloads/janl/couchdbx-core/CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.zip > CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.zip
-	unzip CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.zip
-	rm -rf CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.zip __MACOSX/
-	mv CouchDBX-0.10.1-R13b02-64bit-Snow-Leopard.app lib/CouchDBX.app
+##################
+### Utilities ####
+##################
+
+.PHONY: install-node
+
+install-node:
+	rm -rf /tmp/fin-node
+	git clone git://github.com/ry/node.git /tmp/fin-node
+	# installs node version 0.1.90
+	cd /tmp/fin-node; git checkout 07e64d45ffa1856e824c4fa6afd0442ba61d6fd8; ./configure; make; sudo make install

@@ -22,8 +22,7 @@ clean:
 lib/js.io:
 	git clone git://github.com/mcarter/js.io.git
 	mv js.io lib/
-	cd lib/js.io/; git checkout e0020c1c4b569db4062dbcc9fe008af691c40471 
-	# previous known stable at 3bfa0b33d02fadf29d5d1ee4605f8a9a1a5cdf9f
+	cd lib/js.io/; git checkout 7ce67c5f5299c6b005333f8e267d53f803ac4dfd
 
 lib/redis-node-client:
 	git clone git://github.com/fictorial/redis-node-client.git 

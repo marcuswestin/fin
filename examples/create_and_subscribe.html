@@ -1,0 +1,72 @@
+<html>
+	<head>
+		<title>Fin - create and subscribe</title>
+	</head>
+	<body>
+
+		<div id="controls" style="display: none;">
+			<div>
+				<button id="create-button">Create an item</button>
+				<span id="create-output"></span>
+			</div>
+			<div>
+				<button id="subscribe-button">Subscribe to item</button>
+				<input id="subscribe-id-input"></input>
+			</div>
+		</div>
+		
+		<div id="items-list"></div>
+		
+		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
+		<script type="text/javascript">
+			var controls = document.getElementById('controls'),
+				createButton = document.getElementById('create-button'),
+				createOutput = document.getElementById('create-output'),
+				subscribeButton = document.getElementById('subscribe-button'),
+				subscribeIdInput = document.getElementById('subscribe-id-input'),
+				itemsList = document.getElementById('items-list'),
+				itemProperty = 'testProperty'
+			
+			jsio.path.client = '../js'
+			jsio.path.shared = '../js'
+			jsio('import client.fin')
+			
+			fin.connect(function(){ 
+				// The Create button
+				createButton.onclick = function onCreateClick() {
+					fin.create({}, function(newItemId) { 
+						createOutput.innerHTML = 'Created item: ' + newItemId 
+						subscribeIdInput.value = newItemId
+					})
+				}
+				
+				// The Subscribe button
+				subscribeButton.onclick = function onSubscribeClick() {
+					var itemId = parseInt(subscribeIdInput.value)
+					if (typeof itemId != 'number') {
+						subscribeIdInput.value = 'Need id of existing item'
+						return
+					}
+					
+					var itemContainer = itemsList.appendChild(document.createElement('div'))
+					itemContainer.innerHTML = 'Item ' + itemId + ' property ' + itemProperty + ': '
+					var itemPropertyInput = itemContainer.appendChild(document.createElement('input'))
+					
+					fin.subscribe(itemId, itemProperty, function(mutation, newValue) {
+						itemPropertyInput.value = newValue
+					})
+					
+					itemPropertyInput.onkeypress = function() {
+						setTimeout(function() {
+							fin.mutate(itemId, 'set', itemProperty, itemPropertyInput.value)
+						})
+					}
+				}
+				
+				controls.style.display = 'block' 
+				
+				subscribeIdInput.value = 20 // FOR DEVELOPMENT
+			})
+		</script>
+	</body>
+</html>

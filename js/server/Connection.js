@@ -61,30 +61,9 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 				this.sendFrame('FIN_EVENT_ITEM_MUTATED', JSON.stringify(mutation))
 			}))
 		}))
-		
-		this.handleRequest('FIN_REQUEST_SUBSCRIBE_CHANNEL', bind(this, function(channel) {
-			var channelInfo = shared.keys.getChannelInfo(channel)
-			
-			switch(channelInfo.type) {
-				case 'I':
-					break
-				case 'Q':
-					this._redisClient.subscribeTo(channel, this._queryChannelHandler)
-					// fake a query mutation event, adding all the items currently in the query set
-					this.server.getQuerySet(id, bind(this, function(items) {
-						logger.warn("TODO", 'send fake FIN_EVENT_QUERY_MUTATED', info.id, items)
-						return
-						var mutation = { add: items }
-						this.sendFrame('FIN_EVENT_QUERY_MUTATED', { channel: channel, message: mutation })
-					}))
-					break
-				case 'P':
-					this._redisClient.subscribeTo(channel, this._propertyChannelHandler)
-					break
-				default:
-					throw logger.error("Got message on unknown channel type", channelInfo.type)
-					break
-			}
+
+		this.handleRequest('FIN_REQUEST_UNSUBSCRIBE', bind(this, function(channel) {
+			this._redisClient.unsubscribeFrom(channel)
 		}))
 		
 		this.handleRequest('FIN_REQUEST_CREATE_ITEM', bind(this, function(request) {

@@ -7,20 +7,32 @@ exports = Class(function() {
 	
 	this.init = function(viewFactory) {
 		this._viewFactory = viewFactory
+		this._views = {}
+		this._uniqueId = 0
+	}
+	
+	this.releaseTemplate = function(element) {
+		var id = element.finTemplateId,
+			views = this._views[element.finTemplateId]
+		
+		for (var i=0, view; view = views[i]; i++) { view.release() }
 	}
 	
 	this.applyTemplate = function(templateString) {
 		// replace view template strings with elements we can later extract and replace with views
 		var templateElement = document.createElement('span'),
-			viewElements = [],
-			jsArgs = Array.prototype.slice.call(arguments, 1)
+			jsArgs = Array.prototype.slice.call(arguments, 1),
+			templateId = this._uniqueId++,
+			views = (this._views[templateId] = [])
 		
 		templateElement.className = 'fin-Template'
+		templateElement.finTemplateId = templateId
+		
 		viewMatches = this._findViewsInTemplate(templateString)
 		for (var i=0, viewMatch; viewMatch = viewMatches[i]; i++) {
 			
 			var view = this._viewFactory.getView(viewMatch.viewName, jsArgs, viewMatch.viewArgs)
-			viewElements[i] = view.getElement()
+			views[i] = view
 			templateString = templateString.replace(viewMatch._stringMatch, '<finPlaceholder></finPlaceholder>')
 		}
 		
@@ -28,9 +40,9 @@ exports = Class(function() {
 		templateElement.innerHTML = templateString
 		
 		var placeholders = Array.prototype.slice.call(templateElement.getElementsByTagName('finPlaceholder'), 0)
-		for (var i=0, viewElement; viewElement = viewElements[i]; i++) {
+		for (var i=0, view; view = views[i]; i++) {
 			var parentNode = placeholders[i].parentNode
-			parentNode.insertBefore(viewElement, placeholders[i])
+			parentNode.insertBefore(view.getElement(), placeholders[i])
 			parentNode.removeChild(placeholders[i])
 		}
 		

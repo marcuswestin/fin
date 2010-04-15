@@ -1,0 +1,37 @@
+<html>
+	<head>
+		<title>fin-test</title>
+	</head>
+	<body>
+		<div id="template" style="display: none;">
+
+			<div class="user">
+				<b>A User</b>
+				<div>Name: (( name )) </div>
+				<div>Email: (( email )) </div>
+				<div>Profile: (( profile )) </div>
+				<div>testProperty: (( testProperty ))</div>
+			</div>
+		</div>
+		
+		<button id="release-button">Release views</button>
+			
+		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
+		<script type="text/javascript">
+			jsio.path.client = '../js'
+			jsio.path.shared = '../js'
+			jsio('import client.fin')
+			
+			fin.connect(function(){
+				var template = document.getElementById('template').innerHTML
+				var view1 = document.body.appendChild(fin.applyTemplate(template, 1))
+				var view2 = document.body.appendChild(fin.applyTemplate(template, 2))
+
+				document.getElementById('release-button').onclick = function() {
+					fin.release(view1)
+					fin.release(view2)
+				}
+			})
+		</script>
+	</body>
+</html>

@@ -6,7 +6,6 @@ jsio('import shared.keys')
 jsio('import client.Client')
 jsio('import client.TemplateFactory')
 jsio('import client.ViewFactory')
-jsio('import client.ValueView')
 
 // expose fin to global namespace
 fin = Singleton(function(){
@@ -128,7 +127,6 @@ fin = Singleton(function(){
 		
 		this._viewFactory = new client.ViewFactory()
 		this._templateFactory = new client.TemplateFactory(this._viewFactory)
-		this._viewFactory.registerView('Value', client.ValueView)
 		
 		this._client = new client.Client()
 		

@@ -1,4 +1,5 @@
-jsio('from shared.javascript import Singleton, strip, forEach')
+jsio('from shared.javascript import Singleton, strip')
+jsio('import client.ValueView')
 
 exports = Class(function() {
 	
@@ -9,6 +10,7 @@ exports = Class(function() {
 		this._viewFactory = viewFactory
 		this._views = {}
 		this._uniqueId = 0
+		this._viewFactory.registerView('__finValue', client.ValueView)
 	}
 	
 	this.releaseTemplate = function(element) {
@@ -55,7 +57,7 @@ exports = Class(function() {
 		if (!matches) { return views }
 		for (var i=0, match; match = matches[i]; i++) {
 			var viewArgs = strip(match.substring(2, match.length - 2)).split(' ') // strip (( )) and whitespace, split on space
-			var viewName = (viewArgs.length == 1 ? 'Value' : viewArgs.shift()) // infer Value view if not specified
+			var viewName = (viewArgs.length == 1 ? '__finValue' : viewArgs.shift()) // infer Value view if not specified
 			
 			views.push({ viewName: viewName, viewArgs: viewArgs, _stringMatch: match })
 		}

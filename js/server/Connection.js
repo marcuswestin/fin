@@ -64,6 +64,19 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			this._redisClient.unsubscribeFrom(channel)
 		}))
 		
+		this.handleRequest('FIN_REQUEST_QUERY', bind(this, function(queryJSON) {
+			var channel = shared.keys.getQueryChannel(queryJSON)
+			
+			this._redisClient.subscribeTo(channel, this._queryChannelHandler)
+			
+			this.server.getQuerySet(queryJSON, bind(this, function(members) {
+				var mutation = { op: 'sadd', args: [members] }
+
+				logger.log("Retrieved query sey", members)
+				this.sendFrame('FIN_EVENT_QUERY_MUTATED')
+			}))
+		}))
+		
 		this.handleRequest('FIN_REQUEST_CREATE_ITEM', bind(this, function(request) {
 			this.server.createItem(request.data, bind(this, function(itemData) {
 				var response = { _requestId: request._requestId, data: itemData }

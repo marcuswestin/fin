@@ -40,7 +40,7 @@ exports = Class(Server, function(supr) {
 			if (err) { throw logger.error('could not check for query lock', lockKey, err) }
 			if (holder) { return }
 			// publish a request for a robot to start monitoring this query
-			this._redisClient.publish('query_request_monitor', queryJSON)
+			this._redisClient.publish('__fin_query_request_monitor', queryJSON)
 		}))
 		this._redisClient.smembers(queryKey, bind(this, function(err, members) {
 			if (err) { throw logger.error('could not retrieve set members', queryKey, err) }

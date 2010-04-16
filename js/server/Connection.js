@@ -20,6 +20,8 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		this._redisClient.close()
 	}
 	
+	this.getId = function() { return this._id }
+	
 	this._setupHandlers = function() {	
 		this._channelMessageHandler = bind(this, function(channel, message) {
 			// TODO if they don't have "length", they are probably numbers instead - don't convert to strings
@@ -85,7 +87,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		}))
 		
 		this.handleRequest('FIN_REQUEST_MUTATE_ITEM', bind(this, function(mutation){
-			this.server.mutateItem(mutation, this._id)
+			this.server.mutateItem(mutation, this)
 		}))
 		
 		// TODO: get Reduction handler to work

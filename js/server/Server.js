@@ -62,14 +62,15 @@ exports = Class(Server, function(supr) {
 		}))
 	}
 	
-	this.mutateItem = function(mutation, originConnectionId) {
+	this.mutateItem = function(mutation, originConnection) {
 		var key = mutation.args[0],
 			keyInfo = shared.keys.getKeyInfo(key),
 			operation = mutation.op,
 			args = mutation.args,
 			itemChannel = shared.keys.getItemPropertyChannel(keyInfo.id, keyInfo.prop),
 			propertyChannel = shared.keys.getPropertyChannel(keyInfo.prop),
-			mutationBytes = originConnectionId.length + originConnectionId + JSON.stringify(mutation)
+			connId = originConnection.getId(),
+			mutationBytes = connId.length + connId + JSON.stringify(mutation)
 		
 		logger.log('Apply mutation', operation, args)
 		this._redisClient[operation].apply(this._redisClient, args)

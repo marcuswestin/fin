@@ -106,6 +106,13 @@ fin = Singleton(function(){
 		return this._templateFactory.applyTemplate(templateString, itemIds)
 	}
 	
+	/*
+	 * Register a template view
+	 */
+	this.registerView = function(viewName, viewCtor) {
+		this._viewFactory.registerView(viewName, viewCtor)
+	}
+	
 	var uniqueRequestId = 0
 	this._scheduleCallback = function(callback) {
 		if (!callback) { return }

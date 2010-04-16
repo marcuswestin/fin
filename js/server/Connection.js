@@ -6,8 +6,6 @@ jsio('import net.protocols.rtjp')
 
 exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 
-	this._authenticatedUser = true // true disable authentication requirement
-	
 	this.init = function(id, redisClient) {
 		supr(this, 'init')
 		this._id = id
@@ -74,11 +72,9 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		}))
 		
 		this.handleRequest('FIN_REQUEST_MUTATE_ITEM', bind(this, function(mutation){
-			// TODO We should label which user made the change here
-			if (typeof this._authenticatedUser == 'string') { mutation._user = this._authenticatedUser }
 			this.server.mutateItem(mutation, this._id)
 		}))
-
+		
 		// TODO: get Reduction handler to work
 		this.handleRequest('FIN_REQUEST_ADD_REDUCTION', bind(this, function(args) {
 			var itemSetId = args.id,
@@ -97,10 +93,6 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		this._log('recv', id, name, JSON.stringify(args))
 		if (!this._requestHandlers[name]) {
 			logger.warn('Received request without handler', name)
-			return
-		}
-		if (!this._authenticatedUser) {
-			this.sendFrame('FIN_DEMAND_AUTHENTICATE')
 			return
 		}
 		this._requestHandlers[name](args)

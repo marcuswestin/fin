@@ -1,12 +1,11 @@
 jsio('from shared.javascript import Class, map, bind, blockCallback')
 jsio('from net.interfaces import Server')
-jsio('import server.Connection')
 jsio('import shared.keys')
 
 exports = Class(Server, function(supr) {
 	
-	this.init = function(redis, subscriptionStore) {
-		supr(this, 'init', [server.Connection])
+	this.init = function(redis, connectionCtor) {
+		supr(this, 'init', [connectionCtor])
 		this._redis = redis
 		this._uniqueId = 0
 		this._redisClient = this._createRedisClient()

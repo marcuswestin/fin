@@ -10,7 +10,7 @@ exports = Class(function() {
 		this._viewConstructors[viewName] = viewConstructor
 	}
 	
-	this.getView = function(viewName, jsArgs, templateArgs) {
+	this.createView = function(viewName, jsArgs, templateArgs) {
 		return new this._viewConstructors[viewName](jsArgs, templateArgs || [])
 	}
 })

@@ -77,7 +77,6 @@ exports.blockCallback = function(callback) {
 	return {
 		addBlock: function() { 
 			blocks++ 
-			logger.log("Blocks", blocks)
 			return removeBlock
 		},
 		tryNow: function() {

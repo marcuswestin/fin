@@ -33,7 +33,7 @@ exports = Class(function() {
 		viewMatches = this._findViewsInTemplate(templateString)
 		for (var i=0, viewMatch; viewMatch = viewMatches[i]; i++) {
 			
-			var view = this._viewFactory.getView(viewMatch.viewName, jsArgs, viewMatch.viewArgs)
+			var view = this._viewFactory.createView(viewMatch.viewName, jsArgs, viewMatch.viewArgs)
 			views[i] = view
 			templateString = templateString.replace(viewMatch._stringMatch, '<finPlaceholder></finPlaceholder>')
 		}

@@ -2,6 +2,10 @@
  * Redis key and channel namespaces *
  ************************************/
 
+// The unique ID key is used to consistently increase item id's. Should we use guid's instead?
+exports.uniqueIdKey = '__fin_unique_id'
+exports.queryRequestChannel = '__fin_query_request_monitor'
+
 // item properties are stored at 		I<item id>@<propName>	e.g. I20@books
 // query result sets are stored at		Q<queryJSON>			e.g. Q{\"type\":\"task\"}
 // the lock key for a query is at		L<queryJSON>			e.g. L{\"type\":\"task\"}
@@ -11,6 +15,7 @@
 
 // Data state keys
 exports.getItemPropertyKey = function(itemId, propName) {
+	if (!itemId || !propName) { throw "itemId and propName are required for shared.keys.getItemPropertyKey" }
 	return 'I' + itemId + '@' + propName
 }
 
@@ -34,8 +39,8 @@ exports.getItemPropertyChannel = function(itemId, property) {
 	return '#I' + itemId + ':' + property
 }
 
-exports.getQueryChannel = function(query) {
-	return '#Q' + JSON.stringify(query)
+exports.getQueryChannel = function(queryJSON) {
+	return '#Q' + queryJSON
 }
 
 exports.getPropertyChannel = function(propName) {

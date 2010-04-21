@@ -1,6 +1,7 @@
 jsio('from shared.javascript import Class, bind')
 
 jsio('import shared.keys')
+jsio('import shared.mutations')
 
 jsio('import net.protocols.rtjp')
 
@@ -23,39 +24,27 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	this.getId = function() { return this._id }
 	
 	this._setupHandlers = function() {	
-		this._channelMessageHandler = bind(this, function(channel, message) {
-			// TODO if they don't have "length", they are probably numbers instead - don't convert to strings
-			// channel and message come in as byte arrays - convert to arrays and then to strings
-			channel = String.fromCharCode.apply(String, Array.prototype.slice.call(channel, 0))
-			message = String.fromCharCode.apply(String, Array.prototype.slice.call(message, 0))
-			this.sendFrame('FIN_EVENT_CHANNEL_MESSAGE', { channel: channel, message: message })
+		this._queryChannelHandler = bind(this, function(channelBytes, messageBytes) {
+			var message = messageBytes.toString()
+
+			this.sendFrame('FIN_EVENT_QUERY_MUTATED', message)
 		})
 		
 		this._itemChannelHandler = bind(this, function(channel, mutationBytes) {
-			// The first byte gives length of connection id
-			var idLength = mutationBytes[0] - 48,
-				idBytesArray = Array.prototype.splice.call(mutationBytes, 1, idLength),
-				originId = String.fromCharCode.apply(String, idBytesArray)
-			
-			if (originId == this._id) { return }
-			
-			var JSONBytesArray = Array.prototype.slice.call(mutationBytes, 1),
-				mutationJSON = String.fromCharCode.apply(String, JSONBytesArray)
-			
-			this.sendFrame('FIN_EVENT_ITEM_MUTATED', mutationJSON)
+			var mutationInfo = shared.mutations.parseMutationBytes(mutationBytes)
+			if (mutationInfo.originId == this._id) { return }
+			this.sendFrame('FIN_EVENT_ITEM_MUTATED', mutationInfo.json)
 		})
 		
 		this.handleRequest('FIN_REQUEST_SUBSCRIBE', bind(this, function(args) {
 			var itemId = args.id,
 				propName = args.prop,
-				channel = shared.keys.getItemPropertyChannel(itemId, propName),
-				key = shared.keys.getItemPropertyKey(itemId, propName)
+				channel = shared.keys.getItemPropertyChannel(itemId, propName)
 			
 			this._redisClient.subscribeTo(channel, this._itemChannelHandler)
 			// fake an item mutation event
-			this.server.data('get', key, bind(this, function(byteValue) {
-				var value = String.fromCharCode.apply(String, Array.prototype.slice.call(byteValue, 0)),
-					mutation = { op: 'set', args: [key, value] }
+			this.server.getItemProperty(itemId, propName, bind(this, function(value, key) {
+				var mutation = { op: 'set', id: itemId, prop: propName, args: [value] }
 				
 				logger.log("Retrieved data", key, value)
 				this.sendFrame('FIN_EVENT_ITEM_MUTATED', JSON.stringify(mutation))
@@ -71,11 +60,15 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			
 			this._redisClient.subscribeTo(channel, this._queryChannelHandler)
 			
-			this.server.getQuerySet(queryJSON, bind(this, function(members) {
-				var mutation = { op: 'sadd', args: [members] }
-
-				logger.log("Retrieved query sey", members)
-				this.sendFrame('FIN_EVENT_QUERY_MUTATED')
+			this.server.getQuerySet(queryJSON, bind(this, function(membersBytes) {
+				var members = []
+				for (var i=0, memberBytes; memberBytes = membersBytes[i]; i++) {
+					members.push(memberBytes.toString())
+				}
+				
+				var mutation = { op: 'sadd', args: members, id: shared.keys.getQueryChannel(queryJSON) }
+				
+				this.sendFrame('FIN_EVENT_QUERY_MUTATED', JSON.stringify(mutation))
 			}))
 		}))
 		

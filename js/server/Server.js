@@ -25,22 +25,24 @@ exports = Class(Server, function(supr) {
 /*******************************
  * Connection request handlers *
  *******************************/
-	this.data = function(op, key, callback) {
-		this._redisClient[op](key, bind(this, function(err, byteValue) {
-			if (err) { throw logger.error('could not retrieve properties for item', key, err) }
-			callback(byteValue)
+	this.getItemProperty = function(itemId, propName, callback) {
+		var key = shared.keys.getItemPropertyKey(itemId, propName)
+		
+		this._redisClient.get(key, bind(this, function(err, valueBytes) {
+			if (err) { throw logger.error('could not retrieve properties for item', key, err, err) }
+			callback((valueBytes ? valueBytes.toString() : ''), key)
 		}))
 	}
-
+	
 	this.getQuerySet = function(queryJSON, callback) {
 		var queryKey = shared.keys.getQueryKey(queryJSON),
 			lockKey = shared.keys.getQueryLockKey(queryJSON)
 		
-		this._redisClient.get(lockKey, bind(this, function(err, holder) {
+		this._redisClient.get(lockKey, bind(this, function(err, queryIsHeld) {
 			if (err) { throw logger.error('could not check for query lock', lockKey, err) }
-			if (holder) { return }
-			// publish a request for a robot to start monitoring this query
-			this._redisClient.publish('__fin_query_request_monitor', queryJSON)
+			if (queryIsHeld) { return }
+			// publish a request for a query observer to start monitoring this query
+			this._redisClient.publish(shared.keys.queryRequestChannel, queryJSON)
 		}))
 		this._redisClient.smembers(queryKey, bind(this, function(err, members) {
 			if (err) { throw logger.error('could not retrieve set members', queryKey, err) }
@@ -49,7 +51,7 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this.createItem = function(itemData, callback) {
-		this._redisClient.incr('__uniqueFinId', bind(this, function(err, newItemId) {
+		this._redisClient.incr(shared.keys.uniqueIdKey, bind(this, function(err, newItemId) {
 			var blockedCallback = blockCallback(bind(this, callback, newItemId))
 			
 			for (var property in itemData) {
@@ -63,12 +65,13 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this.mutateItem = function(mutation, originConnection) {
-		var key = mutation.args[0],
-			keyInfo = shared.keys.getKeyInfo(key),
+		var itemId = mutation.id,
+			propName = mutation.prop,
 			operation = mutation.op,
-			args = mutation.args,
-			itemChannel = shared.keys.getItemPropertyChannel(keyInfo.id, keyInfo.prop),
-			propertyChannel = shared.keys.getPropertyChannel(keyInfo.prop),
+			key = shared.keys.getItemPropertyKey(itemId, propName),
+			args = [key].concat(mutation.args),
+			itemChannel = shared.keys.getItemPropertyChannel(itemId, propName),
+			propertyChannel = shared.keys.getPropertyChannel(propName),
 			connId = originConnection.getId(),
 			mutationBytes = connId.length + connId + JSON.stringify(mutation)
 		

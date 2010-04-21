@@ -33,21 +33,48 @@ fin = Singleton(function(){
 	 * and get notified of the new item id when it's been created
 	 */
 	this.create = function(data, callback) {
-		var requestId = this._scheduleCallback(callback)
-		this._client.sendFrame('FIN_REQUEST_CREATE_ITEM', { _requestId: requestId, data: data })
+		this.requestResponse('FIN_REQUEST_CREATE_ITEM', { data: data }, callback)
 	}
+	
+	/* 
+	 * Make a request with an associated requestId, 
+	 * and call the callback upon response
+	 */
+	this.requestResponse = function(frameName, args, callback) {
+		var requestId = this._scheduleCallback(callback)
+		args._requestId = requestId
+		this.send(frameName, args)
+	}
+	
+	/* 
+	 * Send a frame to the server
+	 */
+	this.send = function(frameName, args) {
+		this._client.sendFrame(frameName, args)
+	}
+	
+	/*
+	 * Register a handler for a type of event from the server
+	 */
+	this.registerEventHandler = function(frameName, callback) {
+		this._client.registerEventHandler(frameName, callback)
+	}
+	
+	
 	
 	/*
 	 * Subscribe to an item property, and get notified any time it changes
 	 */
 	this._subIdToChannel = {}
-	this._subriptionPool = new shared.SubscriptionPool()
+	this._subscriptionPool = new shared.SubscriptionPool()
 	this.subscribe = function(itemId, propName, callback) {
-		var channel = shared.keys.getItemPropertyChannel(itemId, propName)
-			subId = this._subriptionPool.add(channel, callback)
+		if (!itemId || !propName || !callback) { logger.error("subscribe requires three arguments", itemId, propName, callback); }
 		
-		if (this._subriptionPool.count(channel) == 1) {
-			this._client.sendFrame('FIN_REQUEST_SUBSCRIBE', { id: itemId, prop: propName })
+		var channel = shared.keys.getItemPropertyChannel(itemId, propName)
+			subId = this._subscriptionPool.add(channel, callback)
+		
+		if (this._subscriptionPool.count(channel) == 1) {
+			this.send('FIN_REQUEST_SUBSCRIBE', { id: itemId, prop: propName })
 		}
 		
 		this._subIdToChannel[subId] = channel
@@ -58,7 +85,19 @@ fin = Singleton(function(){
 	 * Query fin for items matching a set of properties, and get notified
 	 * any time an item enters or leaves the matching set
 	 */
-	this.query = function() { throw logger.error("Unimplemented method query") }
+	this.query = function(query, callback) {
+		if (!query || !callback) { logger.error("query requires two arguments", query, callback); debugger }
+		
+		var queryJSON = JSON.stringify(query),
+			queryChannel = shared.keys.getQueryChannel(queryJSON),
+			subId = this._subscriptionPool.add(queryChannel, callback)
+
+		if (this._subscriptionPool.count(queryChannel) == 1) {
+			this.send('FIN_REQUEST_QUERY', queryJSON)
+		}
+		
+		return subId
+	}
 	
 	/*
 	 * Monitor any changes to a given property. 
@@ -72,10 +111,10 @@ fin = Singleton(function(){
 	this.release = function(subId) {
 		if (typeof subId == 'string') {
 			var channel = this._subIdToChannel[subId]
-			this._subriptionPool.remove(channel)
+			this._subscriptionPool.remove(channel)
 
-			if (this._subriptionPool.count() == 0) {
-				this._client.sendFrame('FIN_REQUEST_UNSUBSCRIBE', channel)
+			if (this._subscriptionPool.count() == 0) {
+				this.send('FIN_REQUEST_UNSUBSCRIBE', channel)
 			}
 
 			delete this._subIdToChannel[subId]
@@ -88,12 +127,11 @@ fin = Singleton(function(){
 	 * Mutate a fin item with the given operation
 	 */
 	this.mutate = function(itemId, operation, propName) {
-		var key = shared.keys.getItemPropertyKey(itemId, propName),
-			operationArgs = Array.prototype.slice.call(arguments, 3)
+		var operationArgs = Array.prototype.slice.call(arguments, 3)
 		
-		operationArgs.unshift(key)
-		
-		this._client.sendFrame('FIN_REQUEST_MUTATE_ITEM', {
+		this.send('FIN_REQUEST_MUTATE_ITEM', {
+			id: itemId,
+			prop: propName,
 			op: operation,
 			args: operationArgs
 		})
@@ -104,6 +142,14 @@ fin = Singleton(function(){
 	 */
 	this.applyTemplate = function(templateString, itemIds) {
 		return this._templateFactory.applyTemplate(templateString, itemIds)
+	}
+	
+	/*
+	 * Create a view directly, and get a reference to the javascript object. Make sure you release it correctly!
+	 */
+	this.createView = function(viewName) {
+		var args = Array.prototype.slice.call(arguments, 1)
+		return this._viewFactory.createView(viewName, args)
 	}
 	
 	/*
@@ -143,13 +189,25 @@ fin = Singleton(function(){
 		
 		this._client.registerEventHandler('FIN_EVENT_ITEM_MUTATED', bind(this, function(mutationJSON) {
 			var mutation = JSON.parse(mutationJSON),
-				keyInfo = shared.keys.getKeyInfo(mutation.args[0])
-				channel = shared.keys.getItemPropertyChannel(keyInfo.id, keyInfo.prop)
-				subs = this._subriptionPool.get(channel)
+				itemId = mutation.id,
+				propName = mutation.prop,
+				channel = shared.keys.getItemPropertyChannel(itemId, propName)
+				subs = this._subscriptionPool.get(channel)
 			
 			for (var subId in subs) {
 				// TODO store local values and apply mutations other than just "set"
-				subs[subId](mutation, mutation.args[1])
+				subs[subId](mutation, mutation.args[0])
+			}
+		}))
+		
+		this._client.registerEventHandler('FIN_EVENT_QUERY_MUTATED', bind(this, function(mutationJSON) {
+			var mutation = JSON.parse(mutationJSON),
+				channel = mutation.id,
+				subs = this._subscriptionPool.get(channel)
+			
+			for (var subId in subs) {
+				// TODO store local values and apply mutations other than just "set"
+				subs[subId](mutation, mutation.args[0])
 			}
 		}))
 	}

@@ -84,3 +84,9 @@ exports.blockCallback = function(callback) {
 		}
 	}
 }
+
+
+exports.bytesToString = function(byteArray, offset) {
+	return byteArray.toString();
+	return String.fromCharCode.apply(String, Array.prototype.slice.call(byteArray, offset || 0))
+}

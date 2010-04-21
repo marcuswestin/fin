@@ -1,38 +1,21 @@
 TODO
 
-=== BUGS ===
-
-If a client makes a change that adds the item from an item set, then the item set publishes an add mutation twice - once locally directly, and once when the event comes in from the server
-
-
-
 === P1 ====
 
-Replace "Properties" with "Data"
+Event queue for each query. If multiple changes come in for the same item for a query, put each one on a queue. As soon as a change is processed, pick another off of the queue.
 
-Server API for creating item sets at startup - it will take quite a while to create a new item set if it's not already in memory
+Property chaining - you should be able to subscribe to task.owner.name in a template
 
-API for releasing items and item sets we no longer need!
+Overview of methods
+	create
+	query
+	subscribe (observe?)
+	mutate
+
+=== thoughts ===
 
 Lists
 	Local: uses array property. UI can change order
 	ItemSets: uses conditions to decide if items fit in or not. Client is responsible for order
 	TODO: Associate order with ItemSets
 	TODO: Publish ItemSet updates when order updates
-
-On startup, load database from file or run conditions over all items in couchDB
-
-Node throws if I try to match whitespaces in a live set, e.g. var marcusSet = fin.getItemSet({name: 'Marcus Westin' })
-
-
-=== P2 ====
-
-Property chaining depends alot on recursive calls modifying the property chain, which requires a bunch of dependancyChain.slice(0) copying of the dependancy chain array. Should use loops instead, without modifying the propertyChain
-
-Sanitize property names and values?
-
-Unsubscribe once for each subscribe call - Publisher#unsubscribe is completely unused
-
-=== P3 ====
-
-Make Class#init be called Class#_init

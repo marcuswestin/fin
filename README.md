@@ -78,7 +78,7 @@ Apply a template to multiple items
 		{ user: userItem, message: messageItem })
 
 Get a specific view of an item property
-	var view = fin.getView('Input', 'item-id', 'name')
+	var view = fin.createView('Input', 'item-id', 'name')
 	document.appendChild(view.getElement())
 
 *Under the hood* - Get an item by id
@@ -88,7 +88,7 @@ Get a specific view of an item property
 	item.addDependant('user.currentTask.date', function(value){ /* render or do something with value */ })
 
 *Under the hood* - Get a set of items, and react to items entering or leaving the set
-	var itemSet = fin.getItemSet({ type: 'bug', assigned_to: 'marcus', priority: ['>', 4] })
+	var itemSet = fin.query({ type: 'bug', assigned_to: 'marcus', priority: ['>', 4] })
 	itemSet.subscribe('Mutated', function(mutation) {
 		if (mutation.added) { console.log(mutation.added, 'was added to the set') }
 		if (mutation.removed) { console.log(mutation.removed, 'was removed from the set') }

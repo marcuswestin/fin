@@ -1,0 +1,141 @@
+<html>
+	<head>
+		<title>fin - create, query, subscribe, mutate</title>
+		<style type="text/css">
+			body { margin: 50px; padding: 0; color: #333; font-family: helvetica; }
+			.column { width: 350px; float: left; margin: 3px; }
+			.column .header, .column .output { border: 2px solid #555; padding: 5px }
+			.column .output .item { font-size: 11px; }
+			#query-column {}
+			#create-column {}
+			#results-column {}
+			.header { padding: 2px 2px 8px 2px; border-bottom: 2px solid #555; margin-bottom: 8px; }
+			button { font-family: 'courier new'; font-size: 13px; padding: 2px; }
+			input { border: 1px solid #333; padding: 1px 3px; margin: 2px 0 0;}
+		</style>
+	</head>
+	<body>
+		<h1>fin</h1>
+		<h2>never pull again</h2>
+		
+		<div style="clear: both;">
+		<div id="create-column" class="column">
+			<div id="create-header" class="header">
+				<div class="label">create items</div>
+				<button id="create-button">fin.create()</button><br />
+				<input id="create-input" value='{"type":"user"}'></input>
+			</div>
+			<div id="create-output" class="output">created items</div>
+		</div>
+		
+		<div id="results-column" class="column">
+			<div id="results-header" class="header">
+				<div class="label">subscribe to properties</div>
+				<button id="subscribe-button">fin.subscribe()</button><br />
+				item <input id="subscribe-itemId" style="width: 25px;" value="1"></input> property <input id="subscribe-property" value="title" style="width: 50px"></input>
+			</div>
+			<div id="results-output" class="output">subscribed properties</div>
+		</div>
+
+		<div id="query-column" class="column">
+			<div id="query-header" class="header">
+				<div class="label">query for items</div>
+				<button id="query-button">fin.query()</button><br />
+				<input id="query-input" value='{"type":"user"}'></input>
+			</div>
+			<div id="query-output" class="output">query results</div>
+		</div>
+		
+		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
+		<script type="text/javascript">
+
+			jsio.path.client = '../js'
+			jsio.path.shared = '../js'
+			jsio('import client.fin')
+			
+			var demo = {}
+			
+			demo.addItem = function(itemId, parentId, label, elId) {
+				var el = document.getElementById(parentId).appendChild(document.createElement('div'))
+				el.className = 'item'
+				el.innerHTML = '<span>' + label + itemId + ' </span><button>subscribe</button><input value="" style="width:80px;"></input>'
+				if (elId) { el.id = elId }
+				var button = el.childNodes[1]
+				var input = el.childNodes[2]
+				button.onclick = function() { demo.subscribeTo(itemId, input.value) }
+				input.onkeyup = function() { button.innerHTML = 'subscribe to ' + input.value }
+				input.onkeyup()
+			}
+			
+			demo.query = function(query) {
+				fin.query(query, demo.onQueryUpdate)
+			}
+
+			demo.subscribeTo = function(itemId, propName) {
+				var el = document.getElementById('results-output').appendChild(document.createElement('div'))
+				el.innerHTML = '<span>item ' + itemId + ' ' + propName + ': </span><input></input>'
+				el.className = 'item'
+				var input = el.childNodes[1]
+				fin.subscribe(itemId, propName, function(mutation, newVal) { input.value = newVal })
+				input.onkeyup = function() { fin.mutate(itemId, 'set', propName, input.value) }
+			}
+			
+			demo.onQueryUpdate = function(mutation) {
+				var itemIds = mutation.args
+				for (var i=0, itemId; itemId = itemIds[i]; i++) {
+					demo.queryHandlers[mutation.op](itemId)
+				}
+			}
+			demo.queryHandlers = {
+				sadd: function(itemId) {
+ 					demo.addItem(itemId, 'query-output', 'Item ', 'queryResult-' + itemId)
+				},
+				srem: function(itemId) {
+					var el = document.getElementById('queryResult-' + itemId)
+					el.parentNode.removeChild(el)
+				}
+			}
+			
+			fin.connect(function(){ 
+				var createButton = document.getElementById('create-button'),
+					createInput = document.getElementById('create-input'),
+					queryButton = document.getElementById('query-button'),
+					queryInput = document.getElementById('query-input'),
+					subscribeIdInput = document.getElementById('subscribe-itemId'),
+					subscribePropInput = document.getElementById('subscribe-property'),
+					subscribeButton = document.getElementById('subscribe-button')
+					
+				createButton.onclick = function() {
+					var properties = JSON.parse(createInput.value)
+					fin.create(properties, function(newItemId) { demo.addItem(newItemId, 'create-output', 'item ') })
+				}
+				
+				queryButton.onclick = function() {
+					demo.query(JSON.parse(queryInput.value))
+				}
+				
+				subscribeButton.onclick = function() {
+					var itemId = subscribeIdInput.value
+					var propName = subscribePropInput.value
+					demo.subscribeTo(itemId, propName)
+				}
+				
+				createInput.onkeyup = function() { 
+					createButton.innerHTML = 'fin.create('+createInput.value+')' 
+				}
+				queryInput.onkeyup = function() { 
+					queryButton.innerHTML = 'fin.query('+queryInput.value+')'
+				}
+				subscribeIdInput.onkeyup = function() { 
+					subscribeButton.innerHTML = 'fin.subscribe('+subscribeIdInput.value+',"'+subscribePropInput.value+'")'
+				}
+				subscribePropInput.onkeyup = subscribeIdInput.onkeyup
+				
+				createInput.onkeyup()
+				queryInput.onkeyup()
+				subscribeIdInput.onkeyup()
+			})
+		</script>
+		
+	</body>
+</html>

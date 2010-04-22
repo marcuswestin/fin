@@ -4,49 +4,51 @@
 		<style type="text/css">
 			body { margin: 50px; padding: 0; color: #333; font-family: helvetica; }
 			.column { width: 350px; float: left; margin: 3px; }
-			.column .header, .column .output { border: 2px solid #555; padding: 5px }
+			.column .output { border: 2px solid #555; padding: 5px }
 			.column .output .item { font-size: 11px; }
-			#query-column {}
-			#create-column {}
-			#results-column {}
-			.header { padding: 2px 2px 8px 2px; border-bottom: 2px solid #555; margin-bottom: 8px; }
+			.header { padding: 6px; border: 2px solid #555; margin-bottom: 8px; }
+			.header input { width: 50px; }
+			.button-holder { margin-top: 5px;}
 			button { font-family: 'courier new'; font-size: 13px; padding: 2px; }
-			input { border: 1px solid #333; padding: 1px 3px; margin: 2px 0 0;}
-			.query-container { padding: 5px 5px 5px 10px; }
-			.query-container div { font-family: 'courier new'; margin-left: -10px;; }
+			input { border: 1px solid #333; padding: 1px 3px; position: relative; bottom: 1px; text-align: center;}
+			.query-container div { margin-bottom: 2px; }
 			.query-container span { font-size: 12px; }
 		</style>
 	</head>
 	<body>
 		<h1>fin</h1>
 		<h2>never pull again</h2>
-		
 		<div style="clear: both;">
 		<div id="create-column" class="column">
+			<div class="header">API</div>
 			<div id="create-header" class="header">
-				<div class="label">create items</div>
-				<button id="create-button">fin.create()</button><br />
-				<input id="create-input" value='{"type":"user"}'></input>
+				<div class="label"><strong>create</strong> item with
+					<input id="create-prop-input" value='type'></input>
+					=
+					<input id="create-val-input" value='user'></input>
+				</div>
+				<div class="button-holder"><button id="create-button">fin.create()</button></div>
 			</div>
-			<div id="create-output" class="output">created items</div>
+			<div id="query-header" class="header">
+				<div class="label"><strong>query</strong> items with 
+					<input id="query-prop-input" value='type'></input>
+					=
+					<input id="query-val-input" value='user'></input>
+				</div>
+				<div class="button-holder"><button id="query-button">fin.query()</button></div>
+			</div>
+			<div id="results-header" class="header">
+				<div class="label"><strong>subscribe & mutate</strong>
+					item <input id="subscribe-itemId" style="width: 30px;" value="1"></input> 
+					prop <input id="subscribe-property" value="type" ></input>
+				</div>
+				<div class="button-holder"><button id="subscribe-button">fin.subscribe()</button></div>
+			</div>
 		</div>
 		
-		<div id="results-column" class="column">
-			<div id="results-header" class="header">
-				<div class="label">subscribe to properties</div>
-				<button id="subscribe-button">fin.subscribe()</button><br />
-				item <input id="subscribe-itemId" style="width: 25px;" value="1"></input> property <input id="subscribe-property" value="title" style="width: 50px"></input>
-			</div>
-			<div id="results-output" class="output">subscribed properties</div>
-		</div>
-
-		<div id="query-column" class="column">
-			<div id="query-header" class="header">
-				<div class="label">query for items</div>
-				<button id="query-button">fin.query()</button><br />
-				<input id="query-input" value='{"type":"user"}'></input>
-			</div>
-			<div id="query-output" class="output">query results</div>
+		<div id="output-column" class="column">
+			<div id="query-output" class="header">Results</div>
+			<div></div>
 		</div>
 		
 		<script type="text/javascript" src="../lib/js.io/packages/jsio.js"></script>
@@ -58,16 +60,71 @@
 			
 			var demo = {}
 			
-			demo.addItem = function(itemId, parentId, label, elId) {
-				var el = document.getElementById(parentId).appendChild(document.createElement('div'))
-				el.className = 'item'
-				el.innerHTML = '<span>' + label + itemId + ' </span><button>subscribe</button><input value="" style="width:80px;"></input>'
-				if (elId) { el.id = elId }
-				var button = el.childNodes[1]
-				var input = el.childNodes[2]
-				button.onclick = function() { demo.subscribeTo(itemId, input.value) }
-				input.onkeyup = function() { button.innerHTML = 'subscribe to ' + input.value }
-				input.onkeyup()
+			fin.connect(function(){ 
+				var createButton = document.getElementById('create-button'),
+					createPropInput = document.getElementById('create-prop-input'),
+					createValInput = document.getElementById('create-val-input'),
+					queryButton = document.getElementById('query-button'),
+					queryPropInput = document.getElementById('query-prop-input'),
+					queryValInput = document.getElementById('query-val-input'),
+					subscribeIdInput = document.getElementById('subscribe-itemId'),
+					subscribePropInput = document.getElementById('subscribe-property'),
+					subscribeButton = document.getElementById('subscribe-button')
+					
+				createButton.onclick = function() {
+					var properties = {},
+						propName = createPropInput.value,
+						propVal = createValInput.value
+						
+					properties[propName] = propVal
+					fin.create(properties, function(newItemId) {
+						var el = demo.createOutput()
+						function update(newVal) { el.innerHTML = '<strong>created</strong> item ' + newItemId}
+						update(propVal)
+						// fin.subscribe(newItemId, propName, function(mutation) { update(mutation.args[0]) })
+					})
+				}
+				
+				queryButton.onclick = function() {
+					var query = {},
+						propName = queryPropInput.value,
+						propVal = queryValInput.value
+					
+					query[propName] = propVal
+					demo.query(query)
+				}
+				
+				subscribeButton.onclick = function() {
+					var itemId = subscribeIdInput.value
+					var propName = subscribePropInput.value
+					demo.subscribeTo(itemId, propName)
+				}
+				
+				createPropInput.onkeyup = function() { 
+					createButton.innerHTML = 'fin.create({"'+createPropInput.value+'":"'+createValInput.value+'")' 
+				}
+				createValInput.onkeyup = createPropInput.onkeyup
+				
+				queryPropInput.onkeyup = function() { 
+					queryButton.innerHTML = 'fin.query({"'+queryPropInput.value+'":"'+queryValInput.value+'")'
+				}
+				queryValInput.onkeyup = queryPropInput.onkeyup
+				
+				subscribeIdInput.onkeyup = function() { 
+					subscribeButton.innerHTML = 'fin.subscribe('+subscribeIdInput.value+',"'+subscribePropInput.value+'")'
+				}
+				subscribePropInput.onkeyup = subscribeIdInput.onkeyup
+				
+				createValInput.onkeyup()
+				queryPropInput.onkeyup()
+				subscribeIdInput.onkeyup()
+			})
+			
+			demo.createOutput = function() {
+				var parent = document.getElementById('output-column')
+				var el = parent.insertBefore(document.createElement('div'), parent.childNodes[2])
+				el.className = 'header'
+				return el
 			}
 			
 			demo.query = function(query) {
@@ -77,17 +134,17 @@
 				if (document.getElementById(domId)) { return }
 				fin.query(query, function(mutation) { demo.onQueryUpdate(query, mutation) })
 				
-				var queryOutput = document.getElementById('query-output').appendChild(document.createElement('div'))
+				var queryOutput = demo.createOutput()
 				queryOutput.id = domId
-				queryOutput.className = 'query-container'
-				queryOutput.innerHTML = '<div>' + queryJSON + '</div>'
+				queryOutput.className += ' query-container'
+				queryOutput.innerHTML = '<div><strong>queried</strong> for items with ' + queryJSON + '</div>'
 			}
 
 			demo.subscribeTo = function(itemId, propName) {
-				var el = document.getElementById('results-output').appendChild(document.createElement('div'))
-				el.innerHTML = '<span>item ' + itemId + ' ' + propName + ': </span><input></input>'
-				el.className = 'item'
-				var input = el.childNodes[1]
+				var el = demo.createOutput()
+				el.innerHTML = '<strong>subscribed</strong> to item ' + itemId + ' ' + propName + ' = <input style="width: 100px;"></input>'
+				el.className += ' item'
+				var input = el.getElementsByTagName('input')[0]
 				fin.subscribe(itemId, propName, function(mutation, newVal) { input.value = newVal })
 				input.onkeyup = function() { fin.mutate(itemId, 'set', propName, input.value) }
 			}
@@ -114,45 +171,6 @@
 				}
 			}
 			
-			fin.connect(function(){ 
-				var createButton = document.getElementById('create-button'),
-					createInput = document.getElementById('create-input'),
-					queryButton = document.getElementById('query-button'),
-					queryInput = document.getElementById('query-input'),
-					subscribeIdInput = document.getElementById('subscribe-itemId'),
-					subscribePropInput = document.getElementById('subscribe-property'),
-					subscribeButton = document.getElementById('subscribe-button')
-					
-				createButton.onclick = function() {
-					var properties = JSON.parse(createInput.value)
-					fin.create(properties, function(newItemId) { demo.addItem(newItemId, 'create-output', 'item ') })
-				}
-				
-				queryButton.onclick = function() {
-					demo.query(JSON.parse(queryInput.value))
-				}
-				
-				subscribeButton.onclick = function() {
-					var itemId = subscribeIdInput.value
-					var propName = subscribePropInput.value
-					demo.subscribeTo(itemId, propName)
-				}
-				
-				createInput.onkeyup = function() { 
-					createButton.innerHTML = 'fin.create('+createInput.value+')' 
-				}
-				queryInput.onkeyup = function() { 
-					queryButton.innerHTML = 'fin.query('+queryInput.value+')'
-				}
-				subscribeIdInput.onkeyup = function() { 
-					subscribeButton.innerHTML = 'fin.subscribe('+subscribeIdInput.value+',"'+subscribePropInput.value+'")'
-				}
-				subscribePropInput.onkeyup = subscribeIdInput.onkeyup
-				
-				createInput.onkeyup()
-				queryInput.onkeyup()
-				subscribeIdInput.onkeyup()
-			})
 		</script>
 		
 	</body>

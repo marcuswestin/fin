@@ -71,11 +71,14 @@
 			}
 			
 			demo.query = function(query) {
-				fin.query(query, function(mutation) { demo.onQueryUpdate(query, mutation) })
-				var queryOutput = document.getElementById('query-output').appendChild(document.createElement('div')),
-					queryJSON = JSON.stringify(query)
+				var queryJSON = JSON.stringify(query),
+					domId = 'queryId-' + queryJSON
 					
-				queryOutput.id = 'queryId-' + queryJSON
+				if (document.getElementById(domId)) { return }
+				fin.query(query, function(mutation) { demo.onQueryUpdate(query, mutation) })
+				
+				var queryOutput = document.getElementById('query-output').appendChild(document.createElement('div'))
+				queryOutput.id = domId
 				queryOutput.className = 'query-container'
 				queryOutput.innerHTML = '<div>' + queryJSON + '</div>'
 			}

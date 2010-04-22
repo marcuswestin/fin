@@ -2,6 +2,8 @@ TODO
 
 === P1 ====
 
+Local publish of mutations, since a connection won't receive a network event for mutations it created
+
 Event queue for each query. If multiple changes come in for the same item for a query, put each one on a queue. As soon as a change is processed, pick another off of the queue.
 
 Property chaining - you should be able to subscribe to task.owner.name in a template

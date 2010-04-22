@@ -71,7 +71,7 @@ exports.createBlockedCallback = function(callback) {
 	
 	function removeBlock(err) { 
 		if (err) { throw err }
-		if (--blocks == 0) callback()
+		setTimeout(function() { if (--blocks == 0) callback() })
 	}
 	
 	return {

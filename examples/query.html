@@ -12,6 +12,9 @@
 			.header { padding: 2px 2px 8px 2px; border-bottom: 2px solid #555; margin-bottom: 8px; }
 			button { font-family: 'courier new'; font-size: 13px; padding: 2px; }
 			input { border: 1px solid #333; padding: 1px 3px; margin: 2px 0 0;}
+			.query-container { padding: 5px 5px 5px 10px; }
+			.query-container div { font-family: 'courier new'; margin-left: -10px;; }
+			.query-container span { font-size: 12px; }
 		</style>
 	</head>
 	<body>
@@ -68,7 +71,13 @@
 			}
 			
 			demo.query = function(query) {
-				fin.query(query, demo.onQueryUpdate)
+				fin.query(query, function(mutation) { demo.onQueryUpdate(query, mutation) })
+				var queryOutput = document.getElementById('query-output').appendChild(document.createElement('div')),
+					queryJSON = JSON.stringify(query)
+					
+				queryOutput.id = 'queryId-' + queryJSON
+				queryOutput.className = 'query-container'
+				queryOutput.innerHTML = '<div>' + queryJSON + '</div>'
 			}
 
 			demo.subscribeTo = function(itemId, propName) {
@@ -80,18 +89,24 @@
 				input.onkeyup = function() { fin.mutate(itemId, 'set', propName, input.value) }
 			}
 			
-			demo.onQueryUpdate = function(mutation) {
-				var itemIds = mutation.args
+			demo.onQueryUpdate = function(query, mutation) {
+				var itemIds = mutation.args,
+					queryJSON = JSON.stringify(query)
+				
 				for (var i=0, itemId; itemId = itemIds[i]; i++) {
-					demo.queryHandlers[mutation.op](itemId)
+					demo.queryHandlers[mutation.op](queryJSON, itemId)
 				}
 			}
 			demo.queryHandlers = {
-				sadd: function(itemId) {
- 					demo.addItem(itemId, 'query-output', 'Item ', 'queryResult-' + itemId)
+				sadd: function(queryJSON, itemId) {
+					var queryDomId = 'queryId-' + queryJSON
+					var parent = document.getElementById(queryDomId)
+					var el = parent.appendChild(document.createElement('span'))
+					el.id = 'queryResult-' + queryJSON + '-' + itemId
+					el.innerHTML = itemId + ', '
 				},
-				srem: function(itemId) {
-					var el = document.getElementById('queryResult-' + itemId)
+				srem: function(queryJSON, itemId) {
+					var el = document.getElementById('queryResult-' + queryJSON + '-' + itemId)
 					el.parentNode.removeChild(el)
 				}
 			}

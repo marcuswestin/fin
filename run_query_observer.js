@@ -15,28 +15,12 @@ jsio.path.server = './js'
 var redis = require('./lib/redis-node-client/lib/redis-client')
 var sys = require('sys')
 
-jsio('from shared.javascript import bind, createBlockedCallback, bytesToString')
-jsio('import shared.keys')
+jsio('from shared.javascript import bind')
 jsio('import shared.query')
 
-var subscribeClient = redis.createClient(),
-	commandClient = redis.createClient(),
-	blockedReadyCallback = createBlockedCallback(onClientsReady)
+shared.query.init(redis)
 
-subscribeClient.stream.setTimeout(0)
-commandClient.stream.setTimeout(0)
-shared.query.setRedisClients(subscribeClient, commandClient)
-
-subscribeClient.stream.addListener('connect', blockedReadyCallback.addBlock())
-commandClient.stream.addListener('connect', blockedReadyCallback.addBlock())
-
-function onClientsReady() {
-	subscribeClient.subscribeTo(shared.keys.queryRequestChannel, function(channel, queryJSONBytes) {
-		shared.query.monitorQuery(bytesToString(queryJSONBytes))
-	})
-}
-
-process.addListener('exit', shared.query.releaseQueries)
+process.addListener('exit', shared.query.release)
 process.addListener('uncaughtException', function(e) {
 	sys.puts("ERROR: uncaught exception", JSON.stringify(e))
 	process.exit()

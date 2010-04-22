@@ -48,35 +48,57 @@ _Query = Class(function() {
 		this._query = JSON.parse(queryJSON)
 		this._lockKey = lockKey
 		
-		for (var property in this._query) {
-			var propChannel = shared.keys.getPropertyChannel(property)
+		for (var propName in this._query) {
+			var propChannel = shared.keys.getPropertyChannel(propName),
+				propKeyPattern = shared.keys.getPropertyKeyPattern(propName)
+
 			_redisSubscribeClient.subscribeTo(propChannel, bind(this, '_onItemPropertyChange'))
+
+			logger.warn('About to process all the keys matching property', propName, 'This can get really really expensive!');
+			_redisCommandClient.keys(propKeyPattern, bind(this, function(err, keysBytes) {
+				if (err) { throw logger.error('Could not retrieve keys for processing', propKeyPattern, err) }
+				if (!keysBytes) { return }
+				this._processKeys(propName, keysBytes.toString().split(','))
+			}))
+		}
+	}
+	
+	this._processKeys = function(propName, itemPropKeys) {
+		for (var i=0, itemPropKey; itemPropKey = itemPropKeys[i]; i++) {
+			var itemId = shared.keys.getKeyInfo(itemPropKey).id
+			
+			this._processItemProperty(itemId, propName, itemPropKey)
 		}
 	}
 	
 	this._onItemPropertyChange = function(channel, mutationBytes) {
 		var mutationInfo = shared.mutations.parseMutationBytes(mutationBytes),
-			mutation = JSON.parse(mutationInfo.json)
-
-		var itemId = mutation.id,
-			propertyName = mutation.prop,
-			itemPropKey = shared.keys.getItemPropertyKey(itemId, propertyName),
+			mutation = JSON.parse(mutationInfo.json),
+			itemId = mutation.id,
+			propName = mutation.prop,
+			itemPropKey = shared.keys.getItemPropertyKey(itemId, propName),
 			queryKey = this._queryKey
+
+		this._processItemProperty(itemId, propName, itemPropKey)
+	}
+		
+	this._processItemProperty = function(itemId, propName, itemPropKey) {
+		var queryKey = this._queryKey
 		
 		_redisCommandClient.get(itemPropKey, bind(this, function(err, valueBytes) {
 			if (err) { throw logger.error('Could not retrieve value of item for query', itemPropKey, queryKey, err) }
 			var value = bytesToString(valueBytes),
-				propCondition = this._query[propertyName],
+				propCondition = this._query[propName],
 				isLiteral = (typeof propCondition == 'string'),
 				compareOperator = isLiteral ? '=' : propCondition[0],
 				compareValue = isLiteral ? propCondition : propCondition[1],
 				shouldBeInSet = null
-				
+
 			shouldBeInSet = (compareOperator == '=') ? (value == compareValue)
 						: (compareOperator == '<') ? (value < compareValue)
 						: (compareOperator == '>') ? (value > compareValue)
-						: logger.error('Unknown compare operator', compareOperator, queryKey, this._query, propertyName)
-			
+						: logger.error('Unknown compare operator', compareOperator, queryKey, this._query, propName)
+
 			var redisOp = shouldBeInSet ? 'sadd' : 'srem'
 			_redisCommandClient[redisOp](queryKey, itemId, bind(this, function(err, opChangedSet) {
 				if (err) { throw logger.error('Could not modify query set', redisOp, queryKey, err) }
@@ -91,112 +113,3 @@ _Query = Class(function() {
 		}))
 	}
 })
-
-// Warning - HELLA expensive with large database
-// exports.buildFromScratch = function(query) {
-// 	var propertyChannelPattern = Data.getPropertyChannel('')
-// 	
-// 	// if we're clustering redis, the callback could be called multiple times, once for ezach redis instance
-// 	Data.getAllKeys(propertyChannelPattern, function(itemKeys) {
-// 		for (var i=0, itemKey; itemKey=itemKeys[i]; i++) {
-// 			Data.getProperties(itemKey, function(itemProperties) {
-// 				exports.applyQuery(query, itemProperties)
-// 			})
-// 		}
-// 	})
-// }
-
-// exports.applyQuery = function(query, item, changedProperty) {
-// 	var itemId = properties._id,
-// 		shouldBeInSet = true
-// 	if (changedProperty) {
-// 		shouldBeInSet = filterProperty(properties[changedProperty], query[changedProperty])
-// 	} else {
-// 		for (var name in properties) {
-// 			if (filterProperty(properties[name], query[name])) { continue }
-// 			shouldBeInSet = false
-// 			break
-// 		}
-// 	}
-// 	
-// 	if (shouldBeInSet) {
-// 		Data.sadd(properties._id, function(err, wasInSet) {
-// 			if (!wasInSet) {
-// 				Data.publish(Data.getQueryChannel(query), )
-// 			}
-// 		})
-// 	}
-// 	
-// 	this._store.isInSet(this._id, itemId, bind(this, function(err, isInSet) {
-// 		if (err) { throw err }
-// 
-// 		if (isInSet == this._shouldBeInSet(data)) {
-// 			if (isInSet && changedProperty) { // Item was in and stayed in set, but reduce property may have changed
-// 				this._updateReductions(changedProperty, oldValue, data[changedProperty])
-// 			}
-// 		} else if (isInSet) {
-// 			this._removeFromSet(itemId)
-// 			for (var property in data) {
-// 				this._updateReductions(property, data[property], undefined)
-// 			}
-// 		} else {
-// 			this._addToSet(itemId)
-// 			for (var property in data) {
-// 				this._updateReductions(property, undefined, data[property])
-// 			}
-// 		}
-// 	}))
-// 	
-// }
-
-
-
-
-
-// An item updated locally - happens both on client and server side 
-// this.handleItemUpdate = function(data, changedProperty, oldValue) {
-// 	var itemId = data._id
-// 	// TODO The changed property may have been a reduce. We should only test the condition who's property just changed
-// 	// TODO We can do a remove/add to the redis set, and be told afterwards if it was already in the set or not. If it was already in the set, then don't publish
-// 	this._store.isInSet(this._id, itemId, bind(this, function(err, isInSet) {
-// 		if (err) { throw err }
-// 
-// 		if (isInSet == this._shouldBeInSet(data)) {
-// 			if (isInSet && changedProperty) { // Item was in and stayed in set, but reduce property may have changed
-// 				this._updateReductions(changedProperty, oldValue, data[changedProperty])
-// 			}
-// 		} else if (isInSet) {
-// 			this._removeFromSet(itemId)
-// 			for (var property in data) {
-// 				this._updateReductions(property, data[property], undefined)
-// 			}
-// 		} else {
-// 			this._addToSet(itemId)
-// 			for (var property in data) {
-// 				this._updateReductions(property, undefined, data[property])
-// 			}
-// 		}
-// 	}))
-// }
-// 
-// // An item was removed locally - happens both client and server side
-// this._removeFromSet = function(itemId) {
-// 	this._store.removeFromSet(this._id, itemId, bind(this, function(err, position) {
-// 		if (err) { throw err }
-// 		var mutation = { _id: this._id, remove: itemId }
-// 		this._publish('Mutated', mutation)
-// 		// TODO Maybe there should only be dependants, and no publications
-// 		this._queueMutation(mutation)
-// 	}))
-// }
-// 
-// // An item was added locally - happens both client and server side
-// this._addToSet = function(itemId) {
-// 	this._store.addToSet(this._id, itemId, bind(this, function(err, position) {
-// 		if (err) { throw err }
-// 		var mutation = { _id: this._id, add: itemId }
-// 		this._publish('Mutated', mutation)
-// 		// TODO Maybe there should only be dependants, and no publications
-// 		this._queueMutation(mutation)
-// 	}))
-// }

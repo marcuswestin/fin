@@ -13,6 +13,10 @@ exports.queryRequestChannel = '__fin_query_request_monitor'
 // channel names for queries are		#Q<queryJSON>			e.g. #Q{\"type\":\"task\"}
 // channel names for properties are		#P<propName>			e.g. #Pbooks
 
+exports.getPropertyKeyPattern = function(propName) {
+	return 'I*@' + propName
+}
+
 // Data state keys
 exports.getItemPropertyKey = function(itemId, propName) {
 	if (!itemId || !propName) { throw "itemId and propName are required for shared.keys.getItemPropertyKey" }

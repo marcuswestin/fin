@@ -66,9 +66,9 @@ exports.isArray = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Array]'
 }
 
-exports.blockCallback = function(callback) {
+exports.createBlockedCallback = function(callback) {
 	var blocks = 0
-
+	
 	function removeBlock(err) { 
 		if (err) { throw err }
 		if (--blocks == 0) callback()

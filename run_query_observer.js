@@ -15,13 +15,13 @@ jsio.path.server = './js'
 var redis = require('./lib/redis-node-client/lib/redis-client')
 var sys = require('sys')
 
-jsio('from shared.javascript import bind, blockCallback, bytesToString')
+jsio('from shared.javascript import bind, createBlockedCallback, bytesToString')
 jsio('import shared.keys')
 jsio('import shared.query')
 
 var subscribeClient = redis.createClient(),
 	commandClient = redis.createClient(),
-	blockedReadyCallback = blockCallback(onClientsReady)
+	blockedReadyCallback = createBlockedCallback(onClientsReady)
 
 subscribeClient.stream.setTimeout(0)
 commandClient.stream.setTimeout(0)

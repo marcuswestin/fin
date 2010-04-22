@@ -73,7 +73,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		}))
 		
 		this.handleRequest('FIN_REQUEST_CREATE_ITEM', bind(this, function(request) {
-			this.server.createItem(request.data, bind(this, function(itemData) {
+			this.server.createItem(request.data, this, bind(this, function(itemData) {
 				var response = { _requestId: request._requestId, data: itemData }
 				this.sendFrame('FIN_RESPONSE', response)
 			}))

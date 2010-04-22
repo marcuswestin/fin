@@ -1,4 +1,4 @@
-jsio('from shared.javascript import Class, map, bind, blockCallback')
+jsio('from shared.javascript import Class, map, bind, createBlockedCallback')
 jsio('from net.interfaces import Server')
 jsio('import shared.keys')
 
@@ -50,21 +50,23 @@ exports = Class(Server, function(supr) {
 		}))
 	}
 	
-	this.createItem = function(itemData, callback) {
+	this.createItem = function(itemData, origConnection, callback) {
 		this._redisClient.incr(shared.keys.uniqueIdKey, bind(this, function(err, newItemId) {
-			var blockedCallback = blockCallback(bind(this, callback, newItemId))
+			if (err) { throw logger.error('Could not increment unique item id counter', err) }
+			var blockedCallback = createBlockedCallback(bind(this, callback, newItemId))
 			
 			for (var property in itemData) {
-				var releaseBlockFn = blockedCallback.addBlock(),
-					itemPropKey = shared.keys.getItemPropertyKey(newItemId, property)
+				var value = itemData[property],
+					mutation = { id: newItemId, prop: property, op: 'set', args: [value] },
+					callbackBlockFn = blockedCallback.addBlock()
 				
-				this._redisClient.set(itemPropKey, itemData[property], releaseBlockFn)
+				this.mutateItem(mutation, origConnection, callbackBlockFn)
 			}
 			blockedCallback.tryNow() // in case there was no itemData and no blocks were added
 		}))
 	}
 	
-	this.mutateItem = function(mutation, originConnection) {
+	this.mutateItem = function(mutation, originConnection, callback) {
 		var itemId = mutation.id,
 			propName = mutation.prop,
 			operation = mutation.op,
@@ -76,6 +78,7 @@ exports = Class(Server, function(supr) {
 			mutationBytes = connId.length + connId + JSON.stringify(mutation)
 		
 		logger.log('Apply mutation', operation, args)
+		if (callback) { args.push(callback) }
 		this._redisClient[operation].apply(this._redisClient, args)
 		
 		logger.log('Publish channels', itemChannel, propertyChannel, mutation)

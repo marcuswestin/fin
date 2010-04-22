@@ -18,6 +18,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	
 	this.connectionLost = function() {
 		this._log('connection lost - closing redis client')
+		// TODO do we need to unsubscribe from redis channels?
 		this._redisClient.close()
 	}
 	

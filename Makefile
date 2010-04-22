@@ -2,14 +2,14 @@
 ### Commands ###
 ################
 
-.PHONY deps
+.PHONY: deps
 deps: lib/js.io lib/redis-node-client
 
-.PHONY run
+.PHONY: run
 run:
 	cd js/server; node run_server.js
 
-.PHONY clean
+.PHONY: clean
 clean:
 	rm -rf lib/*
 	touch lib/empty.txt

@@ -146,7 +146,7 @@
 				el.className += ' item'
 				var input = el.getElementsByTagName('input')[0]
 				fin.subscribe(itemId, propName, function(mutation, newVal) { input.value = newVal })
-				input.onkeyup = function() { fin.mutate(itemId, 'set', propName, input.value) }
+				input.onkeyup = function() { fin.set(itemId, propName, input.value) }
 			}
 			
 			demo.onQueryUpdate = function(query, mutation) {

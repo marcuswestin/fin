@@ -1,4 +1,4 @@
-jsio('from shared.javascript import Class, bind, bytesToString, createBlockedCallback')
+jsio('from shared.javascript import Class, bind, bytesToString, blockCallback')
 jsio('import shared.keys')
 jsio('import shared.mutations')
 
@@ -63,7 +63,7 @@ _Query = Class(function() {
 		this._redisSubClient.stream.setTimeout(0)
 		this._redisCommandClient.stream.setTimeout(0)
 		
-		var redisReadyCallback = createBlockedCallback(bind(this, '_onRedisReady'))
+		var redisReadyCallback = blockCallback(bind(this, '_onRedisReady'))
 		
 		this._redisSubClient.stream.addListener('connect', redisReadyCallback.addBlock())
 		this._redisCommandClient.stream.addListener('connect', redisReadyCallback.addBlock())
@@ -74,7 +74,7 @@ _Query = Class(function() {
 			var propChannel = shared.keys.getPropertyChannel(propName),
 				propKeyPattern = shared.keys.getPropertyKeyPattern(propName)
 
-			this._redisSubClient.subscribeTo(propChannel, bind(this, '_onItemPropertyChange'))
+			this._redisSubClient.subscribeTo(propChannel, bind(this, '_onMutation'))
 
 			logger.warn('About to process all the keys matching property', propName, 'This can get really really expensive!');
 			this._redisCommandClient.keys(propKeyPattern, bind(this, function(err, keysBytes) {
@@ -93,15 +93,20 @@ _Query = Class(function() {
 		}
 	}
 	
-	this._onItemPropertyChange = function(channel, mutationBytes) {
+	this._onMutation = function(channel, mutationBytes) {
 		var mutationInfo = shared.mutations.parseMutationBytes(mutationBytes),
 			mutation = JSON.parse(mutationInfo.json),
 			itemId = mutation.id,
-			propName = mutation.prop,
-			itemPropKey = shared.keys.getItemPropertyKey(itemId, propName),
-			queryKey = this._queryKey
-
-		this._processItemProperty(itemId, propName, itemPropKey)
+			properties = mutation.props
+		
+		// TODO This could be done better and correctly by processing all the properties 
+		//	in an mset command at once, rather than handling the sets independently.
+		//	Also, we have the values of the props in the mutation object - no need
+		//	to get them from the DB
+		for (var i=0, propName; propName = properties[i]; i++) {
+			var itemPropKey = shared.keys.getItemPropertyKey(itemId, propName)
+			this._processItemProperty(itemId, propName, itemPropKey)
+		}
 	}
 		
 	this._processItemProperty = function(itemId, propName, itemPropKey) {
@@ -115,7 +120,7 @@ _Query = Class(function() {
 				compareOperator = isLiteral ? '=' : propCondition[0],
 				compareValue = isLiteral ? propCondition : propCondition[1],
 				shouldBeInSet = null
-
+			
 			shouldBeInSet = (compareOperator == '=') ? (value == compareValue)
 						: (compareOperator == '<') ? (value < compareValue)
 						: (compareOperator == '>') ? (value > compareValue)

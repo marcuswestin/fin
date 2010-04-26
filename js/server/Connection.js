@@ -42,16 +42,16 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 				propName = args.prop,
 				channel = shared.keys.getItemPropertyChannel(itemId, propName)
 			
+			logger.log("Subcribe to item channel", channel)
 			this._redisClient.subscribeTo(channel, this._itemChannelHandler)
-			// fake an item mutation event
+			// fake an item mutation event. If we did subs against multiple props then their values could all go in a single fake mset mutation
 			this.server.getItemProperty(itemId, propName, bind(this, function(value, key) {
-				var mutation = { op: 'set', id: itemId, prop: propName, args: [value] }
+				var mutation = { op: 'mset', id: itemId, props: [propName], args: [key, value] }
 				
-				logger.log("Retrieved data", key, value)
 				this.sendFrame('FIN_EVENT_ITEM_MUTATED', JSON.stringify(mutation))
 			}))
 		}))
-
+		
 		this.handleRequest('FIN_REQUEST_UNSUBSCRIBE', bind(this, function(channel) {
 			this._redisClient.unsubscribeFrom(channel)
 		}))

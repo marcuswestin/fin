@@ -127,14 +127,29 @@ fin = Singleton(function(){
 	/*
 	 * Mutate a fin item with the given operation
 	 */
-	this.mutate = function(itemId, operation, propName) {
-		var operationArgs = Array.prototype.slice.call(arguments, 3)
+	this.set = function(itemId, properties) {
+		var args = [],
+			props = []
+		
+		if (arguments.length == 3) {
+			var propName = properties
+			properties = {}
+			properties[propName] = arguments[2]
+		}
+		
+		for (var propName in properties) {
+			var key = shared.keys.getItemPropertyKey(itemId, propName)
+			
+			props.push(propName)
+			args.push(key)
+			args.push(properties[propName])
+		}
 		
 		this.send('FIN_REQUEST_MUTATE_ITEM', {
 			id: itemId,
-			prop: propName,
-			op: operation,
-			args: operationArgs
+			op: 'mset',
+			props: props,
+			args: args
 		})
 	}
 	
@@ -190,14 +205,16 @@ fin = Singleton(function(){
 		
 		this._client.registerEventHandler('FIN_EVENT_ITEM_MUTATED', bind(this, function(mutationJSON) {
 			var mutation = JSON.parse(mutationJSON),
-				itemId = mutation.id,
-				propName = mutation.prop,
-				channel = shared.keys.getItemPropertyChannel(itemId, propName)
-				subs = this._subscriptionPool.get(channel)
+				itemId = mutation.id
 			
-			for (var subId in subs) {
-				// TODO store local values and apply mutations other than just "set"
-				subs[subId](mutation, mutation.args[0])
+			for (var i=0, propName; propName = mutation.props[i]; i++) {
+				var channel = shared.keys.getItemPropertyChannel(itemId, propName)
+					subs = this._subscriptionPool.get(channel)
+				
+				for (var subId in subs) {
+					// TODO store local values and apply mutations other than just "set"
+					subs[subId](mutation, mutation.args[i * 2 + 1])
+				}
 			}
 		}))
 		

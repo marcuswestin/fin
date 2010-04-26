@@ -1,4 +1,4 @@
-jsio('from shared.javascript import Class, map, bind, createBlockedCallback')
+jsio('from shared.javascript import Class, map, bind')
 jsio('from net.interfaces import Server')
 jsio('import shared.keys')
 
@@ -41,7 +41,8 @@ exports = Class(Server, function(supr) {
 		this._redisClient.get(lockKey, bind(this, function(err, queryIsHeld) {
 			if (err) { throw logger.error('could not check for query lock', lockKey, err) }
 			if (queryIsHeld) { return }
-			// publish a request for a query observer to start monitoring this query
+
+			logger.log('Publish request for query observer to monitor this query', queryJSON)
 			this._redisClient.publish(shared.keys.queryRequestChannel, queryJSON)
 		}))
 		this._redisClient.smembers(queryKey, bind(this, function(err, members) {
@@ -50,40 +51,58 @@ exports = Class(Server, function(supr) {
 		}))
 	}
 	
-	this.createItem = function(itemData, origConnection, callback) {
+	this.createItem = function(itemProperties, origConnection, callback) {
 		this._redisClient.incr(shared.keys.uniqueIdKey, bind(this, function(err, newItemId) {
 			if (err) { throw logger.error('Could not increment unique item id counter', err) }
-			var blockedCallback = createBlockedCallback(bind(this, callback, newItemId))
-			
-			for (var property in itemData) {
-				var value = itemData[property],
-					mutation = { id: newItemId, prop: property, op: 'set', args: [value] },
-					callbackBlockFn = blockedCallback.addBlock()
-				
-				this.mutateItem(mutation, origConnection, callbackBlockFn)
+			var mutation = { id: newItemId, op: 'mset', props: [], args: [] },
+				itemPropsEmpty = true
+
+			for (var propName in itemProperties) {
+				itemPropsEmpty = false
+				mutation.args.push(shared.keys.getItemPropertyKey(newItemId, propName))
+				mutation.args.push(itemProperties[propName])
+				mutation.props.push(propName)
 			}
-			blockedCallback.tryNow() // in case there was no itemData and no blocks were added
+			if (itemPropsEmpty) {
+				callback(newItemId)
+			} else {
+				this.mutateItem(mutation, origConnection, bind(this, callback, newItemId))
+			}
 		}))
 	}
 	
 	this.mutateItem = function(mutation, originConnection, callback) {
 		var itemId = mutation.id,
-			propName = mutation.prop,
 			operation = mutation.op,
-			key = shared.keys.getItemPropertyKey(itemId, propName),
-			args = [key].concat(mutation.args),
-			itemChannel = shared.keys.getItemPropertyChannel(itemId, propName),
-			propertyChannel = shared.keys.getPropertyChannel(propName),
 			connId = originConnection.getId(),
-			mutationBytes = connId.length + connId + JSON.stringify(mutation)
+			properties = mutation.props,
+			mutationBytes = connId.length + connId + JSON.stringify(mutation),
+			channels = [],
+			args = mutation.args
+			
+		switch(operation) {
+			case 'mset':
+				for (var i=0, propName; propName = properties[i]; i++) {
+					channels.push(shared.keys.getItemPropertyChannel(itemId, propName))
+					channels.push(shared.keys.getPropertyChannel(propName))
+				}
+				break;
+			default:
+				throw logger.error("Unkown operation "+ operation)
+		}
 		
 		logger.log('Apply mutation', operation, args)
 		if (callback) { args.push(callback) }
 		this._redisClient[operation].apply(this._redisClient, args)
 		
-		logger.log('Publish channels', itemChannel, propertyChannel, mutation)
-		this._redisClient.publish(itemChannel, mutationBytes)
-		this._redisClient.publish(propertyChannel, mutationBytes)
+		// TODO clients should subscribe against pattern channels, 
+		//	e.g. for item props *:1@type:* and for prop channels *:#type:*
+		//	mutations then come with a single publication channel, 
+		//	e.g. :1@type:#type: for a mutation that changes the type of item 1
+		logger.log('Publish channels', channels, mutation)
+		for (var i=0, channel; channel = channels[i]; i++) {
+			this._redisClient.publish(channel, mutationBytes)
+		}
 	}
 })
 

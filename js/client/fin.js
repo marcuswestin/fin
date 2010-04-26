@@ -33,6 +33,7 @@ fin = Singleton(function(){
 	 * and get notified of the new item id when it's been created
 	 */
 	this.create = function(data, callback) {
+		if (typeof callback != 'function') { throw logger.error('Second argument to fin.create should be a callback') }
 		this.requestResponse('FIN_REQUEST_CREATE_ITEM', { data: data }, callback)
 	}
 	

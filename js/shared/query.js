@@ -104,6 +104,7 @@ _Query = Class(function() {
 		//	Also, we have the values of the props in the mutation object - no need
 		//	to get them from the DB
 		for (var i=0, propName; propName = properties[i]; i++) {
+			if (!(propName in this._query)) { continue; }
 			var itemPropKey = shared.keys.getItemPropertyKey(itemId, propName)
 			this._processItemProperty(itemId, propName, itemPropKey)
 		}

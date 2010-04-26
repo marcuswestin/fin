@@ -1,6 +1,6 @@
 jsio('from shared.javascript import Singleton, bind')
 
-jsio('import shared.SubscriptionPool')
+jsio('import shared.Pool')
 jsio('import shared.keys')
 
 jsio('import client.Client')
@@ -67,7 +67,7 @@ fin = Singleton(function(){
 	 * Subscribe to an item property, and get notified any time it changes
 	 */
 	this._subIdToChannel = {}
-	this._subscriptionPool = new shared.SubscriptionPool()
+	this._subscriptionPool = new shared.Pool()
 	this.subscribe = function(itemId, propName, callback) {
 		if (!itemId || !propName || !callback) { logger.error("subscribe requires three arguments", itemId, propName, callback); }
 		
@@ -76,6 +76,8 @@ fin = Singleton(function(){
 		
 		if (this._subscriptionPool.count(channel) == 1) {
 			this.send('FIN_REQUEST_SUBSCRIBE', { id: itemId, prop: propName })
+		} else if (this._itemMutationCache[channel]) {
+			setTimeout(bind(this, '_handleItemMutation', this._itemMutationCache[channel]))
 		}
 		
 		this._subIdToChannel[subId] = channel
@@ -95,6 +97,8 @@ fin = Singleton(function(){
 
 		if (this._subscriptionPool.count(queryChannel) == 1) {
 			this.send('FIN_REQUEST_QUERY', queryJSON)
+		} else if (this._queryMutationCache[queryChannel]) {
+			setTimeout(bind(this, '_handleQueryMutation', this._queryMutationCache[queryChannel], true))
 		}
 		
 		return subId
@@ -190,6 +194,49 @@ fin = Singleton(function(){
 		callback(response)
 	}
 	
+	this._itemMutationCache = {}
+	this._handleItemMutation = function(mutation) {
+		for (var i=0, propName; propName = mutation.props[i]; i++) {
+			var channel = shared.keys.getItemPropertyChannel(mutation.id, propName)
+				subs = this._subscriptionPool.get(channel)
+			
+			for (var subId in subs) {
+				if (subs[subId]) { subs[subId](mutation, mutation.args[i * 2 + 1]) }
+			}
+			this._itemMutationCache[channel] = mutation
+		}
+	}
+	
+	this._queryMutationCache = {}
+	this._handleQueryMutation = function(mutation, dontCache) {
+		var channel = mutation.id,
+			subs = this._subscriptionPool.get(channel)
+		
+		if (!dontCache) {
+			if (mutation.op == 'sadd') {
+				if (!this._queryMutationCache[channel]) { 
+					this._queryMutationCache[channel] = mutation
+				} else {
+					var args = this._queryMutationCache[channel].args
+					for (var i=0, itemId; itemId = mutation.args[i]; i++) {
+						if (args.indexOf(itemId) == -1) { continue }
+						args.push(itemId)
+					}
+				}
+			} else if (mutation.op == 'srem') {
+				var args = this._queryMutationCache[channel].args
+				for (var i=0, itemId; itemId = mutation.args[i]; i++) {
+					args.splice(args.indexOf(itemId), 1)
+				}
+			}
+		}
+
+		for (var subId in subs) {
+			// TODO store local values and apply mutations other than just "set"
+			subs[subId](mutation, mutation.args[0])
+		}
+	}
+	
 	// Private method - hook up all internals
 	this.init = function() {
 		this._requestCallbacks = {}
@@ -204,29 +251,11 @@ fin = Singleton(function(){
 		}))
 		
 		this._client.registerEventHandler('FIN_EVENT_ITEM_MUTATED', bind(this, function(mutationJSON) {
-			var mutation = JSON.parse(mutationJSON),
-				itemId = mutation.id
-			
-			for (var i=0, propName; propName = mutation.props[i]; i++) {
-				var channel = shared.keys.getItemPropertyChannel(itemId, propName)
-					subs = this._subscriptionPool.get(channel)
-				
-				for (var subId in subs) {
-					// TODO store local values and apply mutations other than just "set"
-					subs[subId](mutation, mutation.args[i * 2 + 1])
-				}
-			}
+			this._handleItemMutation(JSON.parse(mutationJSON))
 		}))
 		
 		this._client.registerEventHandler('FIN_EVENT_QUERY_MUTATED', bind(this, function(mutationJSON) {
-			var mutation = JSON.parse(mutationJSON),
-				channel = mutation.id,
-				subs = this._subscriptionPool.get(channel)
-			
-			for (var subId in subs) {
-				// TODO store local values and apply mutations other than just "set"
-				subs[subId](mutation, mutation.args[0])
-			}
+			this._handleQueryMutation(JSON.parse(mutationJSON))
 		}))
 	}
 })

@@ -115,9 +115,10 @@ _Query = Class(function() {
 		
 		this._redisCommandClient.get(itemPropKey, bind(this, function(err, valueBytes) {
 			if (err) { throw logger.error('Could not retrieve value of item for query', itemPropKey, queryKey, err) }
+			
 			var value = bytesToString(valueBytes),
 				propCondition = this._query[propName],
-				isLiteral = (typeof propCondition == 'string'),
+				isLiteral = (typeof propCondition != 'object'),
 				compareOperator = isLiteral ? '=' : propCondition[0],
 				compareValue = isLiteral ? propCondition : propCondition[1],
 				shouldBeInSet = null

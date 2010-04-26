@@ -101,12 +101,12 @@
 				}
 				
 				createPropInput.onkeyup = function() { 
-					createButton.innerHTML = 'fin.create({"'+createPropInput.value+'":"'+createValInput.value+'")' 
+					createButton.innerHTML = 'fin.create({"'+createPropInput.value+'":"'+createValInput.value+'"})' 
 				}
 				createValInput.onkeyup = createPropInput.onkeyup
 				
 				queryPropInput.onkeyup = function() { 
-					queryButton.innerHTML = 'fin.query({"'+queryPropInput.value+'":"'+queryValInput.value+'")'
+					queryButton.innerHTML = 'fin.query({"'+queryPropInput.value+'":"'+queryValInput.value+'"})'
 				}
 				queryValInput.onkeyup = queryPropInput.onkeyup
 				

@@ -2,13 +2,12 @@ jsio('from shared.javascript import Class, bind')
 
 exports = Class(function(supr){
 	this.init = function(jsArgs, viewArgs) {
-		var itemIds = jsArgs[0],
-			propertyChain = viewArgs[0],
-			itemId = (typeof itemIds == 'number') ? itemIds : propertyChain.shift()
+		var itemId = jsArgs[0],
+			propName = viewArgs[0]
 		
 		this._element = document.createElement('span')
 		
-		this._subId = fin.subscribe(itemId, propertyChain, bind(this, '_onItemMutated'))
+		this._subId = fin.subscribe(itemId, propName, bind(this, '_onItemMutated'))
 		this._setValue('Loading...')
 	}
 	

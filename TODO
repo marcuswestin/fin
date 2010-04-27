@@ -1,23 +1,7 @@
 TODO
 
-=== P1 ====
+* Local publish of mutations, since a connection won't receive a network event for mutations it created
 
-Local publish of mutations, since a connection won't receive a network event for mutations it created
+* Event queue for each query. If multiple changes come in for the same item for a query, put each one on a queue. As soon as a change is processed, pick another off of the queue.
 
-Event queue for each query. If multiple changes come in for the same item for a query, put each one on a queue. As soon as a change is processed, pick another off of the queue.
-
-Property chaining - you should be able to subscribe to task.owner.name in a template
-
-Overview of methods
-	create
-	query
-	subscribe (observe?)
-	mutate
-
-=== thoughts ===
-
-Lists
-	Local: uses array property. UI can change order
-	ItemSets: uses conditions to decide if items fit in or not. Client is responsible for order
-	TODO: Associate order with ItemSets
-	TODO: Publish ItemSet updates when order updates
+* Property chaining - you should be able to subscribe to task.owner.name in a template

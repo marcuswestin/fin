@@ -24,12 +24,12 @@ Fin also needs some local libraries
 	make lib/js.io
 	make lib/redis-node-client
 
-Run fin
+Run redis server, fin server, and fin query observer
 	# Start redis
 	redis-server redis.conf &
 	# Start a fin server
 	node run_server.js &
 	# Start a fin query observer
-	node run_query_observer &
+	node run_query_observer.js &
 
 Fire up a browser to localhost/[path to fin]/demo

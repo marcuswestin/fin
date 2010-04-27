@@ -1,5 +1,5 @@
-This README is wildly out of date as of April 13th
-All the templating views are being moved to fan, just leaving the realtime pubsub/query and template construction in fin
+API
+---
 
 Create an item
 	fin.create({ type: 'user', name: 'marcus' }, function(newItemId) { ... })
@@ -14,7 +14,7 @@ Mutate an item property
 	fin.set(itemId, propertyName, value)
 
 Getting started
---------------
+---------------
 
 Fin requires node and redis
 	sudo make install-node

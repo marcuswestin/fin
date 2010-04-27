@@ -1,13 +1,3 @@
-/* Query observer
-	
-	Listen to query requests
-	When a query request comes in
-		lock that query
-		if got lock
-			subscribe to all involved properties
-			run query for all items currently in database (ugh...)
-*/
-
 require('./lib/js.io/packages/jsio')
 jsio.path.shared = './js'
 jsio.path.server = './js'

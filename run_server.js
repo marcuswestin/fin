@@ -1,12 +1,12 @@
-require('../../lib/js.io/packages/jsio')
+require('./lib/js.io/packages/jsio')
 
-jsio.path.shared = '../'
-jsio.path.server = '../'
+jsio.path.shared = './js'
+jsio.path.server = './js'
 
 jsio('import server.Server')
 jsio('import server.Connection')
 
-var redis = require('../../lib/redis-node-client/lib/redis-client')
+var redis = require('./lib/redis-node-client/lib/redis-client')
 var finServer = new server.Server(redis, server.Connection)
 
 // for browser clients

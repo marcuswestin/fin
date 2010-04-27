@@ -26,10 +26,10 @@ Fin also needs some local libraries
 
 Run fin
 	# Start redis
-	redis-server redis.conf &;
+	redis-server redis.conf &
 	# Start a fin server
-	node run_server.js &;
-	# Start a fin query observer		
-	node run_query_observer &;
+	node run_server.js &
+	# Start a fin query observer
+	node run_query_observer &
 
 Fire up a browser to localhost/[path to fin]/demo

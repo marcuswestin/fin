@@ -10,7 +10,11 @@ exports.bind = function(context, method/*, args... */) {
 exports.forEach = function(items, ctx, fn) {
 	if (!items) { return }
 	if (!fn) { fn = ctx, ctx = this }
-	for (var i=0, item; item = items[i]; i++) { fn.call(ctx, item) }
+	if (exports.isArray(items)) {
+		for (var i=0, item; item = items[i]; i++) { fn.call(ctx, item, i) }
+	} else {
+		for (var key in items) { fn.call(ctx, key, items[key]) }
+	}
 }
 
 exports.map = function(items, fn) {

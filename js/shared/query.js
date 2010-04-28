@@ -1,4 +1,4 @@
-jsio('from shared.javascript import Class, bind, bytesToString, blockCallback')
+jsio('from shared.javascript import Class, bind, bytesToString, blockCallback, map')
 jsio('import shared.keys')
 jsio('import shared.mutations')
 
@@ -56,6 +56,7 @@ _Query = Class(function() {
 		this._queryKey = shared.keys.getQueryKey(queryJSON)
 		this._queryChannel = shared.keys.getQueryChannel(queryJSON)
 		this._query = JSON.parse(queryJSON)
+		this._properties = map(this._query, function(key, val){ return key })
 		this._lockKey = lockKey
 
 		this._redisSubClient = _redis.createClient()
@@ -89,56 +90,70 @@ _Query = Class(function() {
 		for (var i=0, itemPropKey; itemPropKey = itemPropKeys[i]; i++) {
 			var itemId = shared.keys.getKeyInfo(itemPropKey).id
 			
-			this._processItemProperty(itemId, propName, itemPropKey)
+			this._processItem(itemId)
 		}
 	}
 	
 	this._onMutation = function(channel, mutationBytes) {
 		var mutationInfo = shared.mutations.parseMutationBytes(mutationBytes),
 			mutation = JSON.parse(mutationInfo.json),
-			itemId = mutation.id,
-			properties = mutation.props
+			itemId = mutation.id
 		
-		// TODO This could be done better and correctly by processing all the properties 
-		//	in an mset command at once, rather than handling the sets independently.
-		//	Also, we have the values of the props in the mutation object - no need
-		//	to get them from the DB
-		for (var i=0, propName; propName = properties[i]; i++) {
-			if (!(propName in this._query)) { continue; }
-			var itemPropKey = shared.keys.getItemPropertyKey(itemId, propName)
-			this._processItemProperty(itemId, propName, itemPropKey)
-		}
+		this._processItem(itemId)
 	}
 		
-	this._processItemProperty = function(itemId, propName, itemPropKey) {
-		var queryKey = this._queryKey
+	this._processItem = function(itemId) {
+		var query = this._query,
+			queryKey = this._queryKey,
+			properties = this._properties,
+			isInSet = null,
+			self = this
 		
-		this._redisCommandClient.get(itemPropKey, bind(this, function(err, valueBytes) {
-			if (err) { throw logger.error('Could not retrieve value of item for query', itemPropKey, queryKey, err) }
+		logger.log('Check membership for:', itemId)
+		
+		function processProperty(propIndex) {
+			var propName = properties[propIndex],
+				itemPropKey = shared.keys.getItemPropertyKey(itemId, propName)
 			
-			var value = bytesToString(valueBytes),
-				propCondition = this._query[propName],
-				isLiteral = (typeof propCondition != 'object'),
-				compareOperator = isLiteral ? '=' : propCondition[0],
-				compareValue = isLiteral ? propCondition : propCondition[1],
-				shouldBeInSet = null
-			
-			shouldBeInSet = (compareOperator == '=') ? (value == compareValue)
-						: (compareOperator == '<') ? (value < compareValue)
-						: (compareOperator == '>') ? (value > compareValue)
-						: logger.error('Unknown compare operator', compareOperator, queryKey, this._query, propName)
-
-			var redisOp = shouldBeInSet ? 'sadd' : 'srem'
-			this._redisCommandClient[redisOp](queryKey, itemId, bind(this, function(err, opChangedSet) {
-				if (err) { throw logger.error('Could not modify query set', redisOp, queryKey, err) }
-				if (!opChangedSet) { return } // the item was already in/not in set, and the operation did not end up changing the set
-				logger.log('Processed:', value, compareOperator, compareValue, 'Belongs?', shouldBeInSet)
-				var mutation = {}
-				mutation.op = redisOp
-				mutation.id = this._queryChannel
-				mutation.args = [itemId]
-				this._redisCommandClient.publish(this._queryChannel, JSON.stringify(mutation))
-			}))
+			self._redisCommandClient.get(itemPropKey, function(err, valueBytes) {
+				var value = valueBytes ? bytesToString(valueBytes) : null,
+					propCondition = query[propName],
+					isLiteral = (typeof propCondition != 'object'),
+					compareOperator = isLiteral ? '=' : propCondition[0],
+					compareValue = isLiteral ? propCondition : propCondition[1]
+				
+				var couldBeInSet = (compareOperator == '=') ? (value == compareValue)
+							: (compareOperator == '<') ? (value < compareValue)
+							: (compareOperator == '>') ? (value > compareValue)
+							: logger.error('Unknown compare operator', compareOperator, queryKey, query, propName)
+				
+				logger.log("Check if ", propName, ':', value, compareOperator, compareValue, '[is/should]BeInSet', isInSet, couldBeInSet)
+				if (!couldBeInSet) {
+					if (!isInSet) { return }
+					self._mutate('srem', itemId)
+				} else {
+					if (propIndex == 0) {
+						if (isInSet) { return }
+						self._mutate('sadd', itemId)
+					} else {
+						processProperty(propIndex - 1)
+					}
+				}
+			})
+		}
+		
+		this._redisCommandClient.sismember(this._queryKey, itemId, bind(this, function(err, isMember) {
+			isInSet = !!isMember
+			processProperty(properties.length - 1)
+		}))
+	}
+	
+	this._mutate = function(redisOp, itemId) {
+		logger.log('Determined that item membership changed', redisOp, itemId)
+		this._redisCommandClient[redisOp](this._queryKey, itemId, bind(this, function(err, opChangedSet) {
+			if (err) { throw logger.error('Could not modify query set', redisOp, queryKey, err) }
+			var mutation = { op: redisOp, id: this._queryChannel, args: [itemId] }
+			this._redisCommandClient.publish(this._queryChannel, JSON.stringify(mutation))
 		}))
 	}
 	

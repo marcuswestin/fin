@@ -70,6 +70,8 @@ _Query = Class(function() {
 		this._redisCommandClient.stream.addListener('connect', redisReadyCallback.addBlock())
 	}
 	
+	this.release = function() { this._redisCommandClient.del(this._lockKey) }
+	
 	this._onRedisReady = function() {
 		for (var propName in this._query) {
 			var propChannel = shared.keys.getPropertyChannel(propName),
@@ -106,7 +108,6 @@ _Query = Class(function() {
 		var query = this._query,
 			queryKey = this._queryKey,
 			properties = this._properties,
-			isInSet = null,
 			self = this
 		
 		logger.log('Check membership for:', itemId)
@@ -122,19 +123,20 @@ _Query = Class(function() {
 					compareOperator = isLiteral ? '=' : propCondition[0],
 					compareValue = isLiteral ? propCondition : propCondition[1]
 				
+				logger.log(typeof value)
+				value = JSON.parse(value)
+				
 				var couldBeInSet = (compareOperator == '=') ? (value == compareValue)
 							: (compareOperator == '<') ? (value < compareValue)
 							: (compareOperator == '>') ? (value > compareValue)
 							: logger.error('Unknown compare operator', compareOperator, queryKey, query, propName)
 				
-				logger.log("Check if ", propName, ':', value, compareOperator, compareValue, '[is/should]BeInSet', isInSet, couldBeInSet)
+				logger.log("Check if ", propName, ':', value, compareOperator, compareValue, 'couldBeInSet', couldBeInSet)
 				if (!couldBeInSet) {
-					if (!isInSet) { return }
-					self._mutate('srem', itemId)
+					self._maybeRemove(itemId)
 				} else {
 					if (propIndex == 0) {
-						if (isInSet) { return }
-						self._mutate('sadd', itemId)
+						self._maybeAdd(itemId)
 					} else {
 						processProperty(propIndex - 1)
 					}
@@ -142,9 +144,20 @@ _Query = Class(function() {
 			})
 		}
 		
+		processProperty(properties.length - 1)
+	}
+	
+	this._maybeRemove = function(itemId) {
 		this._redisCommandClient.sismember(this._queryKey, itemId, bind(this, function(err, isMember) {
-			isInSet = !!isMember
-			processProperty(properties.length - 1)
+			if (!Boolean(isMember)) { return }
+			this._mutate('srem', itemId)
+		}))
+	}
+
+	this._maybeAdd = function(itemId) {
+		this._redisCommandClient.sismember(this._queryKey, itemId, bind(this, function(err, isMember) {
+			if (Boolean(isMember)) { return }
+			this._mutate('sadd', itemId)
 		}))
 	}
 	
@@ -155,9 +168,5 @@ _Query = Class(function() {
 			var mutation = { op: redisOp, id: this._queryChannel, args: [itemId] }
 			this._redisCommandClient.publish(this._queryChannel, JSON.stringify(mutation))
 		}))
-	}
-	
-	this.release = function() {
-		this._redisCommandClient.del(this._lockKey)
 	}
 })

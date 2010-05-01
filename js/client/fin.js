@@ -91,6 +91,11 @@ fin = Singleton(function(){
 	this.query = function(query, callback) {
 		if (!query || !callback) { logger.error("query requires two arguments", query, callback); debugger }
 		
+		for (var key in query) {
+			var value = query[key]
+			if (typeof value == 'boolean') { query[key] = (value ? 1 : 0) }
+		}
+		
 		var queryJSON = JSON.stringify(query),
 			queryChannel = shared.keys.getQueryChannel(queryJSON),
 			subId = this._subscriptionPool.add(queryChannel, callback)
@@ -142,21 +147,23 @@ fin = Singleton(function(){
 		}
 		
 		for (var propName in properties) {
-			var key = shared.keys.getItemPropertyKey(itemId, propName)
+			var key = shared.keys.getItemPropertyKey(itemId, propName),
+				value = properties[propName]
+			
+			if (typeof value == 'boolean') { value = value ? 1 : 0 }
 			
 			props.push(propName)
 			args.push(key)
-			args.push(properties[propName])
+			args.push(JSON.stringify(value))
 		}
 		
-		this.send('FIN_REQUEST_MUTATE_ITEM', {
-			id: itemId,
-			op: 'mset',
-			props: props,
-			args: args
-		})
+		this._mutate({ id: itemId, op: 'mset', props: props, args: args })
 	}
-	
+
+	this._mutate = function(mutation) {
+		this._handleItemMutation(mutation)
+		this.send('FIN_REQUEST_MUTATE_ITEM', mutation)
+	}
 	/*
 	 * Apply a template to a fin item (or multiple items)
 	 */

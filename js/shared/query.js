@@ -117,21 +117,24 @@ _Query = Class(function() {
 				itemPropKey = shared.keys.getItemPropertyKey(itemId, propName)
 			
 			self._redisCommandClient.get(itemPropKey, function(err, valueBytes) {
+				
 				var value = valueBytes ? bytesToString(valueBytes) : null,
 					propCondition = query[propName],
 					isLiteral = (typeof propCondition != 'object'),
 					compareOperator = isLiteral ? '=' : propCondition[0],
 					compareValue = isLiteral ? propCondition : propCondition[1]
 				
-				logger.log(typeof value)
-				value = JSON.parse(value)
+				// an unset value is interpreted as the same as a null value,
+				//  e.g. { type: null } matches both items with type set to null 
+				//  and items with type unset
+				if (value) { value = JSON.parse(value) }
 				
+				logger.log("Check if", propName, ':', typeof value, value, compareOperator, typeof compareValue, compareValue, 'couldBeInSet', couldBeInSet)
 				var couldBeInSet = (compareOperator == '=') ? (value == compareValue)
 							: (compareOperator == '<') ? (value < compareValue)
 							: (compareOperator == '>') ? (value > compareValue)
 							: logger.error('Unknown compare operator', compareOperator, queryKey, query, propName)
 				
-				logger.log("Check if ", propName, ':', value, compareOperator, compareValue, 'couldBeInSet', couldBeInSet)
 				if (!couldBeInSet) {
 					self._maybeRemove(itemId)
 				} else {

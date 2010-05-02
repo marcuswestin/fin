@@ -34,6 +34,7 @@ fin = Singleton(function(){
 	 */
 	this.create = function(data, callback) {
 		if (typeof callback != 'function') { throw logger.error('Second argument to fin.create should be a callback') }
+		for (var key in data) { data[key] = JSON.stringify(data[key]) }
 		this.requestResponse('FIN_REQUEST_CREATE_ITEM', { data: data }, callback)
 	}
 	
@@ -91,11 +92,6 @@ fin = Singleton(function(){
 	this.query = function(query, callback) {
 		if (!query || !callback) { logger.error("query requires two arguments", query, callback); debugger }
 		
-		for (var key in query) {
-			var value = query[key]
-			if (typeof value == 'boolean') { query[key] = (value ? 1 : 0) }
-		}
-		
 		var queryJSON = JSON.stringify(query),
 			queryChannel = shared.keys.getQueryChannel(queryJSON),
 			subId = this._subscriptionPool.add(queryChannel, callback)
@@ -150,8 +146,6 @@ fin = Singleton(function(){
 			var key = shared.keys.getItemPropertyKey(itemId, propName),
 				value = properties[propName]
 			
-			if (typeof value == 'boolean') { value = value ? 1 : 0 }
-			
 			props.push(propName)
 			args.push(key)
 			args.push(JSON.stringify(value))
@@ -203,6 +197,18 @@ fin = Singleton(function(){
 	
 	this._itemMutationCache = {}
 	this._handleItemMutation = function(mutation) {
+		var mutationArgs = Array.prototype.slice.call(mutation.args, 0)
+		
+		switch(mutation.op) {
+			case 'mset':
+				for (var iValue=1, setValue; setValue = mutationArgs[iValue]; iValue+=2) {
+					mutationArgs[iValue] = JSON.parse(setValue)
+				}
+				break;
+			default:
+				throw logger.error("Unkown operation "+ operation)
+		}
+		
 		for (var i=0, propName; propName = mutation.props[i]; i++) {
 			var channel = shared.keys.getItemPropertyChannel(mutation.id, propName)
 				subs = this._subscriptionPool.get(channel)

@@ -127,9 +127,11 @@ _Query = Class(function() {
 				// an unset value is interpreted as the same as a null value,
 				//  e.g. { type: null } matches both items with type set to null 
 				//  and items with type unset
+				logger.debug("Retrieved for JSON parsing", ':', typeof value, value)
 				if (value) { value = JSON.parse(value) }
+				logger.debug("After JSON parsing", ':', typeof value, value)
 				
-				logger.log("Check if", propName, ':', typeof value, value, compareOperator, typeof compareValue, compareValue, 'couldBeInSet', couldBeInSet)
+				logger.log("Check if", propName, ':', typeof value, value, compareOperator, typeof compareValue, compareValue, '-', 'couldBeInSet', '?', couldBeInSet)
 				var couldBeInSet = (compareOperator == '=') ? (value == compareValue)
 							: (compareOperator == '<') ? (value < compareValue)
 							: (compareOperator == '>') ? (value > compareValue)

@@ -155,8 +155,8 @@ fin = Singleton(function(){
 	}
 
 	this._mutate = function(mutation) {
-		this._handleItemMutation(mutation)
 		this.send('FIN_REQUEST_MUTATE_ITEM', mutation)
+		this._handleItemMutation(mutation)
 	}
 	/*
 	 * Apply a template to a fin item (or multiple items)
@@ -195,9 +195,10 @@ fin = Singleton(function(){
 		callback(response)
 	}
 	
+	// _handeItemMutation modifies the internals of the mutation object you pass in
 	this._itemMutationCache = {}
 	this._handleItemMutation = function(mutation) {
-		var mutationArgs = Array.prototype.slice.call(mutation.args, 0)
+		var mutationArgs = mutation.args
 		
 		switch(mutation.op) {
 			case 'mset':
@@ -214,7 +215,8 @@ fin = Singleton(function(){
 				subs = this._subscriptionPool.get(channel)
 			
 			for (var subId in subs) {
-				if (subs[subId]) { subs[subId](mutation, mutation.args[i * 2 + 1]) }
+				// TODO remove dependency on second argument
+				if (subs[subId]) { subs[subId](mutation, mutationArgs[i * 2 + 1]) }
 			}
 			this._itemMutationCache[channel] = mutation
 		}

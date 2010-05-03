@@ -34,7 +34,6 @@ fin = Singleton(function(){
 	 */
 	this.create = function(data, callback) {
 		if (typeof callback != 'function') { throw logger.error('Second argument to fin.create should be a callback') }
-		for (var key in data) { data[key] = JSON.stringify(data[key]) }
 		this.requestResponse('FIN_REQUEST_CREATE_ITEM', { data: data }, callback)
 	}
 	
@@ -195,10 +194,9 @@ fin = Singleton(function(){
 		callback(response)
 	}
 	
-	// _handeItemMutation modifies the internals of the mutation object you pass in
 	this._itemMutationCache = {}
 	this._handleItemMutation = function(mutation) {
-		var mutationArgs = mutation.args
+		var mutationArgs = Array.prototype.slice.call(mutation.args, 0)
 		
 		switch(mutation.op) {
 			case 'mset':

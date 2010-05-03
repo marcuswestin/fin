@@ -60,7 +60,7 @@ exports = Class(Server, function(supr) {
 			for (var propName in itemProperties) {
 				itemPropsEmpty = false
 				mutation.args.push(shared.keys.getItemPropertyKey(newItemId, propName))
-				mutation.args.push(itemProperties[propName])
+				mutation.args.push(JSON.stringify(itemProperties[propName]))
 				mutation.props.push(propName)
 			}
 			if (itemPropsEmpty) {

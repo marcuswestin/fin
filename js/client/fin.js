@@ -76,8 +76,8 @@ fin = Singleton(function(){
 		
 		if (this._subscriptionPool.count(channel) == 1) {
 			this.send('FIN_REQUEST_SUBSCRIBE', { id: itemId, prop: propName })
-		} else if (this._itemMutationCache[channel]) {
-			setTimeout(bind(this, '_handleItemMutation', this._itemMutationCache[channel]))
+		} else if (this._mutationCache[channel]) {
+			setTimeout(bind(this, '_handleItemMutation', this._mutationCache[channel]))
 		}
 		
 		this._subIdToChannel[subId] = channel
@@ -97,8 +97,8 @@ fin = Singleton(function(){
 
 		if (this._subscriptionPool.count(queryChannel) == 1) {
 			this.send('FIN_REQUEST_QUERY', queryJSON)
-		} else if (this._queryMutationCache[queryChannel]) {
-			setTimeout(bind(this, '_handleQueryMutation', this._queryMutationCache[queryChannel], true))
+		} else if (this._mutationCache[queryChannel]) {
+			setTimeout(bind(this, '_handleQueryMutation', this._mutationCache[queryChannel], true))
 		}
 		
 		return subId
@@ -194,7 +194,7 @@ fin = Singleton(function(){
 		callback(response)
 	}
 	
-	this._itemMutationCache = {}
+	this._mutationCache = {}
 	this._handleItemMutation = function(mutation) {
 		var mutationArgs = Array.prototype.slice.call(mutation.args, 0)
 		
@@ -216,28 +216,27 @@ fin = Singleton(function(){
 				// TODO remove dependency on second argument
 				if (subs[subId]) { subs[subId](mutation, mutationArgs[i * 2 + 1]) }
 			}
-			this._itemMutationCache[channel] = mutation
+			this._mutationCache[channel] = mutation
 		}
 	}
 	
-	this._queryMutationCache = {}
 	this._handleQueryMutation = function(mutation, dontCache) {
 		var channel = mutation.id,
 			subs = this._subscriptionPool.get(channel)
 		
 		if (!dontCache) {
 			if (mutation.op == 'sadd') {
-				if (!this._queryMutationCache[channel]) { 
-					this._queryMutationCache[channel] = mutation
+				if (!this._mutationCache[channel]) { 
+					this._mutationCache[channel] = mutation
 				} else {
-					var args = this._queryMutationCache[channel].args
+					var args = this._mutationCache[channel].args
 					for (var i=0, itemId; itemId = mutation.args[i]; i++) {
 						if (args.indexOf(itemId) == -1) { continue }
 						args.push(itemId)
 					}
 				}
 			} else if (mutation.op == 'srem') {
-				var args = this._queryMutationCache[channel].args
+				var args = this._mutationCache[channel].args
 				for (var i=0, itemId; itemId = mutation.args[i]; i++) {
 					args.splice(args.indexOf(itemId), 1)
 				}

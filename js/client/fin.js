@@ -64,11 +64,11 @@ fin = Singleton(function(){
 	
 	
 	/*
-	 * Subscribe to an item property, and get notified any time it changes
+	 * Observe an item property, and get notified any time it changes
 	 */
 	this._subIdToChannel = {}
 	this._subscriptionPool = new shared.Pool()
-	this.subscribe = function(itemId, propName, callback) {
+	this.observe = function(itemId, propName, callback) {
 		if (!itemId || !propName || !callback) { logger.error("subscribe requires three arguments", itemId, propName, callback); }
 		
 		var channel = shared.keys.getItemPropertyChannel(itemId, propName)

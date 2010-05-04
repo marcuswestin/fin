@@ -7,7 +7,7 @@ exports = Class(function(supr){
 		
 		this._element = document.createElement('span')
 		
-		this._subId = fin.subscribe(itemId, propName, bind(this, '_onItemMutated'))
+		this._subId = fin.observe(itemId, propName, bind(this, '_onItemMutated'))
 		this._setValue('Loading...')
 	}
 	

@@ -42,7 +42,7 @@
 					item <input id="subscribe-itemId" style="width: 30px;" value="1"></input> 
 					prop <input id="subscribe-property" value="type" ></input>
 				</div>
-				<div class="button-holder"><button id="subscribe-button">fin.subscribe()</button></div>
+				<div class="button-holder"><button id="subscribe-button">fin.observe()</button></div>
 			</div>
 		</div>
 		
@@ -81,7 +81,7 @@
 						var el = demo.createOutput()
 						function update(newVal) { el.innerHTML = '<strong>created</strong> item ' + newItemId}
 						update(propVal)
-						// fin.subscribe(newItemId, propName, function(mutation) { update(mutation.args[0]) })
+						// fin.observe(newItemId, propName, function(mutation) { update(mutation.args[0]) })
 					})
 				}
 				
@@ -111,7 +111,7 @@
 				queryValInput.onkeyup = queryPropInput.onkeyup
 				
 				subscribeIdInput.onkeyup = function() { 
-					subscribeButton.innerHTML = 'fin.subscribe('+subscribeIdInput.value+',"'+subscribePropInput.value+'")'
+					subscribeButton.innerHTML = 'fin.observe('+subscribeIdInput.value+',"'+subscribePropInput.value+'")'
 				}
 				subscribePropInput.onkeyup = subscribeIdInput.onkeyup
 				
@@ -145,7 +145,7 @@
 				el.innerHTML = '<strong>subscribed</strong> to item ' + itemId + ' ' + propName + ' = <input style="width: 100px;"></input>'
 				el.className += ' item'
 				var input = el.getElementsByTagName('input')[0]
-				fin.subscribe(itemId, propName, function(mutation, newVal) { input.value = newVal })
+				fin.observe(itemId, propName, function(mutation, newVal) { input.value = newVal })
 				input.onkeyup = function() { fin.set(itemId, propName, input.value) }
 			}
 			

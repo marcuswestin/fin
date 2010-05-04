@@ -8,7 +8,7 @@ Query for items
 	fin.query({ type: 'user' }, function(mutation) { ... })
 
 Subscribe to an item property
-	fin.subscribe(itemId, propertyName, function(mutation) { ... })
+	fin.observe(itemId, propertyName, function(mutation) { ... })
 
 Mutate an item property
 	fin.set(itemId, propertyName, value)

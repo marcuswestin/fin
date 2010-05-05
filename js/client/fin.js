@@ -89,7 +89,7 @@ fin = Singleton(function(){
 	 * any time an item enters or leaves the matching set
 	 */
 	this.query = function(query, callback) {
-		if (!query || !callback) { logger.error("query requires two arguments", query, callback); debugger }
+		if (!query || !callback) { logger.error("query requires two arguments", query, callback); }
 		
 		var queryJSON = JSON.stringify(query),
 			queryChannel = shared.keys.getQueryChannel(queryJSON),

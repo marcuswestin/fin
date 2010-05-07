@@ -1,4 +1,8 @@
-jsio('from shared.javascript import bind, blockCallback')
+var assert = jsio.__env.require('assert')
+
+jsio('from shared.javascript import bind, blockCallback, map')
+
+var rand = new Date().getTime()
 
 function once(fn) {
 	return function() {
@@ -8,25 +12,28 @@ function once(fn) {
 	}
 }
 
-exports.testQuery = function(assert, onDone) {
+function expectQuery(releaseBlockFn, query, testMessage /* expected mutations */) {
+	var expectedMutations = Array.prototype.slice.call(arguments, 3)
 	
-	var blockedOnDone = blockCallback(onDone),
-		_outstanding = 0
-	
-	function expectQuery(query /* expected mutations */) {
-		var expectedMutations = Array.prototype.slice.call(arguments, 1),
-			queryId = '#Q' + JSON.stringify(query),
-			releaseBlockFn = blockedOnDone.addBlock()
-
-		_outstanding += expectedMutations.length
-		fin.query(query, function(mutation) {
-			var expectedMutation = expectedMutations.shift()
-			expectedMutation.id = queryId
-			assert.deepEqual(mutation, expectedMutation, 'mutation was not expected: ' + JSON.stringify(mutation) + ' != ' + JSON.stringify(expectedMutation))
-			
-			if (expectedMutations.length == 0) { releaseBlockFn() } // expecting no more mutations - release the block
-		})
+	for (var i=0, expectedMutation; expectedMutation = expectedMutations[i]; i++) {
+		expectedMutation.id = '#Q' + JSON.stringify(query);
 	}
+	
+	fin.query(query, function(mutation) {
+		if (expectedMutations.length == 0) { assert.fail(testMessage + " - received unexpected mutation: " + JSON.stringify(mutation)) }
+		var expectedMutation = expectedMutations.shift()
+		expectedMutation.args.sort()
+		mutation.args.sort()
+		assert.deepEqual(mutation, expectedMutation, testMessage + ' - mutation was not expected: \n' + JSON.stringify(mutation) + '\n != \n' + JSON.stringify(expectedMutation))
+		if (expectedMutations.length == 0) { releaseBlockFn() } // expecting no more mutations - release the block
+	})
+}
+
+
+
+exports.testQuery = function(onDone) {
+	
+	var blockedOnDone = blockCallback(onDone)
 	
 	Queue = {
 		push: function(callback) {
@@ -41,26 +48,66 @@ exports.testQuery = function(assert, onDone) {
 	}
 	
 	fin.create({}, function(itemId) {
-		expectQuery({ type: 'user' }, 
+		var val1 = 'val1' + rand,
+			val2 = 'val2' + rand,
+			prop1 = 'prop1' + rand,
+			prop2 = 'prop2' + rand,
+			blah = 'blah' + rand,
+			query1 = {},
+			query2 = {}
+		
+		query1[prop1] = val1
+		
+		query2[prop1] = val1
+		query2[prop2] = val2
+		
+		expectQuery(blockedOnDone.addBlock(), query1, 'Single param query test',
 			{ op:'sadd', args:[] },
 			{ op:'sadd', args:[itemId] },
 			{ op:'srem', args:[itemId] },
 			{ op:'sadd', args:[itemId] }
 		)
 		
-		expectQuery({ type: 'user', name: 'marcus' }, 
+		expectQuery(blockedOnDone.addBlock(), query2, 'Double param query test',
 			{ op:'sadd', args:[] },
 			{ op:'sadd', args:[itemId] },
 			{ op:'srem', args:[itemId] },
 			{ op:'sadd', args:[itemId] }
 		)
 		
-		Queue.push(bind(fin, 'set', itemId, 'type', 'user'))
-		Queue.push(bind(fin, 'set', itemId, 'type', 'something_else'))
-		Queue.push(bind(fin, 'set', itemId, 'type', 'user'))
-		Queue.push(bind(fin, 'set', itemId, 'name', 'marcus'))
-		Queue.push(bind(fin, 'set', itemId, 'name', 'something_else'))
-		Queue.push(bind(fin, 'set', itemId, 'name', 'marcus'))
+		Queue.push(bind(fin, 'set', itemId, prop1, val1))
+		Queue.push(bind(fin, 'set', itemId, prop1, blah))
+		Queue.push(bind(fin, 'set', itemId, prop1, val1))
+		Queue.push(bind(fin, 'set', itemId, prop2, val2))
+		Queue.push(bind(fin, 'set', itemId, prop2, blah))
+		Queue.push(bind(fin, 'set', itemId, prop2, val2))
 		Queue.popAll()
 	})
+}
+
+
+exports.testQuery = function(onDone) {
+	var doubleQuery = {},
+		doubleQueryProp = 'double_query_prop' + rand,
+		doubleQueryVal = 'double_query_val' + rand,
+		hasSubscribed = false,
+		items = []
+		
+	doubleQuery[doubleQueryProp] = doubleQueryVal
+	function createItems(numItems, itemId) {
+		if (itemId) { items.push(itemId) }
+		if (numItems > 0) {
+			fin.create(doubleQuery, bind(this, createItems, numItems - 1))
+		} else {
+			fin.query(doubleQuery, function(mutation) {
+				if (hasSubscribed) { return } hasSubscribed = true
+				setTimeout(function() {
+					expectQuery(onDone, doubleQuery, 'Local cache of query results',
+						{ op:'sadd', args: items }
+					)
+				}, 750)
+			})
+		}
+	}
+	createItems(10);
 }

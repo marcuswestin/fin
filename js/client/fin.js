@@ -77,7 +77,8 @@ fin = Singleton(function(){
 		if (this._subscriptionPool.count(channel) == 1) {
 			this.send('FIN_REQUEST_SUBSCRIBE', { id: itemId, prop: propName })
 		} else if (this._mutationCache[channel]) {
-			setTimeout(bind(this, '_handleItemMutation', this._mutationCache[channel]))
+			var cachedMutation = this._mutationCache[channel]
+			setTimeout(bind(this, callback, cachedMutation))
 		}
 		
 		this._subIdToChannel[subId] = channel
@@ -98,7 +99,8 @@ fin = Singleton(function(){
 		if (this._subscriptionPool.count(queryChannel) == 1) {
 			this.send('FIN_REQUEST_QUERY', queryJSON)
 		} else if (this._mutationCache[queryChannel]) {
-			setTimeout(bind(this, '_handleQueryMutation', this._mutationCache[queryChannel], true))
+			var cachedMutation = this._mutationCache[queryChannel]
+			setTimeout(bind(this, callback, cachedMutation, cachedMutation.args[0]))
 		}
 		
 		return subId
@@ -224,25 +226,23 @@ fin = Singleton(function(){
 		var channel = mutation.id,
 			subs = this._subscriptionPool.get(channel)
 		
-		if (!dontCache) {
-			if (mutation.op == 'sadd') {
-				if (!this._mutationCache[channel]) { 
-					this._mutationCache[channel] = mutation
-				} else {
-					var args = this._mutationCache[channel].args
-					for (var i=0, itemId; itemId = mutation.args[i]; i++) {
-						if (args.indexOf(itemId) == -1) { continue }
-						args.push(itemId)
-					}
-				}
-			} else if (mutation.op == 'srem') {
+		if (mutation.op == 'sadd') {
+			if (!this._mutationCache[channel]) { 
+				this._mutationCache[channel] = mutation
+			} else {
 				var args = this._mutationCache[channel].args
 				for (var i=0, itemId; itemId = mutation.args[i]; i++) {
-					args.splice(args.indexOf(itemId), 1)
+					if (args.indexOf(itemId) != -1) { continue }
+					args.push(itemId)
 				}
 			}
+		} else if (mutation.op == 'srem') {
+			var args = this._mutationCache[channel].args
+			for (var i=0, itemId; itemId = mutation.args[i]; i++) {
+				args.splice(args.indexOf(itemId), 1)
+			}
 		}
-
+		
 		for (var subId in subs) {
 			// TODO store local values and apply mutations other than just "set"
 			subs[subId](mutation, mutation.args[0])

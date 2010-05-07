@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 var sys = require('sys')
-var assert = require('assert')
 
 require('../lib/js.io/packages/jsio')
 
@@ -26,12 +25,9 @@ var onDone = blockCallback(function() {
 fin.connect(function() {
 	for (var testName in test.tests) {
 		sys.puts(testName)
-		test.tests[testName](assert, onDone.addBlock())
+		test.tests[testName](onDone.addBlock())
 	}
 })
-
-
-
 
 // var redis = require('../../lib/redis-node-client/lib/redis-client')
 // var finServer = new server.Server(redis, server.Connection)

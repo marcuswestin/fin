@@ -120,7 +120,7 @@ _Query = Class(function() {
 				
 				var value = valueBytes ? bytesToString(valueBytes) : null,
 					propCondition = query[propName],
-					isLiteral = (typeof propCondition != 'object'),
+					isLiteral = (typeof propCondition != 'object' || propCondition == null),
 					compareOperator = isLiteral ? '=' : propCondition[0],
 					compareValue = isLiteral ? propCondition : propCondition[1]
 				

@@ -16,10 +16,17 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		this._setupHandlers()
 	}
 	
+	this.connectionMade = function() {
+		supr(this, 'connectionMade', arguments)
+		this._clientConnected = true
+	}
+	
 	this.connectionLost = function() {
 		this._log('connection lost - closing redis client')
+		this._clientConnected = false
 		// TODO do we need to unsubscribe from redis channels?
 		this._redisClient.close()
+		delete this._redisClient
 	}
 	
 	this.getId = function() { return this._id }
@@ -27,13 +34,20 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	this._setupHandlers = function() {	
 		this._queryChannelHandler = bind(this, function(channelBytes, messageBytes) {
 			var message = messageBytes.toString()
-
+			if (!this._clientConnected) {
+				logger.warn("Received query mutation event even though redis client is closed", message)
+				return;
+			}
 			this.sendFrame('FIN_EVENT_QUERY_MUTATED', message)
 		})
 		
 		this._itemChannelHandler = bind(this, function(channel, mutationBytes) {
 			var mutationInfo = shared.mutations.parseMutationBytes(mutationBytes)
 			if (mutationInfo.originId == this._id) { return }
+			if (!this._clientConnected) {
+				logger.warn("Received item mutation event even though redis client is closed", mutationInfo.json)
+				return;
+			}
 			this.sendFrame('FIN_EVENT_ITEM_MUTATED', mutationInfo.json)
 		})
 		

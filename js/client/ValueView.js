@@ -1,9 +1,9 @@
 jsio('from shared.javascript import Class, bind')
 
 exports = Class(function(supr){
-	this.init = function(jsArgs, viewArgs) {
-		var itemId = jsArgs[0],
-			propName = viewArgs[0]
+	this.init = function(args) {
+		var itemId = args[0],
+			propName = args[1]
 		
 		this._element = document.createElement('span')
 		

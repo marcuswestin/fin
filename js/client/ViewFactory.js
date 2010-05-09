@@ -11,7 +11,9 @@ exports = Class(function() {
 	}
 	
 	this.createView = function(viewName, jsArgs, templateArgs) {
-		return new this._viewConstructors[viewName](jsArgs, templateArgs || [])
+		var args = jsArgs
+		if (templateArgs) { args = args.concat(templateArgs) }
+		return new this._viewConstructors[viewName](args, jsArgs, templateArgs)
 	}
 })
 

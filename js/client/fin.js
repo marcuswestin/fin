@@ -26,6 +26,8 @@ fin = Singleton(function(){
 				break;
 		}
 		this._client.connect(transport, connectParams, callback)
+		// TODO Get the session key from the server
+		this._sessionId = 'fin_random_session_' + Math.floor(Math.random() * 100000)
 	}
 	
 	/* 
@@ -69,7 +71,7 @@ fin = Singleton(function(){
 	this._subIdToChannel = {}
 	this._subscriptionPool = new shared.Pool()
 	this.observe = function(itemId, propName, callback) {
-		if (!itemId || !propName || !callback) { logger.error("subscribe requires three arguments", itemId, propName, callback); }
+		if (!itemId || !propName || !callback) { logger.error("observe requires three arguments", itemId, propName, callback); }
 		
 		var channel = shared.keys.getItemPropertyChannel(itemId, propName)
 			subId = this._subscriptionPool.add(channel, callback),
@@ -159,6 +161,25 @@ fin = Singleton(function(){
 		this.send('FIN_REQUEST_MUTATE_ITEM', mutation)
 		this._handleItemMutation(mutation)
 	}
+	
+	/* 
+	 * Focus an item property for editing. Any other focused client gets blurred.
+	 * When another client requests focus, onBlurCallback gets called
+	 */
+	this.focus = function(itemId, propName, onBlurCallback) {
+		var sessionId = this._sessionId,
+			focusProperty = shared.keys.getFocusProperty(propName),
+			subId
+		
+		subId = this.observe(itemId, focusProperty, bind(this, function(mutation, newSession) {
+			if (!newSession || newSession == sessionId) { return }
+			this.release(subId)
+			onBlurCallback()
+		}))
+		this.set(itemId, '_focus', sessionId)
+	}
+	
+	
 	/*
 	 * Apply a template to a fin item (or multiple items)
 	 */

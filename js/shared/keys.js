@@ -54,3 +54,8 @@ exports.getPropertyChannel = function(propName) {
 exports.getChannelInfo = function(channel) {
 	return { type: channel[1], id: channel.substr(2) }
 }
+
+// Misc
+this.getFocusProperty = function(propName) {
+	return '_focus_' + propName
+}

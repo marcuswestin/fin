@@ -58,9 +58,10 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			
 			logger.log("Subcribe to item channel", channel)
 			this._redisClient.subscribeTo(channel, this._itemChannelHandler)
-			// fake an item mutation event. If we did subs against multiple props then their values could all go in a single fake mset mutation
+			// fake an item mutation event.
+			// TODO will an op: 'set' always work or will we have to know what type of op it should be?
 			this.server.getItemProperty(itemId, propName, bind(this, function(value, key) {
-				var mutation = { op: 'mset', id: itemId, props: [propName], args: [key, value] }
+				var mutation = { op: 'set', id: itemId, prop: propName, args: [value] }
 				
 				this.sendFrame('FIN_EVENT_ITEM_MUTATED', JSON.stringify(mutation))
 			}))

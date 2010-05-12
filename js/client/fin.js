@@ -135,26 +135,24 @@ fin = Singleton(function(){
 	/*
 	 * Mutate a fin item with the given operation
 	 */
-	this.set = function(itemId, properties) {
-		var args = [],
-			props = []
-		
-		if (arguments.length == 3) {
-			var propName = properties
-			properties = {}
-			properties[propName] = arguments[2]
+	this.set = function(itemId, propName, value) {
+		if (arguments.length == 2) {
+			var properties = propName
+			for (var propName in properties) {
+				this.set(itemId, propName, properties[propName])
+			}
+			return
 		}
 		
-		for (var propName in properties) {
-			var key = shared.keys.getItemPropertyKey(itemId, propName),
-				value = properties[propName]
-			
-			props.push(propName)
-			args.push(key)
-			args.push(JSON.stringify(value))
+		this._mutate({ id: itemId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
+	}
+	
+	this.append = function(itemId, propName /*, val1, val2, ... */) {
+		var values = Array.prototype.slice.call(arguments, 2)
+		for (var i=0; i < values.length; i++) {
+			values[i] = JSON.stringify(values[i])
 		}
-		
-		this._mutate({ id: itemId, op: 'mset', props: props, args: args })
+		this._mutate({ id: itemId, op: 'append', prop: propName, args: values })
 	}
 
 	this._mutate = function(mutation) {
@@ -217,40 +215,72 @@ fin = Singleton(function(){
 		callback(response)
 	}
 	
+	this._deserializeMutation = function(mutation) {
+		var args = mutation.args,
+			operation = mutation.op
+		switch(operation) {
+			case 'set':
+			case 'append':
+				for (var i=0; i < args.length; i++) {
+					args[i] = JSON.parse(args[i])
+				}
+				break
+			default: throw logger.error("Unkown operation "+ operation)
+		}
+	}
+	
 	this._mutationCache = {}
 	this._handleItemMutation = function(mutation, singleCallback) {
 		var mutationArgs = Array.prototype.slice.call(mutation.args, 0)
+		mutationArgs.unshift(mutation.op)
+		
+		if (singleCallback) {
+			setTimeout(bind(singleCallback, 'apply', this, mutationArgs))
+		} else {
+			var channel = shared.keys.getItemPropertyChannel(mutation.id, mutation.prop)
+				subs = this._subscriptionPool.get(channel)
+			for (var subId in subs) {
+				// TODO should we really need the if check here? 
+				// If yes, then lets at least delete the subId key from subs
+				// when we find that there is no callback
+				if (subs[subId]) { subs[subId].apply(this, mutationArgs) }
+			}
+			this._cacheMutation(mutation, channel)
+		}
+	}
+	
+	this._cacheMutation = function(mutation, channel) {
+		var mutationCache = this._mutationCache,
+			cachedMutation = mutationCache[channel],
+			cachedArgs = cachedMutation && cachedMutation.args
+		
+		if (!cachedMutation) {
+			mutationCache[channel] = mutation
+			return
+		}
 		
 		switch(mutation.op) {
-
-			case 'mset':
-				for (var iValue=1, setValue; setValue = mutationArgs[iValue]; iValue+=2) {
-					mutationArgs[iValue] = JSON.parse(setValue)
+			case 'set':
+				mutationCache[channel] = mutation
+				break
+			case 'append':
+				cachedMutation.args = cachedArgs.concat(mutation.args)
+				break
+			case 'sadd':
+				for (var i=0, itemId; itemId = mutation.args[i]; i++) {
+					if (cachedArgs.indexOf(itemId) == -1) { cachedArgs.push(itemId) }
 				}
-				break;
-
+				break
+			case 'srem':
+				for (var i=0, itemId; itemId = mutation.args[i]; i++) {
+					cachedArgs.splice(cachedArgs.indexOf(itemId), 1)
+				}
+				break
 			default:
 				throw logger.error("Unkown operation "+ operation)
 		}
-		
-		// TODO remove dependency on second argument in mutation handlers
-		for (var i=0, propName; propName = mutation.props[i]; i++) {
-			if (singleCallback) {
-				setTimeout(bind(this, singleCallback, mutation, mutationArgs[i * 2 + 1]))
-			} else {
-				var channel = shared.keys.getItemPropertyChannel(mutation.id, propName)
-					subs = this._subscriptionPool.get(channel)
-
-				for (var subId in subs) {
-					// TODO should we really need the if check here? 
-					// If yes, then lets at least delete the subId key from subs
-					// when we find that there is no callback
-					if (subs[subId]) { subs[subId](mutation, mutationArgs[i * 2 + 1]) }
-				}
-				this._mutationCache[channel] = mutation
-			}
-		}
 	}
+	
 	
 	this._handleQueryMutation = function(mutation, singleCallback) {
 		var channel = mutation.id,
@@ -260,38 +290,10 @@ fin = Singleton(function(){
 			// TODO do we need the second argument?
 			setTimeout(bind(this, singleCallback, mutation, mutation.args[0]))
 		} else {
-			this._cacheQueryMutation(mutation, channel)
+			this._cacheMutation(mutation, channel)
 			for (var subId in subs) {
 				subs[subId](mutation, mutation.args[0])
 			}
-		}
-	}
-	
-	this._cacheQueryMutation = function(mutation, channel) {
-		var operation = mutation.op
-		
-		switch(operation) {
-			case 'sadd':
-				if (!this._mutationCache[channel]) { 
-					this._mutationCache[channel] = mutation
-				} else {
-					var args = this._mutationCache[channel].args
-					for (var i=0, itemId; itemId = mutation.args[i]; i++) {
-						if (args.indexOf(itemId) != -1) { continue }
-						args.push(itemId)
-					}
-				}
-				break;
-
-			case 'srem':
-				var args = this._mutationCache[channel].args
-				for (var i=0, itemId; itemId = mutation.args[i]; i++) {
-					args.splice(args.indexOf(itemId), 1)
-				}
-				break;
-
-			default:
-				throw logger.error("Unkown operation "+ operation)
 		}
 	}
 	
@@ -309,7 +311,9 @@ fin = Singleton(function(){
 		}))
 		
 		this._client.registerEventHandler('FIN_EVENT_ITEM_MUTATED', bind(this, function(mutationJSON) {
-			this._handleItemMutation(JSON.parse(mutationJSON))
+			var mutation = JSON.parse(mutationJSON)
+			this._deserializeMutation(mutation)
+			this._handleItemMutation(mutation)
 		}))
 		
 		this._client.registerEventHandler('FIN_EVENT_QUERY_MUTATED', bind(this, function(mutationJSON) {

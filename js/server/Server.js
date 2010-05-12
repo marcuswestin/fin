@@ -1,4 +1,4 @@
-jsio('from shared.javascript import Class, map, bind')
+jsio('from shared.javascript import Class, map, bind, blockCallback')
 jsio('from net.interfaces import Server')
 jsio('import shared.keys')
 
@@ -30,7 +30,7 @@ exports = Class(Server, function(supr) {
 		
 		this._redisClient.get(key, bind(this, function(err, valueBytes) {
 			if (err) { throw logger.error('could not retrieve properties for item', key, err, err) }
-			callback((valueBytes ? valueBytes.toString() : ''), key)
+			callback((valueBytes ? valueBytes.toString() : "null"), key)
 		}))
 	}
 	
@@ -54,44 +54,28 @@ exports = Class(Server, function(supr) {
 	this.createItem = function(itemProperties, origConnection, callback) {
 		this._redisClient.incr(shared.keys.uniqueIdKey, bind(this, function(err, newItemId) {
 			if (err) { throw logger.error('Could not increment unique item id counter', err) }
-			var mutation = { id: newItemId, op: 'mset', props: [], args: [] },
-				itemPropsEmpty = true
-
+			
+			var doCallback = blockCallback(bind(this, callback, newItemId))
+			
 			for (var propName in itemProperties) {
-				itemPropsEmpty = false
-				mutation.args.push(shared.keys.getItemPropertyKey(newItemId, propName))
-				mutation.args.push(JSON.stringify(itemProperties[propName]))
-				mutation.props.push(propName)
+				var value = JSON.stringify(itemProperties[propName]),
+					mutation = { id: newItemId, op: 'set', prop: propName, args: [value] }
+				this.mutateItem(mutation, origConnection, doCallback.addBlock())
 			}
-			if (itemPropsEmpty) {
-				callback(newItemId)
-			} else {
-				this.mutateItem(mutation, origConnection, bind(this, callback, newItemId))
-			}
+			doCallback.tryNow()
 		}))
 	}
 	
 	this.mutateItem = function(mutation, originConnection, callback) {
 		var itemId = mutation.id,
+			propName = mutation.prop,
 			operation = mutation.op,
+			args = Array.prototype.slice.call(mutation.args, 0)
 			connId = originConnection.getId(),
-			properties = mutation.props,
 			mutationBytes = connId.length + connId + JSON.stringify(mutation),
-			channels = [],
-			args = mutation.args
-			
-		switch(operation) {
-			case 'mset':
-				for (var i=0, propName; propName = properties[i]; i++) {
-					channels.push(shared.keys.getItemPropertyChannel(itemId, propName))
-					channels.push(shared.keys.getPropertyChannel(propName))
-				}
-				break;
-			default:
-				throw logger.error("Unkown operation "+ operation)
-		}
 		
-		logger.log('Apply mutation', operation, args)
+		args.unshift(shared.keys.getItemPropertyKey(itemId, propName))
+		logger.log('Apply and publish mutation', operation, args)
 		if (callback) { args.push(callback) }
 		this._redisClient[operation].apply(this._redisClient, args)
 		
@@ -99,10 +83,11 @@ exports = Class(Server, function(supr) {
 		//	e.g. for item props *:1@type:* and for prop channels *:#type:*
 		//	mutations then come with a single publication channel, 
 		//	e.g. :1@type:#type: for a mutation that changes the type of item 1
-		logger.log('Publish channels', channels, mutation)
-		for (var i=0, channel; channel = channels[i]; i++) {
-			this._redisClient.publish(channel, mutationBytes)
-		}
+		var itemPropChannel = shared.keys.getItemPropertyChannel(itemId, propName)
+		var propChannel = shared.keys.getPropertyChannel(propName)
+		
+		this._redisClient.publish(itemPropChannel, mutationBytes)
+		this._redisClient.publish(propChannel, mutationBytes)
 	}
 })
 

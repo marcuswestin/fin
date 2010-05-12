@@ -9,6 +9,24 @@ exports = Class(Server, function(supr) {
 		this._redis = redis
 		this._uniqueId = 0
 		this._redisClient = this._createRedisClient()
+
+		// TODO For now we clear out all the query locks on every start up.
+		//	This is because if the query observer loses its connection to 
+		//	the redis server before shut down, then it never gets the chance
+		//	to release the queries it is observing. I'm not sure what the correct
+		//	solution to the this problem is.
+		this._redisClient.stream.addListener('connect', bind(this, function() {
+			var locksPattern = shared.keys.getQueryLockPattern()
+			this._redisClient.keys(locksPattern, bind(this, function(err, keysBytes) {
+				if (err) { throw logger.error('Could not retrieve query lock keys on startup', err) }
+				if (!keysBytes) { return }
+				var keys = keysBytes.toString().split(',')
+				logger.log("Clearing out query lock keys", keys)
+				for (var i=0, key; key = keys[i]; i++) {
+					this._redisClient.del(key)
+				}
+			}))
+		}))
 	}
 	
 	this._createRedisClient = function() {

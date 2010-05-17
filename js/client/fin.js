@@ -326,7 +326,7 @@ fin = Singleton(function(){
 			default:
 				throw logger.error("Unkown operation "+ operation)
 		}
-		return cachedMutation
+		return mutationCache[channel]
 	}
 	
 	

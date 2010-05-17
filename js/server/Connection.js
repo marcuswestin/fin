@@ -46,23 +46,24 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			if (mutationInfo.originId == this._id) { return }
 			if (!this._clientConnected) {
 				logger.warn("Received item mutation event even though redis client is closed", mutationInfo.json)
-				return;
+				return
 			}
 			this.sendFrame('FIN_EVENT_ITEM_MUTATED', mutationInfo.json)
 		})
 		
-		this.handleRequest('FIN_REQUEST_SUBSCRIBE', bind(this, function(args) {
+		this.handleRequest('FIN_REQUEST_OBSERVE', bind(this, function(args) {
 			var itemId = args.id,
 				propName = args.prop,
-				channel = shared.keys.getItemPropertyChannel(itemId, propName)
+				channel = shared.keys.getItemPropertyChannel(itemId, propName),
+				type = args.type
 			
 			logger.log("Subcribe to item channel", channel)
 			this._redisClient.subscribeTo(channel, this._itemChannelHandler)
-			// fake an item mutation event.
-			// TODO will an op: 'set' always work or will we have to know what type of op it should be?
+			
+			if (args.mute) { return }
+			// fake an item mutation event
 			this.server.getItemProperty(itemId, propName, bind(this, function(value, key) {
 				var mutation = { op: 'set', id: itemId, prop: propName, args: [value] }
-				
 				this.sendFrame('FIN_EVENT_ITEM_MUTATED', JSON.stringify(mutation))
 			}))
 		}))
@@ -97,6 +98,17 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		
 		this.handleRequest('FIN_REQUEST_MUTATE_ITEM', bind(this, function(mutation){
 			this.server.mutateItem(mutation, this)
+		}))
+		
+		this.handleRequest('FIN_REQUEST_EXTEND_LIST', bind(this, function(request) {
+			var key = request.key,
+				from = request.from,
+				to = request.to
+			
+			this.server.getListItems(key, from, to, bind(this, function(items) {
+				var response = { _requestId: request._requestId, data: items }
+				this.sendFrame('FIN_RESPONSE', response)
+			}))
 		}))
 		
 		// TODO: get Reduction handler to work

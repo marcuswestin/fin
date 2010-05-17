@@ -47,10 +47,24 @@ exports = Class(Server, function(supr) {
 		var key = shared.keys.getItemPropertyKey(itemId, propName)
 		
 		this._redisClient.get(key, bind(this, function(err, valueBytes) {
-			if (err) { throw logger.error('could not retrieve properties for item', key, err, err) }
+			if (err) { throw logger.error('could not retrieve properties for item', key, err) }
 			callback((valueBytes ? valueBytes.toString() : "null"), key)
 		}))
 	}
+	
+	this.getListItems = function(listKey, from, to, callback) {
+		this._redisClient.lrange(listKey, from, to, bind(this, function(err, itemBytesArray) {
+			if (err) { throw logger.error('could not retrieve list range', listKey, from, to, err) }
+			if (!itemBytesArray) {
+				callback([])
+				return
+			}
+			
+			var items = map(itemBytesArray, function(itemBytes) { return itemBytes.toString() })
+			callback(items)
+		}))
+	}
+	
 	
 	this.getQuerySet = function(queryJSON, callback) {
 		var queryKey = shared.keys.getQueryKey(queryJSON),
@@ -84,10 +98,14 @@ exports = Class(Server, function(supr) {
 		}))
 	}
 	
+	this._operationMap = {
+		'set': 'set',
+		'append': 'lpush'
+	}
 	this.mutateItem = function(mutation, originConnection, callback) {
 		var itemId = mutation.id,
 			propName = mutation.prop,
-			operation = mutation.op,
+			operation = this._operationMap[mutation.op],
 			args = Array.prototype.slice.call(mutation.args, 0)
 			connId = originConnection.getId(),
 			mutationBytes = connId.length + connId + JSON.stringify(mutation),

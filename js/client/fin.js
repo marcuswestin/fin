@@ -68,23 +68,62 @@ fin = Singleton(function(){
 	/*
 	 * Observe an item property, and get notified any time it changes
 	 */
-	this._subIdToChannel = {}
-	this._subscriptionPool = new shared.Pool()
 	this.observe = function(itemId, propName, callback) {
 		if (!itemId || !propName || !callback) { logger.error("observe requires three arguments", itemId, propName, callback); }
 		
+		return this._observe(itemId, propName, callback)
+	}
+	
+	/* 
+	 * Observe an item property list, and get notified any time it changes
+	 */
+	this.observeList = function(itemId, propName, callback, length) {
+		if (!itemId || !propName || !callback) { logger.error("observe requires at least three arguments", itemId, propName, callback, length); }
+		
+		var subId = this._observe(itemId, propName, callback, true)
+		this.extendList(itemId, propName, length || 10)
+		return subId
+	}
+	
+	/*
+	 * Extend the history of an observed list
+	 */
+	this._listLength = {}
+	this.extendList = function(itemId, propName, maxLen) {
+		if (!itemId || !propName || !maxLen) { logger.error("observe requires three arguments", itemId, propName, maxLen); }
+		
+		var listKey = shared.keys.getItemPropertyKey(itemId, propName),
+			listChannel = shared.keys.getItemPropertyChannel(itemId, propName),
+			listLength = this._listLength[listChannel] || 0
+		
+		if (maxLen <= listLength) { return }
+		this._listLength[listChannel] = maxLen
+		
+		var args = { key: listKey, from: listLength, to: maxLen }
+		this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
+			var mutation = { id: itemId, prop: propName, op: 'splice', args: [items], index: listLength }
+			this._handleItemMutation(mutation)
+		}))
+	}
+	
+	this._subIdToChannel = {}
+	this._subscriptionPool = new shared.Pool()
+	this._observe = function(itemId, propName, callback, muteSnapshot) {
 		var channel = shared.keys.getItemPropertyChannel(itemId, propName)
 			subId = this._subscriptionPool.add(channel, callback),
 			cachedMutation = this._mutationCache[channel]
 		
 		if (this._subscriptionPool.count(channel) == 1) {
-			this.send('FIN_REQUEST_SUBSCRIBE', { id: itemId, prop: propName })
+			var params = { id: itemId, prop: propName }
+			if (muteSnapshot) { params.mute = true }
+			this.send('FIN_REQUEST_OBSERVE', params)
 		} else if (cachedMutation) {
 			this._handleItemMutation(cachedMutation, callback)
 		}
 		
 		this._subIdToChannel[subId] = channel
 		return subId
+		
 	}
 	
 	/*
@@ -124,6 +163,7 @@ fin = Singleton(function(){
 
 			if (this._subscriptionPool.count() == 0) {
 				this.send('FIN_REQUEST_UNSUBSCRIBE', channel)
+				delete this._listLength[channel]
 			}
 
 			delete this._subIdToChannel[subId]
@@ -221,9 +261,11 @@ fin = Singleton(function(){
 		switch(operation) {
 			case 'set':
 			case 'append':
-				for (var i=0; i < args.length; i++) {
-					args[i] = JSON.parse(args[i])
-				}
+				for (var i=0; i < args.length; i++) { args[i] = JSON.parse(args[i]) }
+				break
+			case 'splice':
+				var items = args[0]
+				for (var i=0; i < items.length; i++) { items[i] = JSON.parse(items[i]) }
 				break
 			default: throw logger.error("Unkown operation "+ operation)
 		}
@@ -231,21 +273,23 @@ fin = Singleton(function(){
 	
 	this._mutationCache = {}
 	this._handleItemMutation = function(mutation, singleCallback) {
-		var mutationArgs = Array.prototype.slice.call(mutation.args, 0)
-		mutationArgs.unshift(mutation.op)
-		
 		if (singleCallback) {
-			setTimeout(bind(singleCallback, 'apply', this, mutationArgs))
+			var args = [mutation.op].concat(mutation.args)
+			setTimeout(bind(singleCallback, 'apply', this, args))
 		} else {
 			var channel = shared.keys.getItemPropertyChannel(mutation.id, mutation.prop)
 				subs = this._subscriptionPool.get(channel)
+			
+			this._deserializeMutation(mutation)
+			mutation = this._cacheMutation(mutation, channel)
+			
 			for (var subId in subs) {
+				var args = [mutation.op].concat(mutation.args)
 				// TODO should we really need the if check here? 
 				// If yes, then lets at least delete the subId key from subs
 				// when we find that there is no callback
-				if (subs[subId]) { subs[subId].apply(this, mutationArgs) }
+				if (subs[subId]) { subs[subId].apply(this, args) }
 			}
-			this._cacheMutation(mutation, channel)
 		}
 	}
 	
@@ -255,8 +299,7 @@ fin = Singleton(function(){
 			cachedArgs = cachedMutation && cachedMutation.args
 		
 		if (!cachedMutation) {
-			mutationCache[channel] = mutation
-			return
+			return mutationCache[channel] = mutation
 		}
 		
 		switch(mutation.op) {
@@ -264,7 +307,11 @@ fin = Singleton(function(){
 				mutationCache[channel] = mutation
 				break
 			case 'append':
-				cachedMutation.args = cachedArgs.concat(mutation.args)
+				cachedMutation.args[0] = cachedArgs[0].concat(mutation.args)
+				break
+			case 'splice':
+				var spliceArgs = [0, mutation.index].concat(mutation.args)
+				Array.prototype.splice.apply(cachedMutation.args, spliceArgs)
 				break
 			case 'sadd':
 				for (var i=0, itemId; itemId = mutation.args[i]; i++) {
@@ -279,6 +326,7 @@ fin = Singleton(function(){
 			default:
 				throw logger.error("Unkown operation "+ operation)
 		}
+		return cachedMutation
 	}
 	
 	
@@ -312,7 +360,6 @@ fin = Singleton(function(){
 		
 		this._client.registerEventHandler('FIN_EVENT_ITEM_MUTATED', bind(this, function(mutationJSON) {
 			var mutation = JSON.parse(mutationJSON)
-			this._deserializeMutation(mutation)
 			this._handleItemMutation(mutation)
 		}))
 		

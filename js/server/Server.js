@@ -20,10 +20,14 @@ exports = Class(Server, function(supr) {
 			this._redisClient.keys(locksPattern, bind(this, function(err, keysBytes) {
 				if (err) { throw logger.error('Could not retrieve query lock keys on startup', err) }
 				if (!keysBytes) { return }
-				var keys = keysBytes.toString().split(',')
-				logger.log("Clearing out query lock keys", keys)
+				// This is really really ugly - keys are concatenated with commas. Split on ,L and then append
+				//	an L in front of every key. This will break if there is a query with the string ",L" in a key or value
+				var keys = keysBytes.toString().substr(1).split(',L') 
+				logger.log("Clear out query lock keys", keys)
 				for (var i=0, key; key = keys[i]; i++) {
-					this._redisClient.del(key)
+					this._redisClient.del('L' + key, function(err) {
+						if (err) { throw logger.error("Could not clear out key") }
+					})
 				}
 			}))
 		}))

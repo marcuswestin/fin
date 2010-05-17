@@ -55,7 +55,6 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			var itemId = args.id,
 				propName = args.prop,
 				channel = shared.keys.getItemPropertyChannel(itemId, propName),
-				type = args.type
 			
 			logger.log("Subcribe to item channel", channel)
 			this._redisClient.subscribeTo(channel, this._itemChannelHandler)

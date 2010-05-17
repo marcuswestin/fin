@@ -54,7 +54,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		this.handleRequest('FIN_REQUEST_OBSERVE', bind(this, function(args) {
 			var itemId = args.id,
 				propName = args.prop,
-				channel = shared.keys.getItemPropertyChannel(itemId, propName),
+				channel = shared.keys.getItemPropertyChannel(itemId, propName)
 			
 			logger.log("Subcribe to item channel", channel)
 			this._redisClient.subscribeTo(channel, this._itemChannelHandler)

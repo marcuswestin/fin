@@ -217,6 +217,11 @@ fin = Singleton(function(){
 		this.set(itemId, '_focus', sessionId)
 	}
 	
+	/*
+	 * Get approximately the current server time
+	 */
+	// TODO The timestamp should be offset by a time given by the server
+	this.now = function() { return new Date().getTime() }
 	
 	/*
 	 * Apply a template to a fin item (or multiple items)

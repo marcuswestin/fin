@@ -9,7 +9,7 @@ exports = Class(function() {
 	this.subscribe = function(signal, callback) {
 		if (!this._subscribers[signal]) { this._subscribers[signal] = []; }
 		this._subscribers[signal].push(callback);
-		return callback
+		return this
 	}
 
 	this.unsubscribe = function(signal, targetCallback) {
@@ -19,6 +19,7 @@ exports = Class(function() {
 			subscribers.splice(i, 1)
 			return
 		}
+		return this
 	}
 	
 	this._publish = function(signal) {

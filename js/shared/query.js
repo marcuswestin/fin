@@ -118,7 +118,7 @@ _Query = Class(function() {
 			
 			self._redisCommandClient.get(itemPropKey, function(err, valueBytes) {
 				
-				var value = valueBytes ? bytesToString(valueBytes) : null,
+				var value = valueBytes ? bytesToString(valueBytes) : false,
 					propCondition = query[propName],
 					isLiteral = (typeof propCondition != 'object' || propCondition == null),
 					compareOperator = isLiteral ? '=' : propCondition[0],

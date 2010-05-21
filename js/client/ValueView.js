@@ -20,6 +20,5 @@ exports = Class(function(supr){
 	this._setValue = function(value) {
 		value = value.toString().replace(/\n/g, '<br />').replace(/ $/, '&nbsp;')
 		this._element.innerHTML = value
-		this._element.className = ' fin-Value-' + this._property + '-' + value.replace(/ /g, '_')
 	}
 })

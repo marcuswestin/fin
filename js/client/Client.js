@@ -4,8 +4,6 @@ jsio('from shared.javascript import Class, bind, forEach')
 
 exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	
-	this._uniqueId = 0
-
 	this.init = function() {
 		supr(this, 'init')
 		this._isConnected = false

@@ -131,7 +131,7 @@ fin = Singleton(function(){
 	 * any time an item enters or leaves the matching set
 	 */
 	this.query = function(query, callback) {
-		if (!query || !callback) { logger.error("query requires two arguments", query, callback); }
+		if (!query || !callback) { logger.error("query requires two arguments", query, callback) }
 		
 		var queryJSON = JSON.stringify(query),
 			queryChannel = shared.keys.getQueryChannel(queryJSON),
@@ -146,12 +146,6 @@ fin = Singleton(function(){
 		
 		return subId
 	}
-	
-	/*
-	 * Monitor any changes to a given property. 
-	 * This should probably not be used except by query robot clients
-	 */
-	this.monitorProperty = function() { throw logger.error("Unimplemented method monitorProperty") }
 	
 	/* 
 	 * Release a subscription, query, or property monitoring

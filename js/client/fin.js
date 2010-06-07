@@ -218,6 +218,12 @@ fin = Singleton(function(){
 	this.now = function() { return new Date().getTime() }
 	
 	/*
+	 * Generate a unique ID
+	 */
+	var _unique = 1
+	this.unique = function() { return 'fan_u' + _unique++ }
+	
+	/*
 	 * Apply a template to a fin item (or multiple items)
 	 */
 	this.applyTemplate = function(templateString, itemIds) {

@@ -24,6 +24,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	}
 
 	this.connectionMade = function() {
+		logger.info("Connection made", arguments)
 		this._isConnected = true
 		for (var i=0, cb; cb = this._onConnectedCallbacks[i]; i++) { cb() }
 		delete this._onConnectedCallbacks
@@ -41,7 +42,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	}
 
 	this.frameReceived = function(id, name, args) {
-		logger.log('recv', id, name, JSON.stringify(args))
+		logger.debug('recv', id, name, JSON.stringify(args))
 		if (!this._eventHandlers[name]) { 
 			logger.warn('Received event without handler', name)
 			return
@@ -54,7 +55,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
  ******/ 
 	// override for loggin
 	this.sendFrame = function(name, args) {
-		logger.log('send', name, JSON.stringify(args))
+		logger.debug('send', name, JSON.stringify(args))
 		supr(this, 'sendFrame', arguments)
 	}
 })

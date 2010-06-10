@@ -52,7 +52,7 @@ var RedisClientMock = Class(shared.Publisher, function(supr) {
 	}
 	
 	this.subscribeTo = function(channel, callback) {
-		this.subscribe(channel, callback)
+		this.subscribe(channel, this, callback)
 	}
 	
 	this.publish = function(channel, message) {

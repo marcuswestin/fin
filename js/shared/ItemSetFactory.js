@@ -10,8 +10,9 @@ exports = Class(shared.Publisher, function(supr) {
 		this._itemSetsByProperty = {}
 		this._store = store
 		
-		itemFactory.subscribe('ItemCreated', bind(this, '_onItemCreated'))
-		itemFactory.subscribe('ItemPropertyUpdated', bind(this, '_onItemPropertyUpdated'))
+		itemFactory
+			.subscribe('ItemCreated', this, '_onItemCreated')
+			.subscribe('ItemPropertyUpdated', this, '_onItemPropertyUpdated')
 	}
 	
 	this.hasItemSet = function(id) { return !!this._itemSets[id] }

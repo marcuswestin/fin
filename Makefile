@@ -18,6 +18,7 @@ lib/js.io:
 	git clone git://github.com/mcarter/js.io.git
 	mv js.io lib/
 	cd lib/js.io/; git checkout 39965139b49921be14188eb4fece7c5a42702397
+	rm -rf lib/js.io/examples
 
 lib/redis-node-client:
 	git clone git://github.com/fictorial/redis-node-client.git 

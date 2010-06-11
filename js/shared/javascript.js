@@ -98,3 +98,8 @@ exports.bytesToString = function(byteArray, offset) {
 	return byteArray.toString();
 	return String.fromCharCode.apply(String, Array.prototype.slice.call(byteArray, offset || 0))
 }
+
+exports.recall = function(self, args, timeout) {
+	var fn = args.callee
+	return function(){ return fn.apply(self, args) }
+}

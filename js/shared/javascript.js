@@ -41,10 +41,14 @@ exports.Class = function(parent, proto) {
 	// Sometimes you want a method that renders UI to only execute once if it's called 
 	// multiple times within a short time period. Delayed methods do just that
 	cls.prototype.createDelayedMethod = function(methodName, fn) {
-		var delayedExecution
+		// "this" is the class
 		this[methodName] = function() {
-			clearTimeout(delayedExecution)
-			delayedExecution = setTimeout(bind(this, fn), 10)
+			// now "this" is the instance. Each instance gets its own function
+			var executionTimeout
+			this[methodName] = bind(this, function() {
+				clearTimeout(executionTimeout)
+				executionTimeout = setTimeout(bind(fn, 'apply', this, arguments), 10)
+			})
 		}
 	}
 	

@@ -49,6 +49,7 @@ exports.Class = function(parent, proto) {
 				clearTimeout(executionTimeout)
 				executionTimeout = setTimeout(bind(fn, 'apply', this, arguments), 10)
 			})
+			this[methodName].apply(this, arguments)
 		}
 	}
 	

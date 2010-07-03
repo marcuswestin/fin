@@ -121,8 +121,8 @@ _Query = Class(function() {
 				var value = valueBytes ? bytesToString(valueBytes) : false,
 					propCondition = query[propName],
 					isLiteral = (typeof propCondition != 'object' || propCondition == null),
-					compareOperator = isLiteral ? '=' : propCondition[0],
-					compareValue = isLiteral ? propCondition : propCondition[1]
+					compareOperator = isLiteral ? '=' : propCondition.op,
+					compareValue = isLiteral ? propCondition : propCondition.value
 				
 				// an unset value is interpreted as the same as a null value,
 				//  e.g. { type: null } matches both items with type set to null 
@@ -131,11 +131,13 @@ _Query = Class(function() {
 				if (value) { value = JSON.parse(value) }
 				logger.debug("After JSON parsing", ':', typeof value, value)
 				
-				logger.log("Check if", propName, ':', typeof value, value, compareOperator, typeof compareValue, compareValue, '-', 'couldBeInSet', '?', couldBeInSet)
 				var couldBeInSet = (compareOperator == '=') ? (value == compareValue)
+							: (compareOperator == '!=') ? (value != compareValue)
 							: (compareOperator == '<') ? (value < compareValue)
 							: (compareOperator == '>') ? (value > compareValue)
 							: logger.error('Unknown compare operator', compareOperator, queryKey, query, propName)
+				
+				logger.log('Check property "' + propName +'":', '[db: ' + JSON.stringify(value) + ']', compareOperator, '[query: ' + JSON.stringify(compareValue) + ']', 'match?', couldBeInSet)
 				
 				if (!couldBeInSet) {
 					self._maybeRemove(itemId)

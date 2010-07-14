@@ -77,15 +77,19 @@ fin = Singleton(function(){
 	}
 	
 	/* 
-	 * Release a subscription, query, or property monitoring
+	 * Release an observation or query
 	 */
-	this.release = function(subId) {
+	this.release = function(subId, options) {
+		options = options || {}
+		
 		if (typeof subId == 'string') {
 			var channel = this._subIdToChannel[subId]
 			this._subscriptionPool.remove(channel)
-
+			
 			if (this._subscriptionPool.count() == 0) {
-				this.send('FIN_REQUEST_UNSUBSCRIBE', channel)
+				if (options.local !== true) {
+					this.send('FIN_REQUEST_UNSUBSCRIBE', channel)
+				}
 				delete this._listLength[channel]
 			}
 
@@ -105,7 +109,7 @@ fin = Singleton(function(){
 	this.observeLocal = function(propName, callback) {
 		if (!propName || !callback) { logger.error("observeLocal requires two arguments", propName, callback); }
 		
-		return this._observe(this._localId, propName, callback, { mute: true })
+		return this._observe(this._localId, propName, callback, { local: true })
 	}
 
 	/*
@@ -114,12 +118,15 @@ fin = Singleton(function(){
 	this.setLocal = function(propName, value) {
 		var params = { id: this._localId, op: 'set', prop: propName, args: [JSON.stringify(value)] }
 		
-		this._mutate(params, { mute: true })
+		this._mutate(params, { local: true })
 	}
 	
 	/*
-	 * TODO: Add releaseLocal
+	 * Release a local observation
 	 */
+	this.releaseLocal = function(subId) {
+		this.release(subId, { local: true })
+	}
 
 /*********************
  * List property API *
@@ -273,9 +280,10 @@ fin = Singleton(function(){
 		
 		var channel = shared.keys.getItemPropertyChannel(itemId, propName)
 			subId = this._subscriptionPool.add(channel, callback),
-			cachedMutation = this._mutationCache[channel]
+			cachedMutation = this._mutationCache[channel],
+			isLocal = (options.local === true)
 		
-		if (this._subscriptionPool.count(channel) == 1 && !options.mute) {
+		if (this._subscriptionPool.count(channel) == 1 && !isLocal) {
 			var params = { id: itemId, prop: propName }
 			if (typeof options.snapshot != 'undefined') {
 				params.snapshot = options.snapshot
@@ -293,7 +301,7 @@ fin = Singleton(function(){
 	this._mutate = function(mutation, options) {
 		options = options || {}
 		
-		if (options.mute !== true) {
+		if (options.local !== true) {
 			this.send('FIN_REQUEST_MUTATE_ITEM', mutation)
 		}
 		this._handleItemMutation(mutation)

@@ -3,7 +3,7 @@
 ################
 
 .PHONY: all
-all: lib/js.io lib/redis-node-client
+all: fin.js lib/js.io lib/redis-node-client
 
 .PHONY: clean
 clean:
@@ -13,6 +13,15 @@ clean:
 #####################
 ### Dependencies ####
 #####################
+
+fin.js: lib/js.io
+	echo "// Built in Makefile by lib/js.io rule" > fin.js
+	cat lib/js.io/packages/jsio.js | sed s/jsio.js/fin.js/g >> fin.js
+	echo "" >> fin.js
+	echo "jsio.path.client = jsio.path.__default__ + 'js'" >> fin.js
+	echo "jsio.path.shared = jsio.path.__default__ + 'js'" >> fin.js
+	echo "jsio.path.__default__ += 'lib/js.io/packages'" >> fin.js
+	echo "jsio('import client.api')" >> fin.js
 
 lib/js.io:
 	git clone git://github.com/mcarter/js.io.git

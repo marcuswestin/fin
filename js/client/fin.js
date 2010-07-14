@@ -14,7 +14,10 @@ fin = Singleton(function(){
  * The core API: connect, create, *
  * observe, set, query & release  *
  **********************************/
-	// Make sure you have a connection with the server before using fin
+	/*
+	 * Connect to the fin database. The callback will be called
+	 * once you're connected with the server
+	 */
 	this.connect = function(callback) {
 		this._connect(callback)
 	}

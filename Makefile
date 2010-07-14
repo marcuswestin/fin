@@ -2,8 +2,8 @@
 ### Commands ###
 ################
 
-.PHONY: download-dependencies
-download-dependencies: lib/js.io lib/redis-node-client
+.PHONY: all
+all: lib/js.io lib/redis-node-client
 
 .PHONY: clean
 clean:

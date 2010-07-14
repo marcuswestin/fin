@@ -21,8 +21,7 @@ Fin requires node and redis
 	sudo make install-redis
 
 Fin also needs some local libraries
-	make lib/js.io
-	make lib/redis-node-client
+	make
 
 Run redis server, fin server, and fin query observer
 	redis-server redis.conf &

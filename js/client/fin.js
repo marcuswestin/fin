@@ -9,25 +9,14 @@ jsio('import client.ViewFactory')
 
 // expose fin to global namespace
 fin = Singleton(function(){
-	
+
+/**********************************
+ * The core API: connect, create, *
+ * observe, set, query & release  *
+ **********************************/
 	// Make sure you have a connection with the server before using fin
 	this.connect = function(callback) {
-		var transport, connectParams = {}
-		switch(jsio.__env.name) {
-			case 'node':
-				transport = 'tcp'
-				connectParams.host = '127.0.0.1'
-				connectParams.port = 5556
-				connectParams.timeout = 0
-				break;
-			case 'browser':
-				transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp'
-				connectParams.url = 'http://' + (document.domain || '127.0.0.1') + ':5555'
-				break;
-		}
-		this._client.connect(transport, connectParams, callback)
-		// TODO Get the session key from the server
-		this._sessionId = 'fin_random_session_' + Math.floor(Math.random() * 100000)
+		this._connect(callback)
 	}
 	
 	/* 
@@ -38,33 +27,7 @@ fin = Singleton(function(){
 		if (typeof callback != 'function') { throw logger.error('Second argument to fin.create should be a callback') }
 		this.requestResponse('FIN_REQUEST_CREATE_ITEM', { data: data }, callback)
 	}
-	
-	/* 
-	 * Make a request with an associated requestId, 
-	 * and call the callback upon response
-	 */
-	this.requestResponse = function(frameName, args, callback) {
-		var requestId = this._scheduleCallback(callback)
-		args._requestId = requestId
-		this.send(frameName, args)
-	}
-	
-	/* 
-	 * Send a frame to the server
-	 */
-	this.send = function(frameName, args) {
-		this._client.sendFrame(frameName, args)
-	}
-	
-	/*
-	 * Register a handler for a type of event from the server
-	 */
-	this.registerEventHandler = function(frameName, callback) {
-		this._client.registerEventHandler(frameName, callback)
-	}
-	
-	
-	
+
 	/*
 	 * Observe an item property, and get notified any time it changes
 	 */
@@ -74,84 +37,21 @@ fin = Singleton(function(){
 		return this._observe(itemId, propName, callback)
 	}
 	
-/********************
- * Local properties *
- ********************/
-
 	/*
-	 * Observe a local property. This does not get synched across clients or page views
+	 * Mutate a fin item with the given operation
 	 */
-	this._localId = '__fin_local'
-	this.observeLocal = function(propName, callback) {
-		if (!propName || !callback) { logger.error("observeLocal requires two arguments", propName, callback); }
-		
-		return this._observe(this._localId, propName, callback, { mute: true })
-	}
-	/*
-	 * Mutate a local property. This does not get synched across clients or page views
-	 */
-	this.setLocal = function(propName, value) {
-		var params = { id: this._localId, op: 'set', prop: propName, args: [JSON.stringify(value)] }
-		
-		this._mutate(params, { mute: true })
-	}
-	
-	/* 
-	 * Observe an item property list, and get notified any time it changes
-	 */
-	this.observeList = function(itemId, propName, callback, length) {
-		if (!itemId || !propName || !callback) { logger.error("observe requires at least three arguments", itemId, propName, callback, length); }
-		
-		var subId = this._observe(itemId, propName, callback, { snapshot: false })
-		this.extendList(itemId, propName, length || 10)
-		return subId
-	}
-	
-	/*
-	 * Extend the history of an observed list
-	 */
-	this._listLength = {}
-	this.extendList = function(itemId, propName, maxLen) {
-		if (!itemId || !propName || !maxLen) { logger.error("observe requires three arguments", itemId, propName, maxLen); }
-		
-		var listKey = shared.keys.getItemPropertyKey(itemId, propName),
-			listChannel = shared.keys.getItemPropertyChannel(itemId, propName),
-			listLength = this._listLength[listChannel] || 0
-		
-		if (maxLen <= listLength) { return }
-		this._listLength[listChannel] = maxLen
-		
-		var args = { key: listKey, from: listLength, to: maxLen }
-		this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
-			var mutation = { id: itemId, prop: propName, op: 'splice', args: [items], index: listLength }
-			this._handleItemMutation(mutation)
-		}))
-	}
-	
-	this._subIdToChannel = {}
-	this._subscriptionPool = new shared.Pool()
-	this._observe = function(itemId, propName, callback, options) {
-		options = options || {}
-		
-		var channel = shared.keys.getItemPropertyChannel(itemId, propName)
-			subId = this._subscriptionPool.add(channel, callback),
-			cachedMutation = this._mutationCache[channel]
-		
-		if (this._subscriptionPool.count(channel) == 1 && !options.mute) {
-			var params = { id: itemId, prop: propName }
-			if (typeof options.snapshot != 'undefined') {
-				params.snapshot = options.snapshot
+	this.set = function(itemId, propName, value) {
+		if (arguments.length == 2) {
+			var properties = propName
+			for (var propName in properties) {
+				this.set(itemId, propName, properties[propName])
 			}
-			this.send('FIN_REQUEST_OBSERVE', params)
-		} else if (cachedMutation) {
-			this._handleItemMutation(cachedMutation, callback)
+			return
 		}
 		
-		this._subIdToChannel[subId] = channel
-		return subId
-		
+		this._mutate({ id: itemId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
 	}
-	
+
 	/*
 	 * Query fin for items matching a set of properties, and get notified
 	 * any time an item enters or leaves the matching set
@@ -192,19 +92,65 @@ fin = Singleton(function(){
 		}
 	}
 	
+/**********************
+ * Local property API *
+ **********************/
 	/*
-	 * Mutate a fin item with the given operation
+	 * Observe a local property. This does not get synched across clients or page views
 	 */
-	this.set = function(itemId, propName, value) {
-		if (arguments.length == 2) {
-			var properties = propName
-			for (var propName in properties) {
-				this.set(itemId, propName, properties[propName])
-			}
-			return
-		}
+	this._localId = '__fin_local'
+	this.observeLocal = function(propName, callback) {
+		if (!propName || !callback) { logger.error("observeLocal requires two arguments", propName, callback); }
 		
-		this._mutate({ id: itemId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
+		return this._observe(this._localId, propName, callback, { mute: true })
+	}
+
+	/*
+	 * Mutate a local property. This does not get synched across clients or page views
+	 */
+	this.setLocal = function(propName, value) {
+		var params = { id: this._localId, op: 'set', prop: propName, args: [JSON.stringify(value)] }
+		
+		this._mutate(params, { mute: true })
+	}
+	
+	/*
+	 * TODO: Add releaseLocal
+	 */
+
+/*********************
+ * List property API *
+ *********************/
+	/* 
+	 * Observe an item property list, and get notified any time it changes
+	 */
+	this.observeList = function(itemId, propName, callback, length) {
+		if (!itemId || !propName || !callback) { logger.error("observe requires at least three arguments", itemId, propName, callback, length); }
+		
+		var subId = this._observe(itemId, propName, callback, { snapshot: false })
+		this.extendList(itemId, propName, length || 10)
+		return subId
+	}
+	
+	/*
+	 * Extend the history of an observed list
+	 */
+	this._listLength = {}
+	this.extendList = function(itemId, propName, maxLen) {
+		if (!itemId || !propName || !maxLen) { logger.error("observe requires three arguments", itemId, propName, maxLen); }
+		
+		var listKey = shared.keys.getItemPropertyKey(itemId, propName),
+			listChannel = shared.keys.getItemPropertyChannel(itemId, propName),
+			listLength = this._listLength[listChannel] || 0
+		
+		if (maxLen <= listLength) { return }
+		this._listLength[listChannel] = maxLen
+		
+		var args = { key: listKey, from: listLength, to: maxLen }
+		this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
+			var mutation = { id: itemId, prop: propName, op: 'splice', args: [items], index: listLength }
+			this._handleItemMutation(mutation)
+		}))
 	}
 	
 	this.append = function(itemId, propName /*, val1, val2, ... */) {
@@ -214,14 +160,34 @@ fin = Singleton(function(){
 		}
 		this._mutate({ id: itemId, op: 'append', prop: propName, args: values })
 	}
+	
 
-	this._mutate = function(mutation, options) {
-		options = options || {}
-		
-		if (options.mute !== true) {
-			this.send('FIN_REQUEST_MUTATE_ITEM', mutation)
-		}
-		this._handleItemMutation(mutation)
+
+/********************
+ * Miscelaneous API *
+ ********************/
+	/* 
+	 * Make a request with an associated requestId, 
+	 * and call the callback upon response
+	 */
+	this.requestResponse = function(frameName, args, callback) {
+		var requestId = this._scheduleCallback(callback)
+		args._requestId = requestId
+		this.send(frameName, args)
+	}
+	
+	/* 
+	 * Send a frame to the server
+	 */
+	this.send = function(frameName, args) {
+		this._client.sendFrame(frameName, args)
+	}
+	
+	/*
+	 * Register a handler for a type of event from the server
+	 */
+	this.registerEventHandler = function(frameName, callback) {
+		this._client.registerEventHandler(frameName, callback)
 	}
 	
 	/* 
@@ -273,6 +239,61 @@ fin = Singleton(function(){
 	 */
 	this.registerView = function(viewName, viewCtor) {
 		this._viewFactory.registerView(viewName, viewCtor)
+	}
+
+/*******************
+ * Private methods *
+ *******************/
+	this._connect = function(callback) {
+		var transport, connectParams = {}
+		switch(jsio.__env.name) {
+			case 'node':
+				transport = 'tcp'
+				connectParams.host = '127.0.0.1'
+				connectParams.port = 5556
+				connectParams.timeout = 0
+				break;
+			case 'browser':
+				transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp'
+				connectParams.url = 'http://' + (document.domain || '127.0.0.1') + ':5555'
+				break;
+		}
+		this._client.connect(transport, connectParams, callback)
+		// TODO Get the session key from the server
+		this._sessionId = 'fin_random_session_' + Math.floor(Math.random() * 100000)
+	}
+	
+	this._subIdToChannel = {}
+	this._subscriptionPool = new shared.Pool()
+	this._observe = function(itemId, propName, callback, options) {
+		options = options || {}
+		
+		var channel = shared.keys.getItemPropertyChannel(itemId, propName)
+			subId = this._subscriptionPool.add(channel, callback),
+			cachedMutation = this._mutationCache[channel]
+		
+		if (this._subscriptionPool.count(channel) == 1 && !options.mute) {
+			var params = { id: itemId, prop: propName }
+			if (typeof options.snapshot != 'undefined') {
+				params.snapshot = options.snapshot
+			}
+			this.send('FIN_REQUEST_OBSERVE', params)
+		} else if (cachedMutation) {
+			this._handleItemMutation(cachedMutation, callback)
+		}
+		
+		this._subIdToChannel[subId] = channel
+		return subId
+		
+	}
+		
+	this._mutate = function(mutation, options) {
+		options = options || {}
+		
+		if (options.mute !== true) {
+			this.send('FIN_REQUEST_MUTATE_ITEM', mutation)
+		}
+		this._handleItemMutation(mutation)
 	}
 	
 	var uniqueRequestId = 0
@@ -380,7 +401,7 @@ fin = Singleton(function(){
 		}
 	}
 	
-	// Private method - hook up all internals
+	// Instantiation - should be considered a private method
 	this.init = function() {
 		this._requestCallbacks = {}
 		

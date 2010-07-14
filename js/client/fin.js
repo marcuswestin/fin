@@ -74,13 +74,35 @@ fin = Singleton(function(){
 		return this._observe(itemId, propName, callback)
 	}
 	
+/********************
+ * Local properties *
+ ********************/
+
+	/*
+	 * Observe a local property. This does not get synched across clients or page views
+	 */
+	this._localId = '__fin_local'
+	this.observeLocal = function(propName, callback) {
+		if (!propName || !callback) { logger.error("observeLocal requires two arguments", propName, callback); }
+		
+		return this._observe(this._localId, propName, callback, { mute: true })
+	}
+	/*
+	 * Mutate a local property. This does not get synched across clients or page views
+	 */
+	this.setLocal = function(propName, value) {
+		var params = { id: this._localId, op: 'set', prop: propName, args: [JSON.stringify(value)] }
+		
+		this._mutate(params, { mute: true })
+	}
+	
 	/* 
 	 * Observe an item property list, and get notified any time it changes
 	 */
 	this.observeList = function(itemId, propName, callback, length) {
 		if (!itemId || !propName || !callback) { logger.error("observe requires at least three arguments", itemId, propName, callback, length); }
 		
-		var subId = this._observe(itemId, propName, callback, true)
+		var subId = this._observe(itemId, propName, callback, { snapshot: false })
 		this.extendList(itemId, propName, length || 10)
 		return subId
 	}
@@ -108,14 +130,18 @@ fin = Singleton(function(){
 	
 	this._subIdToChannel = {}
 	this._subscriptionPool = new shared.Pool()
-	this._observe = function(itemId, propName, callback, muteSnapshot) {
+	this._observe = function(itemId, propName, callback, options) {
+		options = options || {}
+		
 		var channel = shared.keys.getItemPropertyChannel(itemId, propName)
 			subId = this._subscriptionPool.add(channel, callback),
 			cachedMutation = this._mutationCache[channel]
 		
-		if (this._subscriptionPool.count(channel) == 1) {
+		if (this._subscriptionPool.count(channel) == 1 && !options.mute) {
 			var params = { id: itemId, prop: propName }
-			if (muteSnapshot) { params.mute = true }
+			if (typeof options.snapshot != 'undefined') {
+				params.snapshot = options.snapshot
+			}
 			this.send('FIN_REQUEST_OBSERVE', params)
 		} else if (cachedMutation) {
 			this._handleItemMutation(cachedMutation, callback)
@@ -189,8 +215,12 @@ fin = Singleton(function(){
 		this._mutate({ id: itemId, op: 'append', prop: propName, args: values })
 	}
 
-	this._mutate = function(mutation) {
-		this.send('FIN_REQUEST_MUTATE_ITEM', mutation)
+	this._mutate = function(mutation, options) {
+		options = options || {}
+		
+		if (options.mute !== true) {
+			this.send('FIN_REQUEST_MUTATE_ITEM', mutation)
+		}
 		this._handleItemMutation(mutation)
 	}
 	

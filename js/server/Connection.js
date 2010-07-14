@@ -59,7 +59,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			logger.log("Subcribe to item channel", channel)
 			this._redisClient.subscribeTo(channel, this._itemChannelHandler)
 			
-			if (args.mute) { return }
+			if (args.snapshot === false) { return }
 			// fake an item mutation event
 			this.server.getItemProperty(itemId, propName, bind(this, function(value, key) {
 				var mutation = { op: 'set', id: itemId, prop: propName, args: [value] }

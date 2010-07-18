@@ -54,7 +54,6 @@ _Query = Class(function() {
 	
 	this.init = function(lockKey, queryJSON) {
 		this._queryKey = shared.keys.getQueryKey(queryJSON)
-		this._queryChannel = shared.keys.getQueryChannel(queryJSON)
 		this._query = JSON.parse(queryJSON)
 		this._properties = map(this._query, function(key, val){ return key })
 		this._lockKey = lockKey
@@ -99,7 +98,8 @@ _Query = Class(function() {
 	this._onMutation = function(channel, mutationBytes) {
 		var mutationInfo = shared.mutations.parseMutationBytes(mutationBytes),
 			mutation = JSON.parse(mutationInfo.json),
-			itemId = mutation.id
+			key = mutation.id,
+			itemId = shared.keys.getKeyInfo(key).id
 		
 		this._processItem(itemId)
 	}
@@ -110,7 +110,7 @@ _Query = Class(function() {
 			properties = this._properties,
 			self = this
 		
-		logger.log('Check membership for:', itemId)
+		logger.log('Check membership for:', itemId, query)
 		
 		function processProperty(propIndex) {
 			var propName = properties[propIndex],
@@ -137,16 +137,13 @@ _Query = Class(function() {
 							: (compareOperator == '>') ? (value > compareValue)
 							: logger.error('Unknown compare operator', compareOperator, queryKey, query, propName)
 				
-				logger.log('Check property "' + propName +'":', '[db: ' + JSON.stringify(value) + ']', compareOperator, '[query: ' + JSON.stringify(compareValue) + ']', 'match?', couldBeInSet)
+				logger.log('Check ' + itemPropKey +':', '[in db: ' + JSON.stringify(value) + ']', compareOperator, '[query wants: ' + JSON.stringify(compareValue) + ']', 'match?', couldBeInSet)
 				
 				if (!couldBeInSet) {
-					self._maybeRemove(itemId)
+					self._removeIfMember(itemId)
 				} else {
-					if (propIndex == 0) {
-						self._maybeAdd(itemId)
-					} else {
-						processProperty(propIndex - 1)
-					}
+					if (propIndex == 0) { self._addIfNotMember(itemId) }
+					else { processProperty(propIndex - 1) }
 				}
 			})
 		}
@@ -154,14 +151,16 @@ _Query = Class(function() {
 		processProperty(properties.length - 1)
 	}
 	
-	this._maybeRemove = function(itemId) {
+	this._removeIfMember = function(itemId) {
+		// TODO just srem and use the wasMember flag to determine whether to publish or not
 		this._redisCommandClient.sismember(this._queryKey, itemId, bind(this, function(err, isMember) {
 			if (!Boolean(isMember)) { return }
 			this._mutate('srem', itemId)
 		}))
 	}
-
-	this._maybeAdd = function(itemId) {
+	
+	this._addIfNotMember = function(itemId) {
+		// TODO just sadd and use the wasMember flag to determine whether to publish or not
 		this._redisCommandClient.sismember(this._queryKey, itemId, bind(this, function(err, isMember) {
 			if (Boolean(isMember)) { return }
 			this._mutate('sadd', itemId)
@@ -172,8 +171,9 @@ _Query = Class(function() {
 		logger.log('Determined that item membership changed', redisOp, itemId)
 		this._redisCommandClient[redisOp](this._queryKey, itemId, bind(this, function(err, opChangedSet) {
 			if (err) { throw logger.error('Could not modify query set', redisOp, queryKey, err) }
-			var mutation = { op: redisOp, id: this._queryChannel, args: [itemId] }
-			this._redisCommandClient.publish(this._queryChannel, JSON.stringify(mutation))
+			var queryKey = this._queryKey,
+				mutation = { op: redisOp, id: queryKey, args: [itemId] }
+			this._redisCommandClient.publish(queryKey, JSON.stringify(mutation))
 		}))
 	}
 })

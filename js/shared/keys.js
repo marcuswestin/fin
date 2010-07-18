@@ -39,24 +39,11 @@ exports.getKeyInfo = function(key) {
 	var type = key[0],
 		parts = key.substr(1).split('@')
 	
-	return { type: type, id: parts[0], prop: parts[1] }
-}
-
-// Data mutation channels
-exports.getItemPropertyChannel = function(itemId, property) {
-	return '#I' + itemId + ':' + property
-}
-
-exports.getQueryChannel = function(queryJSON) {
-	return '#Q' + queryJSON
+	return { type: type, id: parts[0], property: parts[1] }
 }
 
 exports.getPropertyChannel = function(propName) {
 	return '#P' + propName
-}
-
-exports.getChannelInfo = function(channel) {
-	return { type: channel[1], id: channel.substr(2) }
 }
 
 // Misc

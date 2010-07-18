@@ -37,7 +37,7 @@ fin = Singleton(function(){
 	this.observe = function(itemId, propName, callback) {
 		if (!itemId || !propName || !callback) { logger.error("observe requires three arguments", itemId, propName, callback); }
 		
-		return this._observe(itemId, propName, callback)
+		return this._observe({ id: itemId, property: propName }, callback)
 	}
 	
 	/*
@@ -52,7 +52,8 @@ fin = Singleton(function(){
 			return
 		}
 		
-		this._mutate({ id: itemId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
+		var key = shared.keys.getItemPropertyKey(itemId, propName)
+		this._mutate({ key: key, op: 'set', args: [JSON.stringify(value)] })
 	}
 
 	/*
@@ -63,14 +64,11 @@ fin = Singleton(function(){
 		if (!query || !callback) { logger.error("query requires two arguments", query, callback) }
 		
 		var queryJSON = JSON.stringify(query),
-			queryChannel = shared.keys.getQueryChannel(queryJSON),
-			subId = this._subscriptionPool.add(queryChannel, callback),
-			cachedMutation = this._mutationCache[queryChannel]
-
-		if (this._subscriptionPool.count(queryChannel) == 1) {
-			this.send('FIN_REQUEST_QUERY', queryJSON)
-		} else if (cachedMutation) {
-			this._handleQueryMutation(cachedMutation, callback)
+			key = shared.keys.getQueryKey(queryJSON),
+			subId = this._observe({ key: key, type: 'SET' }, callback)
+		
+		if (this._subscriptionPool.count(key) == 1) {
+			this.send('FIN_REQUEST_MONITOR_QUERY', queryJSON)
 		}
 		
 		return subId
@@ -109,16 +107,14 @@ fin = Singleton(function(){
 	this.observeLocal = function(propName, callback) {
 		if (!propName || !callback) { logger.error("observeLocal requires two arguments", propName, callback); }
 		
-		return this._observe(this._localId, propName, callback, { local: true })
+		return this._observe({ id: this._localId, property: propName, local: true }, callback)
 	}
 
 	/*
 	 * Mutate a local property. This does not get synched across clients or page views
 	 */
 	this.setLocal = function(propName, value) {
-		var params = { id: this._localId, op: 'set', prop: propName, args: [JSON.stringify(value)] }
-		
-		this._mutate(params, { local: true })
+		this._mutate({ locals: true, id: this._localId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
 	}
 	
 	/*
@@ -137,7 +133,7 @@ fin = Singleton(function(){
 	this.observeList = function(itemId, propName, callback, length) {
 		if (!itemId || !propName || !callback) { logger.error("observe requires at least three arguments", itemId, propName, callback, length); }
 		
-		var subId = this._observe(itemId, propName, callback, { snapshot: false })
+		var subId = this._observe({ id: itemId, property: propName, snapshot: false }, callback)
 		this.extendList(itemId, propName, length || 10)
 		return subId
 	}
@@ -150,16 +146,15 @@ fin = Singleton(function(){
 		if (!itemId || !propName || !maxLen) { logger.error("observe requires three arguments", itemId, propName, maxLen); }
 		
 		var listKey = shared.keys.getItemPropertyKey(itemId, propName),
-			listChannel = shared.keys.getItemPropertyChannel(itemId, propName),
-			listLength = this._listLength[listChannel] || 0
+			listLength = this._listLength[listKey] || 0
 		
 		if (maxLen <= listLength) { return }
-		this._listLength[listChannel] = maxLen
+		this._listLength[listKey] = maxLen
 		
 		var args = { key: listKey, from: listLength, to: maxLen }
 		this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
 			var mutation = { id: itemId, prop: propName, op: 'splice', args: [items], index: listLength }
-			this._handleItemMutation(mutation)
+			this._handleMutation(mutation)
 		}))
 	}
 	
@@ -171,7 +166,20 @@ fin = Singleton(function(){
 		this._mutate({ id: itemId, op: 'append', prop: propName, args: values })
 	}
 	
+/***********
+ * Set API *
+ ***********/
+	this.observeSet = function(itemId, propName, callback) {
+		this._observe({ id: itemId, property: propName, type: 'SET' }, callback)
+	}
+	
+	this.addToSet = function(itemId, propName, member) {
+		this._mutate({ id: itemId, op: 'sadd', prop: propName, args: [JSON.stringify(member)] })
+	}
 
+	this.removeFromSet = function(itemId, propName, member) {
+		this._mutate({ id: itemId, op: 'srem', prop: propName, args: [JSON.stringify(member)] })
+	}
 
 /********************
  * Miscelaneous API *
@@ -275,36 +283,40 @@ fin = Singleton(function(){
 	
 	this._subIdToChannel = {}
 	this._subscriptionPool = new shared.Pool()
-	this._observe = function(itemId, propName, callback, options) {
-		options = options || {}
+	this._observe = function(params, callback) {
+		var itemId = params.id,
+			propName = params.property,
+			isGlobal = (params.local != true),
+			pool = this._subscriptionPool,
+			key = params.key || shared.keys.getItemPropertyKey(itemId, propName)
 		
-		var channel = shared.keys.getItemPropertyChannel(itemId, propName)
-			subId = this._subscriptionPool.add(channel, callback),
-			cachedMutation = this._mutationCache[channel],
-			isLocal = (options.local === true)
+		var subId = pool.add(key, callback),
+			cachedMutation = this._mutationCache[key]
 		
-		if (this._subscriptionPool.count(channel) == 1 && !isLocal) {
-			var params = { id: itemId, prop: propName }
-			if (typeof options.snapshot != 'undefined') {
-				params.snapshot = options.snapshot
+		if (isGlobal && pool.count(key) == 1) {
+			var netParams = { key: key, type: (params.type || 'BYTES') }
+			if (typeof params.snapshot != 'undefined') {
+				netParams.snapshot = params.snapshot
 			}
-			this.send('FIN_REQUEST_OBSERVE', params)
+			this.send('FIN_REQUEST_OBSERVE', netParams)
 		} else if (cachedMutation) {
-			this._handleItemMutation(cachedMutation, callback)
+			this._handleMutation(cachedMutation, callback)
 		}
 		
-		this._subIdToChannel[subId] = channel
+		this._subIdToChannel[subId] = key
 		return subId
-		
 	}
 		
-	this._mutate = function(mutation, options) {
-		options = options || {}
-		
-		if (options.local !== true) {
-			this.send('FIN_REQUEST_MUTATE_ITEM', mutation)
+	this._mutate = function(params) {
+		var mutation = {
+			id: params.key || shared.keys.getItemPropertyKey(params.id, params.prop),
+			op: params.op,
+			args: params.args
 		}
-		this._handleItemMutation(mutation)
+		if (params.local !== true) {
+			this.send('FIN_REQUEST_MUTATE', mutation)
+		}
+		this._handleMutation(mutation)
 	}
 	
 	var uniqueRequestId = 0
@@ -327,58 +339,58 @@ fin = Singleton(function(){
 			operation = mutation.op
 		switch(operation) {
 			case 'set':
+				mutation.value = args[0] = JSON.parse(args[0])
+				break
 			case 'append':
+			case 'sadd':
+			case 'srem':
 				for (var i=0; i < args.length; i++) { args[i] = JSON.parse(args[i]) }
 				break
 			case 'splice':
 				var items = args[0]
 				for (var i=0; i < items.length; i++) { items[i] = JSON.parse(items[i]) }
 				break
-			default: throw logger.error("Unkown operation "+ operation)
+			default: throw logger.error("Unknown operation for deserialization " + operation)
 		}
 	}
 	
 	this._mutationCache = {}
-	this._handleItemMutation = function(mutation, singleCallback) {
+	this._handleMutation = function(mutation, singleCallback) {
 		if (singleCallback) {
 			var args = [mutation.op].concat(mutation.args)
-			setTimeout(bind(singleCallback, 'apply', this, args))
+			setTimeout(function() { singleCallback(mutation, mutation.value) })
 		} else {
-			var channel = shared.keys.getItemPropertyChannel(mutation.id, mutation.prop)
-				subs = this._subscriptionPool.get(channel)
+			var key = mutation.id,
+				subs = this._subscriptionPool.get(key)
 			
 			this._deserializeMutation(mutation)
-			mutation = this._cacheMutation(mutation, channel)
+			this._cacheMutation(mutation, key)
 			
 			for (var subId in subs) {
-				var args = [mutation.op].concat(mutation.args)
-				// TODO should we really need the if check here? 
-				// If yes, then lets at least delete the subId key from subs
-				// when we find that there is no callback
-				if (subs[subId]) { subs[subId].apply(this, args) }
+				subs[subId](mutation, mutation.value)
 			}
 		}
 	}
 	
-	this._cacheMutation = function(mutation, channel) {
+	this._cacheMutation = function(mutation, key) {
 		var mutationCache = this._mutationCache,
-			cachedMutation = mutationCache[channel],
+			cachedMutation = mutationCache[key],
 			cachedArgs = cachedMutation && cachedMutation.args
 		
 		if (!cachedMutation) {
-			return mutationCache[channel] = mutation
+			return mutationCache[key] = mutation
 		}
 		
 		switch(mutation.op) {
 			case 'set':
-				mutationCache[channel] = mutation
+				mutationCache[key] = mutation
 				break
 			case 'append':
-				cachedMutation.args[0] = cachedArgs[0].concat(mutation.args)
+				cachedArgs[0] = cachedArgs[0].concat(mutation.args)
 				break
 			case 'splice':
 				var spliceArgs = [0, mutation.index].concat(mutation.args)
-				Array.prototype.splice.apply(cachedMutation.args, spliceArgs)
+				Array.prototype.splice.apply(cachedArgs, spliceArgs)
 				break
 			case 'sadd':
 				for (var i=0, itemId; itemId = mutation.args[i]; i++) {
@@ -391,25 +403,9 @@ fin = Singleton(function(){
 				}
 				break
 			default:
-				throw logger.error("Unkown operation "+ operation)
+				throw logger.error("Unknown operation for caching "+ operation)
 		}
-		return mutationCache[channel]
-	}
-	
-	
-	this._handleQueryMutation = function(mutation, singleCallback) {
-		var channel = mutation.id,
-			subs = this._subscriptionPool.get(channel)
-		
-		if (singleCallback) {
-			// TODO do we need the second argument?
-			setTimeout(bind(this, singleCallback, mutation, mutation.args[0]))
-		} else {
-			this._cacheMutation(mutation, channel)
-			for (var subId in subs) {
-				subs[subId](mutation, mutation.args[0])
-			}
-		}
+		return mutationCache[key]
 	}
 	
 	// Instantiation - should be considered a private method
@@ -425,13 +421,8 @@ fin = Singleton(function(){
 			this._executeCallback(response._requestId, response.data)
 		}))
 		
-		this._client.registerEventHandler('FIN_EVENT_ITEM_MUTATED', bind(this, function(mutationJSON) {
-			var mutation = JSON.parse(mutationJSON)
-			this._handleItemMutation(mutation)
-		}))
-		
-		this._client.registerEventHandler('FIN_EVENT_QUERY_MUTATED', bind(this, function(mutationJSON) {
-			this._handleQueryMutation(JSON.parse(mutationJSON))
+		this._client.registerEventHandler('FIN_EVENT_MUTATION', bind(this, function(mutationJSON) {
+			this._handleMutation(JSON.parse(mutationJSON))
 		}))
 	}
 })

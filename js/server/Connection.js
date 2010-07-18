@@ -32,60 +32,37 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	this.getId = function() { return this._id }
 	
 	this._setupHandlers = function() {	
-		this._queryChannelHandler = bind(this, function(channelBytes, messageBytes) {
-			var message = messageBytes.toString()
-			if (!this._clientConnected) {
-				logger.warn("Received query mutation event even though redis client is closed", message)
-				return;
-			}
-			this.sendFrame('FIN_EVENT_QUERY_MUTATED', message)
-		})
-		
-		this._itemChannelHandler = bind(this, function(channel, mutationBytes) {
+		this._itemChannelHandler = bind(this, function(key, mutationBytes) {
 			var mutationInfo = shared.mutations.parseMutationBytes(mutationBytes)
 			if (mutationInfo.originId == this._id) { return }
 			if (!this._clientConnected) {
 				logger.warn("Received item mutation event even though redis client is closed", mutationInfo.json)
 				return
 			}
-			this.sendFrame('FIN_EVENT_ITEM_MUTATED', mutationInfo.json)
+			this.sendFrame('FIN_EVENT_MUTATION', mutationInfo.json)
 		})
 		
 		this.handleRequest('FIN_REQUEST_OBSERVE', bind(this, function(args) {
-			var itemId = args.id,
-				propName = args.prop,
-				channel = shared.keys.getItemPropertyChannel(itemId, propName)
+			var type = args.type,
+				key = args.key
 			
-			logger.log("Subcribe to item channel", channel)
-			this._redisClient.subscribeTo(channel, this._itemChannelHandler)
+			logger.log("Subscribe redis channel:", key)
+			this._redisClient.subscribeTo(key, this._itemChannelHandler)
 			
-			if (args.snapshot === false) { return }
-			// fake an item mutation event
-			this.server.getItemProperty(itemId, propName, bind(this, function(value, key) {
-				var mutation = { op: 'set', id: itemId, prop: propName, args: [value] }
-				this.sendFrame('FIN_EVENT_ITEM_MUTATED', JSON.stringify(mutation))
-			}))
+			if (args.snapshot != false) {
+				// fake an item mutation event
+				this.server.retrieveStateMutation(key, type, bind(this, function(mutation) {
+					this.sendFrame('FIN_EVENT_MUTATION', JSON.stringify(mutation))
+				}))
+			}
 		}))
 		
-		this.handleRequest('FIN_REQUEST_UNSUBSCRIBE', bind(this, function(channel) {
-			this._redisClient.unsubscribeFrom(channel)
+		this.handleRequest('FIN_REQUEST_UNSUBSCRIBE', bind(this, function(key) {
+			this._redisClient.unsubscribeFrom(key)
 		}))
 		
-		this.handleRequest('FIN_REQUEST_QUERY', bind(this, function(queryJSON) {
-			var channel = shared.keys.getQueryChannel(queryJSON)
-			
-			this._redisClient.subscribeTo(channel, this._queryChannelHandler)
-			
-			this.server.getQuerySet(queryJSON, bind(this, function(membersBytes) {
-				var members = []
-				for (var i=0, memberBytes; memberBytes = membersBytes[i]; i++) {
-					members.push(memberBytes.toString())
-				}
-				
-				var mutation = { op: 'sadd', args: members, id: shared.keys.getQueryChannel(queryJSON) }
-				
-				this.sendFrame('FIN_EVENT_QUERY_MUTATED', JSON.stringify(mutation))
-			}))
+		this.handleRequest('FIN_REQUEST_MONITOR_QUERY', bind(this, function(queryJSON) {
+			this.server.monitorQuery(queryJSON)
 		}))
 		
 		this.handleRequest('FIN_REQUEST_CREATE_ITEM', bind(this, function(request) {
@@ -95,7 +72,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			}))
 		}))
 		
-		this.handleRequest('FIN_REQUEST_MUTATE_ITEM', bind(this, function(mutation){
+		this.handleRequest('FIN_REQUEST_MUTATE', bind(this, function(mutation){
 			this.server.mutateItem(mutation, this)
 		}))
 		

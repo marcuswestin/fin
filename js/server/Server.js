@@ -47,15 +47,6 @@ exports = Class(Server, function(supr) {
 /*******************************
  * Connection request handlers *
  *******************************/
-	this.getItemProperty = function(itemId, propName, callback) {
-		var key = shared.keys.getItemPropertyKey(itemId, propName)
-		
-		this._redisClient.get(key, bind(this, function(err, valueBytes) {
-			if (err) { throw logger.error('could not retrieve properties for item', key, err) }
-			callback((valueBytes ? valueBytes.toString() : "null"), key)
-		}))
-	}
-	
 	this.getListItems = function(listKey, from, to, callback) {
 		this._redisClient.lrange(listKey, from, to, bind(this, function(err, itemBytesArray) {
 			if (err) { throw logger.error('could not retrieve list range', listKey, from, to, err) }
@@ -69,8 +60,46 @@ exports = Class(Server, function(supr) {
 		}))
 	}
 	
+	this.retrieveStateMutation = function(key, type, callback) {
+		switch(type) {
+			case 'BYTES':
+				this._retrieveBytes(key, function(json) {
+					callback({ id: key, op: 'set', args: [json] })
+				})
+				break
+			
+			case 'SET':
+				this._retrieveSet(key, function(members) {
+					callback({ id: key, op: 'sadd', args: members })
+				})
+				break
+				
+			default:
+				throw logger.error('could not retrieve state mutation of unknown type', type, key)
+		}
+	}
 	
-	this.getQuerySet = function(queryJSON, callback) {
+	this._retrieveBytes = function(key, callback) {
+		this._redisClient.get(key, function(err, valueBytes) {
+			if (err) { throw logger.error('could not retrieve BYTES for key', key, err) }
+			callback((valueBytes ? valueBytes.toString() : "null"))
+		})
+	}
+	
+	this._retrieveSet = function(key, callback) {
+		this._redisClient.smembers(key, bind(this, function(err, membersBytes) {
+			if (err) { throw logger.error('could not retrieve set members', key, err) }
+			membersBytes = membersBytes || []
+			var members = []
+			for (var i=0, memberBytes; memberBytes = membersBytes[i]; i++) {
+				members.push(memberBytes.toString())
+			}
+			callback(members)
+		}))
+		
+	}
+	
+	this.monitorQuery = function(queryJSON) {
 		var queryKey = shared.keys.getQueryKey(queryJSON),
 			lockKey = shared.keys.getQueryLockKey(queryJSON)
 		
@@ -80,10 +109,6 @@ exports = Class(Server, function(supr) {
 
 			logger.log('Publish request for query observer to monitor this query', queryJSON)
 			this._redisClient.publish(shared.keys.queryRequestChannel, queryJSON)
-		}))
-		this._redisClient.smembers(queryKey, bind(this, function(err, members) {
-			if (err) { throw logger.error('could not retrieve set members', queryKey, err) }
-			callback(members || [])
 		}))
 	}
 	
@@ -95,26 +120,32 @@ exports = Class(Server, function(supr) {
 			
 			for (var propName in itemProperties) {
 				var value = JSON.stringify(itemProperties[propName]),
-					mutation = { id: newItemId, op: 'set', prop: propName, args: [value] }
+					key = shared.keys.getItemPropertyKey(newItemId, propName),
+					mutation = { id: key, op: 'set', args: [value] }
+				
 				this.mutateItem(mutation, origConnection, doCallback.addBlock())
 			}
+			
 			doCallback.tryNow()
 		}))
 	}
 	
+	// TODO Only publish srem and sadd mutations if the membership changed
 	this._operationMap = {
 		'set': 'set',
-		'append': 'lpush'
+		'append': 'lpush',
+		'sadd': 'sadd',
+		'srem': 'srem'
 	}
 	this.mutateItem = function(mutation, originConnection, callback) {
-		var itemId = mutation.id,
-			propName = mutation.prop,
+		var key = mutation.id,
+			propName = shared.keys.getKeyInfo(key).property,
 			operation = this._operationMap[mutation.op],
 			args = Array.prototype.slice.call(mutation.args, 0)
 			connId = originConnection.getId(),
-			mutationBytes = connId.length + connId + JSON.stringify(mutation),
+			mutationBytes = connId.length + connId + JSON.stringify(mutation)
 		
-		args.unshift(shared.keys.getItemPropertyKey(itemId, propName))
+		args.unshift(key)
 		logger.log('Apply and publish mutation', operation, args)
 		if (callback) { args.push(callback) }
 		this._redisClient[operation].apply(this._redisClient, args)
@@ -123,10 +154,9 @@ exports = Class(Server, function(supr) {
 		//	e.g. for item props *:1@type:* and for prop channels *:#type:*
 		//	mutations then come with a single publication channel, 
 		//	e.g. :1@type:#type: for a mutation that changes the type of item 1
-		var itemPropChannel = shared.keys.getItemPropertyChannel(itemId, propName)
 		var propChannel = shared.keys.getPropertyChannel(propName)
 		
-		this._redisClient.publish(itemPropChannel, mutationBytes)
+		this._redisClient.publish(key, mutationBytes)
 		this._redisClient.publish(propChannel, mutationBytes)
 	}
 })

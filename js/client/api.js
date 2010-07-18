@@ -412,14 +412,12 @@ fin = Singleton(function(){
 	
 	this._uniqueRequestId = 0
 	this._scheduleCallback = function(callback) {
-		if (!callback) { return }
 		var requestId = 'r' + this._uniqueRequestId++
 		this._requestCallbacks[requestId] = callback
 		return requestId
 	}
 	
 	this._executeCallback = function(requestId, response) {
-		if (!requestId) { return }
 		var callback = this._requestCallbacks[requestId]
 		delete this._requestCallbacks[requestId]
 		callback(response)

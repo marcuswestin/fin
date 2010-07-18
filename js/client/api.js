@@ -168,7 +168,7 @@ fin = Singleton(function(){
 		
 		var args = { key: listKey, from: listLength, to: maxLen }
 		this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
-			var mutation = { id: itemId, prop: propName, op: 'splice', args: [items], index: listLength }
+			var mutation = { id: listKey, op: 'listInsert', args: items, index: listLength }
 			this._handleMutation(mutation)
 		}))
 	}
@@ -178,7 +178,7 @@ fin = Singleton(function(){
 		for (var i=0; i < values.length; i++) {
 			values[i] = JSON.stringify(values[i])
 		}
-		this._mutate({ id: itemId, op: 'append', prop: propName, args: values })
+		this._mutate({ id: itemId, op: 'listAppend', prop: propName, args: values })
 	}
 	
 /********************
@@ -343,14 +343,11 @@ fin = Singleton(function(){
 			case 'set':
 				mutation.value = args[0] = JSON.parse(args[0])
 				break
-			case 'append':
+			case 'listAppend':
+			case 'listInsert':
 			case 'sadd':
 			case 'srem':
 				for (var i=0; i < args.length; i++) { args[i] = JSON.parse(args[i]) }
-				break
-			case 'splice':
-				var items = args[0]
-				for (var i=0; i < items.length; i++) { items[i] = JSON.parse(items[i]) }
 				break
 			default: throw logger.error("Unknown operation for deserialization " + operation)
 		}
@@ -387,12 +384,11 @@ fin = Singleton(function(){
 			case 'set':
 				mutationCache[key] = mutation
 				break
-			case 'append':
-				cachedArgs[0] = cachedArgs[0].concat(mutation.args)
+			case 'listAppend':
+				cachedArgs = cachedArgs.concat(mutation.args)
 				break
-			case 'splice':
-				var spliceArgs = [0, mutation.index].concat(mutation.args)
-				Array.prototype.splice.apply(cachedArgs, spliceArgs)
+			case 'listInsert':
+				cachedArgs.splice(mutation.index, 0, mutation.args)
 				break
 			case 'sadd':
 				for (var i=0, itemId; itemId = mutation.args[i]; i++) {

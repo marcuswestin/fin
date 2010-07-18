@@ -133,7 +133,7 @@ exports = Class(Server, function(supr) {
 	// TODO Only publish srem and sadd mutations if the membership changed
 	this._operationMap = {
 		'set': 'set',
-		'append': 'lpush',
+		'listAppend': 'lpush',
 		'sadd': 'sadd',
 		'srem': 'srem'
 	}

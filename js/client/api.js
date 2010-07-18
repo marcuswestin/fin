@@ -124,9 +124,24 @@ fin = Singleton(function(){
 		this.release(subId, { local: true })
 	}
 
-/*********************
- * List property API *
- *********************/
+/***********
+ * Set API *
+ ***********/
+	this.observeSet = function(itemId, propName, callback) {
+		this._observe({ id: itemId, property: propName, type: 'SET' }, callback)
+	}
+
+	this.addToSet = function(itemId, propName, member) {
+		this._mutate({ id: itemId, op: 'sadd', prop: propName, args: [JSON.stringify(member)] })
+	}
+
+	this.removeFromSet = function(itemId, propName, member) {
+		this._mutate({ id: itemId, op: 'srem', prop: propName, args: [JSON.stringify(member)] })
+	}
+
+/************
+ * List API *
+ ************/
 	/* 
 	 * Observe an item property list, and get notified any time it changes
 	 */
@@ -166,21 +181,6 @@ fin = Singleton(function(){
 		this._mutate({ id: itemId, op: 'append', prop: propName, args: values })
 	}
 	
-/***********
- * Set API *
- ***********/
-	this.observeSet = function(itemId, propName, callback) {
-		this._observe({ id: itemId, property: propName, type: 'SET' }, callback)
-	}
-	
-	this.addToSet = function(itemId, propName, member) {
-		this._mutate({ id: itemId, op: 'sadd', prop: propName, args: [JSON.stringify(member)] })
-	}
-
-	this.removeFromSet = function(itemId, propName, member) {
-		this._mutate({ id: itemId, op: 'srem', prop: propName, args: [JSON.stringify(member)] })
-	}
-
 /********************
  * Miscelaneous API *
  ********************/
@@ -262,6 +262,23 @@ fin = Singleton(function(){
 /*******************
  * Private methods *
  *******************/
+	this.init = function() {
+		this._requestCallbacks = {}
+		
+		this._viewFactory = new client.ViewFactory()
+		this._templateFactory = new client.TemplateFactory(this._viewFactory)
+		
+		this._client = new client.Client()
+		
+		this._client.registerEventHandler('FIN_RESPONSE', bind(this, function(response) {
+			this._executeCallback(response._requestId, response.data)
+		}))
+		
+		this._client.registerEventHandler('FIN_EVENT_MUTATION', bind(this, function(mutationJSON) {
+			this._handleMutation(JSON.parse(mutationJSON))
+		}))
+	}
+	
 	this._connect = function(callback) {
 		var transport, connectParams = {}
 		switch(jsio.__env.name) {
@@ -317,21 +334,6 @@ fin = Singleton(function(){
 			this.send('FIN_REQUEST_MUTATE', mutation)
 		}
 		this._handleMutation(mutation)
-	}
-	
-	var uniqueRequestId = 0
-	this._scheduleCallback = function(callback) {
-		if (!callback) { return }
-		var requestId = 'r' + uniqueRequestId++
-		this._requestCallbacks[requestId] = callback
-		return requestId
-	}
-	
-	this._executeCallback = function(requestId, response) {
-		if (!requestId) { return }
-		var callback = this._requestCallbacks[requestId]
-		delete this._requestCallbacks[requestId]
-		callback(response)
 	}
 	
 	this._deserializeMutation = function(mutation) {
@@ -408,21 +410,18 @@ fin = Singleton(function(){
 		return mutationCache[key]
 	}
 	
-	// Instantiation - should be considered a private method
-	this.init = function() {
-		this._requestCallbacks = {}
-		
-		this._viewFactory = new client.ViewFactory()
-		this._templateFactory = new client.TemplateFactory(this._viewFactory)
-		
-		this._client = new client.Client()
-		
-		this._client.registerEventHandler('FIN_RESPONSE', bind(this, function(response) {
-			this._executeCallback(response._requestId, response.data)
-		}))
-		
-		this._client.registerEventHandler('FIN_EVENT_MUTATION', bind(this, function(mutationJSON) {
-			this._handleMutation(JSON.parse(mutationJSON))
-		}))
+	this._uniqueRequestId = 0
+	this._scheduleCallback = function(callback) {
+		if (!callback) { return }
+		var requestId = 'r' + this._uniqueRequestId++
+		this._requestCallbacks[requestId] = callback
+		return requestId
+	}
+	
+	this._executeCallback = function(requestId, response) {
+		if (!requestId) { return }
+		var callback = this._requestCallbacks[requestId]
+		delete this._requestCallbacks[requestId]
+		callback(response)
 	}
 })

@@ -158,7 +158,7 @@ fin = Singleton(function(){
 	 */
 	this._listLength = {}
 	this.extendList = function(itemId, propName, maxLen) {
-		if (!itemId || !propName || !maxLen) { logger.error("observe requires three arguments", itemId, propName, maxLen); }
+		if (!itemId || !propName || !maxLen) { logger.error("extendList requires three arguments", itemId, propName, maxLen); }
 		
 		var listKey = shared.keys.getItemPropertyKey(itemId, propName),
 			listLength = this._listLength[listKey] || 0

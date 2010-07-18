@@ -8,6 +8,7 @@ all: fin.js lib/js.io lib/redis-node-client
 .PHONY: clean
 clean:
 	rm -f fin.js
+	rm -f *.out
 	rm -rf lib/*
 	touch lib/empty.txt
 

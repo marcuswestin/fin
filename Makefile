@@ -11,6 +11,20 @@ clean:
 	rm -rf lib/*
 	touch lib/empty.txt
 
+.PHONY: run
+run: all
+	redis-server &> redis-server.out &
+	node run_query_observer.js &> node_query_observer.out &
+	node run_server.js &> node_server.out &
+
+.PHONY: stop
+stop:
+	killall node
+	killall redis-server
+
+.PHONY: restart
+restart: stop run
+
 #####################
 ### Dependencies ####
 #####################

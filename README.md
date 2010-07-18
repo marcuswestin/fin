@@ -24,9 +24,12 @@ Fin also needs some local libraries
 	make
 
 Run redis server, fin server, and fin query observer
-	redis-server redis.conf &
-	node run_server.js &
-	node run_query_observer.js &
+	redis-server redis.conf
+	node run_server.js
+	node run_query_observer.js
+
+or just
+    make run
 
 Finally, fire up your browser to localhost/[path to fin]/demo
 

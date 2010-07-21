@@ -36,7 +36,7 @@ fin.js: Makefile lib/js.io
 	echo "" >> fin.js
 	echo "void(function(){" >> fin.js
 	echo "var path = jsio.path.__default__[0]" >> fin.js
-	echo "if (!path.match(/\/$$/)) { path += '/' }" >> fin.js
+	echo "if (!path.match(/\/$$/)) { jsio.path.__default__[0] = (path += '/') }" >> fin.js
 	echo "jsio.path.client = jsio.path.__default__ + 'js'" >> fin.js
 	echo "jsio.path.shared = jsio.path.__default__ + 'js'" >> fin.js
 	echo "jsio.path.__default__ += 'lib/js.io/packages'" >> fin.js

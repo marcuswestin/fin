@@ -69,7 +69,7 @@ exports = Class(Server, function(supr) {
 				break
 			
 			case 'SET':
-				this._retrieveSet(key, function(members) {
+				this.retrieveSet(key, function(members) {
 					callback({ id: key, op: 'sadd', args: members })
 				})
 				break
@@ -86,7 +86,7 @@ exports = Class(Server, function(supr) {
 		})
 	}
 	
-	this._retrieveSet = function(key, callback) {
+	this.retrieveSet = function(key, callback) {
 		this._redisClient.smembers(key, bind(this, function(err, membersBytes) {
 			if (err) { throw logger.error('could not retrieve set members', key, err) }
 			membersBytes = membersBytes || []

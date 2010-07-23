@@ -39,7 +39,7 @@ exports.getKeyInfo = function(key) {
 	var type = key[0],
 		parts = key.substr(1).split('@')
 	
-	return { type: type, id: parts[0], property: parts[1] }
+	return { type: type, id: parseInt(parts[0]), property: parts[1] }
 }
 
 exports.getPropertyChannel = function(propName) {

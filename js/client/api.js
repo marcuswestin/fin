@@ -271,11 +271,14 @@ fin = Singleton(function(){
 		this._client = new client.Client()
 		
 		this._client.registerEventHandler('FIN_RESPONSE', bind(this, function(response) {
+			logger.info('FIN_RESPONSE', response._requestId, response.data)
 			this._executeCallback(response._requestId, response.data)
 		}))
 		
 		this._client.registerEventHandler('FIN_EVENT_MUTATION', bind(this, function(mutationJSON) {
-			this._handleMutation(JSON.parse(mutationJSON))
+			var mutation = JSON.parse(mutationJSON)
+			logger.info('FIN_EVENT_MUTATION', mutation)
+			this._handleMutation(mutation)
 		}))
 	}
 	

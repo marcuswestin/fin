@@ -168,17 +168,26 @@ fin = Singleton(function(){
 		
 		var args = { key: listKey, from: listLength, to: maxLen }
 		this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
-			var mutation = { id: listKey, op: 'listInsert', args: items, index: listLength }
+			var mutation = { id: listKey, op: 'listAppend', args: items, index: listLength }
 			this._handleMutation(mutation)
 		}))
 	}
 	
-	this.append = function(itemId, propName /*, val1, val2, ... */) {
+	this.appendToList = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
+		this._listOp(itemId, propName, 'listAppend', values)
+	}
+	
+	this.prependToList = function(itemId, propName /*, val1, val2, ... */) {
+		var values = Array.prototype.slice.call(arguments, 2)
+		this._listOp(itemId, propName, 'listPrepend', values)
+	}
+	
+	this._listOp = function(itemId, propName, op, values) {
 		for (var i=0; i < values.length; i++) {
 			values[i] = JSON.stringify(values[i])
 		}
-		this._mutate({ id: itemId, op: 'listAppend', prop: propName, args: values })
+		this._mutate({ id: itemId, op: op, prop: propName, args: values })
 	}
 	
 /********************
@@ -347,7 +356,7 @@ fin = Singleton(function(){
 				mutation.value = args[0] = JSON.parse(args[0])
 				break
 			case 'listAppend':
-			case 'listInsert':
+			case 'listPrepend':
 			case 'sadd':
 			case 'srem':
 				for (var i=0; i < args.length; i++) { args[i] = JSON.parse(args[i]) }
@@ -390,8 +399,8 @@ fin = Singleton(function(){
 			case 'listAppend':
 				cachedArgs = cachedArgs.concat(mutation.args)
 				break
-			case 'listInsert':
-				cachedArgs.splice(mutation.index, 0, mutation.args)
+			case 'listPrepend':
+				cachedArgs = mutation.args.concat(cachedArgs)
 				break
 			case 'sadd':
 				for (var i=0, itemId; itemId = mutation.args[i]; i++) {

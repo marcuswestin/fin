@@ -223,15 +223,34 @@ fin = Singleton(function(){
 	 */
 	this.focus = function(itemId, propName, onBlurCallback) {
 		var sessionId = this._sessionId,
-			focusProperty = shared.keys.getFocusProperty(propName),
-			subId
+			focusProp = shared.keys.getFocusProperty(propName),
+			sendFocusInfo = { session: sessionId, user: gUserId, time: fin.now() },
+			subId, observation, releaseFn
 		
-		subId = this.observe(itemId, focusProperty, bind(this, function(mutation, newSession) {
-			if (!newSession || newSession == sessionId) { return }
-			this.release(subId)
-			onBlurCallback()
+		this.set(itemId, focusProp, JSON.stringify(sendFocusInfo))
+		
+		observation = { id: itemId, property: focusProp, useCache: false, snapshot: false }
+		subId = this._observe(observation, bind(this, function(mutation, focusJSON) {
+			if (!subId) { return }
+			
+			var focusInfo
+			try { focusInfo = JSON.parse(focusJSON) }
+			catch(e) { } // There are old focus keys sitting around with non JSON values
+			
+			if (focusInfo.session == sessionId) { return }
+			
+			releaseFn()
+			onBlurCallback(focusInfo)
 		}))
-		this.set(itemId, '_focus', sessionId)
+		
+		releaseFn = bind(this, function () {
+			if (!subId) { return }
+			this.release(subId)
+			subId = null
+			this.set(itemId, focusProp, null)
+		})
+		
+		return releaseFn
 	}
 	
 	/*
@@ -328,7 +347,7 @@ fin = Singleton(function(){
 				netParams.snapshot = params.snapshot
 			}
 			this.send('FIN_REQUEST_OBSERVE', netParams)
-		} else if (cachedMutation) {
+		} else if (cachedMutation && params.useCache !== false) {
 			this._handleMutation(cachedMutation, callback)
 		}
 		

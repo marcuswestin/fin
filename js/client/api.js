@@ -82,9 +82,9 @@ fin = Singleton(function(){
 		
 		if (typeof subId == 'string') {
 			var channel = this._subIdToChannel[subId]
-			this._subscriptionPool.remove(channel)
+			this._subscriptionPool.remove(channel, subId)
 			
-			if (this._subscriptionPool.count() == 0) {
+			if (this._subscriptionPool.count(channel) == 0) {
 				if (options.local !== true) {
 					this.send('FIN_REQUEST_UNSUBSCRIBE', channel)
 				}

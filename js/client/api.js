@@ -237,7 +237,7 @@ fin = Singleton(function(){
 			try { focusInfo = JSON.parse(focusJSON) }
 			catch(e) { } // There are old focus keys sitting around with non JSON values
 			
-			if (focusInfo.session == sessionId) { return }
+			if (!focusInfo || focusInfo.session == sessionId) { return }
 			
 			releaseFn()
 			onBlurCallback(focusInfo)

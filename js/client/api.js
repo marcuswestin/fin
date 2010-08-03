@@ -114,7 +114,7 @@ fin = Singleton(function(){
 	 * Mutate a local property. This does not get synched across clients or page views
 	 */
 	this.setLocal = function(propName, value) {
-		this._mutate({ locals: true, id: this._localId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
+		this._mutate({ local: true, id: this._localId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
 	}
 	
 	/*

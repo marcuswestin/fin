@@ -97,6 +97,14 @@ fin = Singleton(function(){
 		}
 	}
 	
+	/*
+	 * Get the last cached mutation of a currently observed item property
+	 */
+	this.getCachedMutation = function(itemId, propName) {
+		var key = shared.keys.getItemPropertyKey(itemId, propName)
+		return this._mutationCache[key]
+	}
+	
 /**********************
  * Local property API *
  **********************/
@@ -123,6 +131,15 @@ fin = Singleton(function(){
 	this.releaseLocal = function(subId) {
 		this.release(subId, { local: true })
 	}
+	
+	/*
+	 * Get the last cached mutation of a currently observed item property
+	 */
+	this.getLocalCachedMutation = function(propName) {
+		var key = shared.keys.getItemPropertyKey(this._localId, propName)
+		return this._mutationCache[key]
+	}
+	
 
 /***********
  * Set API *

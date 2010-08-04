@@ -75,25 +75,31 @@ exports.isArray = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Array]'
 }
 
-exports.blockCallback = function(callback) {
-	var blocks = 0
-	
-	function removeBlock(err) { 
-		if (err) { throw err }
-		setTimeout(function() { if (--blocks == 0) callback() })
-	}
-	
-	return {
+exports.blockCallback = function(callback, throwErr) {
+	var blocks = 0,
+		result = {
 		addBlock: function() { 
 			blocks++ 
-			return removeBlock
+			var released = false
+			return function(err) {
+				if (err && throwErr) {
+					throw err
+				}
+				if (released) {
+					result.tryNow()
+					return
+				}
+				released = true
+				blocks--
+				setTimeout(result.tryNow)
+			}
 		},
 		tryNow: function() {
 			if (blocks == 0) callback()
 		}
 	}
+	return result
 }
-
 
 exports.bytesToString = function(byteArray, offset) {
 	return byteArray.toString();

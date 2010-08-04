@@ -116,7 +116,7 @@ exports = Class(Server, function(supr) {
 		this._redisClient.incr(shared.keys.uniqueIdKey, bind(this, function(err, newItemId) {
 			if (err) { throw logger.error('Could not increment unique item id counter', err) }
 			
-			var doCallback = blockCallback(bind(this, callback, newItemId))
+			var doCallback = blockCallback(bind(this, callback, newItemId), true)
 			
 			for (var propName in itemProperties) {
 				var value = JSON.stringify(itemProperties[propName]),

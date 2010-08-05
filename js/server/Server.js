@@ -143,8 +143,12 @@ exports = Class(Server, function(supr) {
 			propName = shared.keys.getKeyInfo(key).property,
 			operation = this._operationMap[mutation.op],
 			args = Array.prototype.slice.call(mutation.args, 0)
-			connId = originConnection.getId(),
+			connId = originConnection ? originConnection.getId() : '',
 			mutationBytes = connId.length + connId + JSON.stringify(mutation)
+		
+		if (connId.length > 9) {
+			throw logger.error("Connection ID is longer than 9 digits! Parsing this connection ID won't work")
+		}
 		
 		args.unshift(key)
 		logger.log('Apply and publish mutation', operation, args)

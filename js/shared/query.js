@@ -63,7 +63,7 @@ _Query = Class(function() {
 		this._redisSubClient.stream.setTimeout(0)
 		this._redisCommandClient.stream.setTimeout(0)
 		
-		var redisReadyCallback = blockCallback(bind(this, '_onRedisReady'), true)
+		var redisReadyCallback = blockCallback(bind(this, '_onRedisReady'), {throwErr: true})
 		
 		this._redisSubClient.stream.addListener('connect', redisReadyCallback.addBlock())
 		this._redisCommandClient.stream.addListener('connect', redisReadyCallback.addBlock())

@@ -75,27 +75,34 @@ exports.isArray = function(obj) {
 	return Object.prototype.toString.call(obj) === '[object Array]'
 }
 
-exports.blockCallback = function(callback, throwErr) {
+exports.blockCallback = function(callback, opts) {
+	opts = opts || {}
+	opts.fireOnce = (typeof opts.fireOnce != 'undefined' ? opts.fireOnce : true)
 	var blocks = 0,
+		fired = false,
 		result = {
 		addBlock: function() { 
 			blocks++ 
-			var released = false
+			var blockReleased = false
 			return function(err) {
-				if (err && throwErr) {
+				if (err && opts.throwErr) {
 					throw err
 				}
-				if (released) {
+				if (blockReleased) {
 					result.tryNow()
 					return
 				}
-				released = true
+				blockReleased = true
 				blocks--
 				setTimeout(result.tryNow)
 			}
 		},
 		tryNow: function() {
-			if (blocks == 0) callback()
+			if (fired && opts.fireOnce) { return }
+			if (blocks == 0) {
+				fired = true
+				callback()
+			}
 		}
 	}
 	return result

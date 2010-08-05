@@ -33,7 +33,7 @@ function expectQuery(releaseBlockFn, query, testMessage /* expected mutations */
 
 exports.testQuery = function(onDone) {
 	
-	var blockedOnDone = blockCallback(onDone, true)
+	var blockedOnDone = blockCallback(onDone, {throwErr: true})
 	
 	Queue = {
 		push: function(callback) {

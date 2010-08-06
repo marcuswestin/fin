@@ -26,7 +26,6 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		this._clientConnected = false
 		// TODO do we need to unsubscribe from redis channels?
 		this._redisClient.close()
-		delete this._redisClient
 	}
 	
 	this.getId = function() { return this._id }

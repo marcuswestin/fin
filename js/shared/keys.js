@@ -23,7 +23,7 @@ exports.getQueryLockPattern = function() {
 
 // Data state keys
 exports.getItemPropertyKey = function(itemId, propName) {
-	if (!itemId || !propName) { throw "itemId and propName are required for shared.keys.getItemPropertyKey" }
+	if (typeof itemId == 'undefined' || !propName) { throw logger.error("itemId and propName are required for shared.keys.getItemPropertyKey") }
 	return 'I' + itemId + '@' + propName
 }
 

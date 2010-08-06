@@ -139,7 +139,38 @@ fin = Singleton(function(){
 		var key = shared.keys.getItemPropertyKey(this._localId, propName)
 		return this._mutationCache[key]
 	}
+
+/***********************
+ * Global property API *
+ ***********************/
+	/*
+	 * Observe a global property. All clients see the same global properties
+	 */
+	this._globalId = 0
+	this.observeGlobal = function(propName, callback) {
+		if (!propName || !callback) { logger.error("observeLocal requires two arguments", propName, callback); }
+		return this._observe({ id: this._globalId, property: propName }, callback)
+	}
+
+	/*
+	 * Mutate a global property.
+	 */
+	this.setGlobal = function(propName, value) {
+		this._mutate({ id: this._globalId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
+	}
+
+	/*
+	 * Release a global observation
+	 */
+	this.releaseGlobal = this.release
 	
+	/*
+	 * Get the last cached mutation of a currently observed item property
+	 */
+	this.getGlobalCachedMutation = function(propName) {
+		var key = shared.keys.getItemPropertyKey(this._globalId, propName)
+		return this._mutationCache[key]
+	}	
 
 /***********
  * Set API *

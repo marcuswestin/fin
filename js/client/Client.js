@@ -8,32 +8,45 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		supr(this, 'init')
 		this._isConnected = false
 		this._eventHandlers = {}
+		this._connectCallbacks = []
 	}
 	
 /* Connection
  ************/
-	this.connect = function(transport, connectParams, onConnectedCallback) {
-		net.connect(this, transport, connectParams)
-		if (this._isConnected) { 
-			onConnectedCallback()
-		} else if (this._onConnectedCallbacks) { 
-			this._onConnectedCallbacks.push(onConnectedCallback)
+	this.connect = function(callback) {
+		var callbacks = this._connectCallbacks
+		
+		if (!callbacks) { 
+			callback()
+		} else if (callbacks.length) { 
+			callbacks.push(callback)
 		} else {
-			this._onConnectedCallbacks = [onConnectedCallback]
+			this._connectCallbacks = [callback]
+			if (jsio.__env.name == 'node') {
+				net.connect(this, 'tcp', {host:'127.0.0.1', port:5556, timeout:0})
+			} else if (jsio.__env.name == 'browser') {
+				var transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp'
+				net.connect(this, transport, {url:'http://' + (document.domain || '127.0.0.1') + ':5555'})
+			}
 		}
 	}
 
 	this.connectionMade = function() {
 		logger.info("Connection made", arguments)
+		// TODO Get the session key from the server
+		this._sessionId = 'fin_random_session_' + Math.floor(Math.random() * 100000)
 		this._isConnected = true
-		for (var i=0, cb; cb = this._onConnectedCallbacks[i]; i++) { cb() }
-		delete this._onConnectedCallbacks
+		var callback, callbacks = this._connectCallbacks || []
+		delete this._connectCallbacks
+		for (var i=0; callback = callbacks[i]; i++) { callback() }
 	}
 
 	this.connectionLost = function() {
 		logger.info("Connection lost", arguments)
 		this._isConnected = false
 	}
+	
+	this.getSessionID = function() { return this._sessionId }
 
 /* Events 
  ********/

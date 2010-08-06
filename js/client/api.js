@@ -1,4 +1,4 @@
-jsio('from shared.javascript import Singleton, bind')
+jsio('from shared.javascript import Singleton, bind, forEach')
 
 jsio('import shared.Pool')
 jsio('import shared.keys')
@@ -19,7 +19,7 @@ fin = Singleton(function(){
 	 * once you're connected with the server
 	 */
 	this.connect = function(callback) {
-		this._connect(callback)
+		this._client.connect(callback)
 	}
 	
 	/* 
@@ -239,7 +239,7 @@ fin = Singleton(function(){
 	 * When another client requests focus, onBlurCallback gets called
 	 */
 	this.focus = function(itemId, propName, onBlurCallback) {
-		var sessionId = this._sessionId,
+		var sessionId = this._client.getSessionID(),
 			focusProp = shared.keys.getFocusProperty(propName),
 			sendFocusInfo = { session: sessionId, user: gUserId, time: fin.now() },
 			subId, observation, releaseFn
@@ -325,25 +325,6 @@ fin = Singleton(function(){
 			logger.info('FIN_EVENT_MUTATION', mutation)
 			this._handleMutation(mutation)
 		}))
-	}
-	
-	this._connect = function(callback) {
-		var transport, connectParams = {}
-		switch(jsio.__env.name) {
-			case 'node':
-				transport = 'tcp'
-				connectParams.host = '127.0.0.1'
-				connectParams.port = 5556
-				connectParams.timeout = 0
-				break;
-			case 'browser':
-				transport = location.hash.match(/fin-postmessage/) ? 'postmessage' : 'csp'
-				connectParams.url = 'http://' + (document.domain || '127.0.0.1') + ':5555'
-				break;
-		}
-		this._client.connect(transport, connectParams, callback)
-		// TODO Get the session key from the server
-		this._sessionId = 'fin_random_session_' + Math.floor(Math.random() * 100000)
 	}
 	
 	this._subIdToChannel = {}

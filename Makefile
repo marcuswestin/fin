@@ -46,7 +46,7 @@ fin.js: Makefile lib/js.io
 lib/js.io:
 	git clone git://github.com/mcarter/js.io.git
 	mv js.io lib/
-	cd lib/js.io/; git checkout 39965139b49921be14188eb4fece7c5a42702397
+	cd lib/js.io/; git checkout cdb0a87612c3c1176b6918119ea4ceb15216e110
 	rm -rf lib/js.io/examples
 
 lib/redis-node-client:

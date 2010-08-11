@@ -30,7 +30,7 @@ restart: stop run
 ### Dependencies ####
 #####################
 
-fin.js: Makefile lib/js.io
+fin.js: Makefile lib/js.io lib/js.io/packages/jsio.js
 	echo "// Built in Makefile by lib/js.io rule" > fin.js
 	cat lib/js.io/packages/jsio.js | sed s/jsio.js/fin.js/g >> fin.js
 	echo "" >> fin.js

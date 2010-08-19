@@ -63,13 +63,11 @@ lib/redis-node-client:
 install-node:
 	rm -rf /tmp/fin-node
 	git clone git://github.com/ry/node.git /tmp/fin-node
-	# installs node version 0.1.90
-	cd /tmp/fin-node; git checkout 07e64d45ffa1856e824c4fa6afd0442ba61d6fd8; ./configure; make; sudo make install
+	cd /tmp/fin-node; git checkout v0.1.104; ./configure; make; sudo make install
 
 
 .PHONY: install-redis
 install-redis:
 	rm -rf /tmp/fin-redis
 	git clone git://github.com/antirez/redis.git /tmp/fin-redis
-	# installs redis version 1.3.10 to /usr/local/bin
-	cd /tmp/fin-redis; git checkout 24df76987e85f7ba5314495e50dc5cc9ff623823; make; sudo cp redis-server /usr/local/bin; sudo cp redis-cli /usr/local/bin;
+	cd /tmp/fin-redis; git checkout v1.3.12; make; sudo cp redis-server /usr/local/bin; sudo cp redis-cli /usr/local/bin;

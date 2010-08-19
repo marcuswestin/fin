@@ -136,8 +136,7 @@ fin = Singleton(function(){
 	 * Get the last cached mutation of a currently observed item property
 	 */
 	this.getLocalCachedMutation = function(propName) {
-		var key = shared.keys.getItemPropertyKey(this._localId, propName)
-		return this._mutationCache[key]
+		return this.getCachedMutation(this._localId, propName);
 	}
 
 /***********************
@@ -168,8 +167,7 @@ fin = Singleton(function(){
 	 * Get the last cached mutation of a currently observed item property
 	 */
 	this.getGlobalCachedMutation = function(propName) {
-		var key = shared.keys.getItemPropertyKey(this._globalId, propName)
-		return this._mutationCache[key]
+		return this.getCachedMutation(this._globalId, propName);
 	}	
 
 /***********

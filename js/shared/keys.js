@@ -1,3 +1,5 @@
+jsio('from shared.javascript import assert')
+
 /************************************
  * Redis key and channel namespaces *
  ************************************/
@@ -23,7 +25,7 @@ exports.getQueryLockPattern = function() {
 
 // Data state keys
 exports.getItemPropertyKey = function(itemId, propName) {
-	if (typeof itemId == 'undefined' || !propName) { throw logger.error("itemId and propName are required for shared.keys.getItemPropertyKey") }
+	assert(propName && typeof itemId != 'undefined', "itemId and propName are required for shared.keys.getItemPropertyKey")
 	return 'I' + itemId + '@' + propName
 }
 

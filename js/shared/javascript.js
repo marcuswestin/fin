@@ -117,3 +117,9 @@ exports.recall = function(self, args, timeout) {
 	var fn = args.callee
 	return function(){ return fn.apply(self, args) }
 }
+
+exports.assert = function(shouldBeTrue, msg, values) {
+	if (shouldBeTrue) { return }
+	var moreInfo = values ? (' : ' + JSON.stringify(values)) : ''
+	throw new Error(msg + moreInfo)
+}

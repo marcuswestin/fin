@@ -153,12 +153,12 @@ fin = Singleton(function(){
 		}))
 	}
 	
-	this.appendToList = function(itemId, propName /*, val1, val2, ... */) {
+	this.append = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
 		this._listOp(itemId, propName, 'listAppend', values)
 	}
 	
-	this.prependToList = function(itemId, propName /*, val1, val2, ... */) {
+	this.prepend = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
 		this._listOp(itemId, propName, 'listPrepend', values)
 	}

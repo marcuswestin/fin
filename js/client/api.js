@@ -43,19 +43,15 @@ fin = Singleton(function(){
 	/*
 	 * Mutate a fin item with the given operation
 	 */
-	this.set = function(itemId, propName, value) {
-		if (arguments.length == 2) {
-			var properties = propName
-			for (var propName in properties) {
-				this.set(itemId, propName, properties[propName])
-			}
-			return
-		}
-		
-		var key = shared.keys.getItemPropertyKey(itemId, propName)
-		this._mutate({ key: key, op: 'set', args: [JSON.stringify(value)] })
+	this.set = function(itemID, propName, value) {
+		this._mutate({
+			id: itemID,
+			prop: propName,
+			op: 'set',
+			args: [JSON.stringify(value)]
+		})
 	}
-
+	
 	/*
 	 * Query fin for items matching a set of properties, and get notified
 	 * any time an item enters or leaves the matching set
@@ -77,20 +73,20 @@ fin = Singleton(function(){
 	/* 
 	 * Release an observation or query
 	 */
-	this.release = function(subId, options) {
-		options = options || {}
-		
+	this.release = function(subId) {
 		if (typeof subId == 'string') {
-			var channel = this._subIdToChannel[subId]
-			this._subscriptionPool.remove(channel, subId)
+			var channel = this._subIdToChannel[subId],
+				key = this._subscriptionPool.remove(channel, subId),
+				keyInfo = shared.keys.getKeyInfo(key),
+				itemID = keyInfo.id
 			
 			if (this._subscriptionPool.count(channel) == 0) {
-				if (options.local !== true) {
+				if (itemID != this._localID) {
 					this.send('FIN_REQUEST_UNSUBSCRIBE', channel)
 				}
 				delete this._listLength[channel]
 			}
-
+			
 			delete this._subIdToChannel[subId]
 		} else { // it's a fin template element
 			this._templateFactory.releaseTemplate(subId)
@@ -100,75 +96,13 @@ fin = Singleton(function(){
 	/*
 	 * Get the last cached mutation of a currently observed item property
 	 */
-	this.getCachedMutation = function(itemId, propName) {
-		var key = shared.keys.getItemPropertyKey(itemId, propName)
+	this.getCachedMutation = function(itemID, propName) {
+		if (itemID == 'LOCAL') { itemID = this._localID }
+		else if (itemID == 'GLOBAL') { itemID = this._globalID }
+		
+		var key = shared.keys.getItemPropertyKey(itemID, propName)
 		return this._mutationCache[key]
 	}
-	
-/**********************
- * Local property API *
- **********************/
-	/*
-	 * Observe a local property. This does not get synched across clients or page views
-	 */
-	this._localId = '__fin_local'
-	this.observeLocal = function(propName, callback) {
-		if (!propName || !callback) { logger.error("observeLocal requires two arguments", propName, callback); }
-		
-		return this._observe({ id: this._localId, property: propName, local: true }, callback)
-	}
-
-	/*
-	 * Mutate a local property. This does not get synched across clients or page views
-	 */
-	this.setLocal = function(propName, value) {
-		this._mutate({ local: true, id: this._localId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
-	}
-	
-	/*
-	 * Release a local observation
-	 */
-	this.releaseLocal = function(subId) {
-		this.release(subId, { local: true })
-	}
-	
-	/*
-	 * Get the last cached mutation of a currently observed item property
-	 */
-	this.getLocalCachedMutation = function(propName) {
-		return this.getCachedMutation(this._localId, propName);
-	}
-
-/***********************
- * Global property API *
- ***********************/
-	/*
-	 * Observe a global property. All clients see the same global properties
-	 */
-	this._globalId = 0
-	this.observeGlobal = function(propName, callback) {
-		if (!propName || !callback) { logger.error("observeLocal requires two arguments", propName, callback); }
-		return this._observe({ id: this._globalId, property: propName }, callback)
-	}
-
-	/*
-	 * Mutate a global property.
-	 */
-	this.setGlobal = function(propName, value) {
-		this._mutate({ id: this._globalId, op: 'set', prop: propName, args: [JSON.stringify(value)] })
-	}
-
-	/*
-	 * Release a global observation
-	 */
-	this.releaseGlobal = this.release
-	
-	/*
-	 * Get the last cached mutation of a currently observed item property
-	 */
-	this.getGlobalCachedMutation = function(propName) {
-		return this.getCachedMutation(this._globalId, propName);
-	}	
 
 /***********
  * Set API *
@@ -359,16 +293,19 @@ fin = Singleton(function(){
 	this._subIdToChannel = {}
 	this._subscriptionPool = new shared.Pool()
 	this._observe = function(params, callback) {
-		var itemId = params.id,
-			propName = params.property,
-			isGlobal = (params.local != true),
-			pool = this._subscriptionPool,
-			key = params.key || shared.keys.getItemPropertyKey(itemId, propName)
+		var itemID
+		if (params.id == 'LOCAL') {
+			itemID = this._localID
+		} else {
+			itemID = (params.id == 'GLOBAL' ? this._globalID : params.id)
+		}
 		
-		var subId = pool.add(key, callback),
+		var pool = this._subscriptionPool,
+			key = params.key || shared.keys.getItemPropertyKey(itemID, params.property),
+			subId = pool.add(key, callback),
 			cachedMutation = this._mutationCache[key]
 		
-		if (isGlobal && pool.count(key) == 1) {
+		if (itemID != this._localID && pool.count(key) == 1) {
 			var netParams = { key: key, type: (params.type || 'BYTES') }
 			if (typeof params.snapshot != 'undefined') {
 				netParams.snapshot = params.snapshot
@@ -382,15 +319,23 @@ fin = Singleton(function(){
 		return subId
 	}
 		
+	this._localID = '__fin_local'
+	this._globalID = 0
 	this._mutate = function(params) {
 		var mutation = {
-			id: params.key || shared.keys.getItemPropertyKey(params.id, params.prop),
 			op: params.op,
-			args: params.args
+			args: params.args,
+			prop: params.prop
 		}
-		if (params.local !== true) {
+		
+		if (params.id == 'LOCAL') {
+			mutation.id = shared.keys.getItemPropertyKey(this._localID, params.prop)
+		} else {
+			var id = (params.id == 'GLOBAL' ? this._globalID : params.id)
+			mutation.id = shared.keys.getItemPropertyKey(id, params.prop)
 			this.send('FIN_REQUEST_MUTATE', mutation)
 		}
+		
 		this._handleMutation(mutation)
 	}
 	

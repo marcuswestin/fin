@@ -93,30 +93,35 @@ fin = Singleton(function(){
 		}
 	}
 	
+	this._getItemID = function(itemName) {
+		return itemName == 'LOCAL' ? this._localID
+				: itemName == 'GLOBAL' ? this._globalID
+				: itemName
+	}
+	
 	/*
 	 * Get the last cached mutation of a currently observed item property
 	 */
-	this.getCachedMutation = function(itemID, propName) {
-		if (itemID == 'LOCAL') { itemID = this._localID }
-		else if (itemID == 'GLOBAL') { itemID = this._globalID }
+	this.getCachedMutation = function(itemName, propName) {
+		var itemID = this._getItemID(itemName),
+			key = shared.keys.getItemPropertyKey(itemID, propName)
 		
-		var key = shared.keys.getItemPropertyKey(itemID, propName)
 		return this._mutationCache[key]
 	}
 
 /***********
  * Set API *
  ***********/
-	this.observeSet = function(itemId, propName, callback) {
-		this._observe({ id: itemId, property: propName, type: 'SET' }, callback)
+	this.observeSet = function(itemName, propName, callback) {
+		this._observe({ id: itemName, property: propName, type: 'SET' }, callback)
 	}
 
-	this.addToSet = function(itemId, propName, member) {
-		this._mutate({ id: itemId, op: 'sadd', prop: propName, args: [JSON.stringify(member)] })
+	this.addToSet = function(itemName, propName, member) {
+		this._mutate({ id: itemName, op: 'sadd', prop: propName, args: [JSON.stringify(member)] })
 	}
 
-	this.removeFromSet = function(itemId, propName, member) {
-		this._mutate({ id: itemId, op: 'srem', prop: propName, args: [JSON.stringify(member)] })
+	this.removeFromSet = function(itemName, propName, member) {
+		this._mutate({ id: itemName, op: 'srem', prop: propName, args: [JSON.stringify(member)] })
 	}
 
 /************
@@ -125,11 +130,11 @@ fin = Singleton(function(){
 	/* 
 	 * Observe an item property list, and get notified any time it changes
 	 */
-	this.observeList = function(itemId, propName, callback, length) {
-		if (!itemId || !propName || !callback) { logger.error("observe requires at least three arguments", itemId, propName, callback, length); }
+	this.observeList = function(itemName, propName, callback, length) {
+		if (!itemName || !propName || !callback) { logger.error("observe requires at least three arguments", itemName, propName, callback, length); }
 		
-		var subId = this._observe({ id: itemId, property: propName, snapshot: false }, callback)
-		this.extendList(itemId, propName, length || 10)
+		var subId = this._observe({ id: itemName, property: propName, snapshot: false }, callback)
+		this.extendList(itemName, propName, length || 10)
 		return subId
 	}
 	
@@ -137,10 +142,11 @@ fin = Singleton(function(){
 	 * Extend the history of an observed list
 	 */
 	this._listLength = {}
-	this.extendList = function(itemId, propName, maxLen) {
-		if (!itemId || !propName || !maxLen) { logger.error("extendList requires three arguments", itemId, propName, maxLen); }
+	this.extendList = function(itemName, propName, maxLen) {
+		if (!itemName || !propName || !maxLen) { logger.error("extendList requires three arguments", itemName, propName, maxLen); }
 		
-		var listKey = shared.keys.getItemPropertyKey(itemId, propName),
+		var itemID = this._getItemID(itemName),
+			listKey = shared.keys.getItemPropertyKey(itemID, propName),
 			listLength = this._listLength[listKey] || 0
 		
 		if (maxLen <= listLength) { return }
@@ -293,14 +299,8 @@ fin = Singleton(function(){
 	this._subIdToChannel = {}
 	this._subscriptionPool = new shared.Pool()
 	this._observe = function(params, callback) {
-		var itemID
-		if (params.id == 'LOCAL') {
-			itemID = this._localID
-		} else {
-			itemID = (params.id == 'GLOBAL' ? this._globalID : params.id)
-		}
-		
-		var pool = this._subscriptionPool,
+		var itemID = this._getItemID(params.id)
+			pool = this._subscriptionPool,
 			key = params.key || shared.keys.getItemPropertyKey(itemID, params.property),
 			subId = pool.add(key, callback),
 			cachedMutation = this._mutationCache[key]
@@ -322,19 +322,15 @@ fin = Singleton(function(){
 	this._localID = '__fin_local'
 	this._globalID = 0
 	this._mutate = function(params) {
+		var itemID = this._getItemID(params.id)
 		var mutation = {
 			op: params.op,
 			args: params.args,
-			prop: params.prop
+			prop: params.prop,
+			id: shared.keys.getItemPropertyKey(itemID, params.prop) // this should be called key
 		}
 		
-		if (params.id == 'LOCAL') {
-			mutation.id = shared.keys.getItemPropertyKey(this._localID, params.prop)
-		} else {
-			var id = (params.id == 'GLOBAL' ? this._globalID : params.id)
-			mutation.id = shared.keys.getItemPropertyKey(id, params.prop)
-			this.send('FIN_REQUEST_MUTATE', mutation)
-		}
+		if (itemID != this._localID) { this.send('FIN_REQUEST_MUTATE', mutation) }
 		
 		this._handleMutation(mutation)
 	}

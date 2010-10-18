@@ -34,10 +34,13 @@ fin.js: Makefile lib/js.io lib/js.io/packages/jsio.js
 	echo "// Built in Makefile by lib/js.io rule" > fin.js
 	cat lib/js.io/packages/jsio.js | sed s/jsio.js/fin.js/g >> fin.js
 	echo "" >> fin.js
-	echo "jsio.setPath('../lib/js.io/packages')" >> fin.js
-	echo "jsio.addPath('../js', 'client')" >> fin.js
-	echo "jsio.addPath('../js', 'shared')" >> fin.js
-	echo "jsio('import client.api')" >> fin.js
+	echo ";(function(){" >> fin.js
+	echo "	var finPath = jsio.__path.__default__" >> fin.js
+	echo "	jsio.setPath(finPath + 'lib/js.io/packages')" >> fin.js
+	echo "	jsio.addPath(finPath + 'js', 'client')" >> fin.js
+	echo "	jsio.addPath(finPath + 'js', 'shared')" >> fin.js
+	echo "	jsio('import client.api')" >> fin.js
+	echo "})()" >> fin.js
 
 lib/js.io:
 	git clone git://github.com/mcarter/js.io.git

@@ -53,7 +53,7 @@ lib/redis-node-client:
 	git clone git://github.com/fictorial/redis-node-client.git 
 	mv redis-node-client lib/
 	# Checks out "works with just-released node v0.1.90"
-	cd lib/redis-node-client/; git checkout abf4c4bf4c3f13873fe65b45ddee664066e442dd
+	cd lib/redis-node-client/; git checkout v0.3.5;
 
 ##################
 ### Utilities ####

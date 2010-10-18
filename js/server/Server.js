@@ -1,14 +1,14 @@
 jsio('from shared.javascript import Class, map, bind, blockCallback')
 jsio('from net.interfaces import Server')
 jsio('import shared.keys')
-jsio('import server.Connection')
 
 exports = Class(Server, function(supr) {
 	
-	this.init = function(redis) {
+	this.init = function(connectionCtor, redis) {
 		supr(this, 'init');
 		this._redis = redis
 		this._uniqueId = 0
+		this._connectionCtor = connectionCtor;
 		this._redisClient = this._createRedisClient()
 
 		// TODO For now we clear out all the query locks on every start up.
@@ -42,7 +42,7 @@ exports = Class(Server, function(supr) {
 
 	var connectionId = 0 // TODO Each server will need a unique id as well to make each connection id globally unique
 	this.buildProtocol = function() {
-		return new server.Connection('c' + connectionId++, this._createRedisClient());
+		return new this._connectionCtor('c' + connectionId++, this._createRedisClient());
 	}
 
 /*******************************

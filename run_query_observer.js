@@ -1,6 +1,7 @@
 require('./lib/js.io/packages/jsio')
-jsio.path.shared = './js'
-jsio.path.server = './js'
+
+jsio.addPath('js', 'shared')
+jsio.addPath('js', 'server')
 
 var redis = require('./lib/redis-node-client/lib/redis-client')
 var sys = require('sys')

@@ -1,7 +1,7 @@
 require('./lib/js.io/packages/jsio')
 
-jsio.path.shared = './js'
-jsio.path.server = './js'
+jsio.addPath('js', 'shared')
+jsio.addPath('js', 'server')
 
 jsio('import server.Server')
 

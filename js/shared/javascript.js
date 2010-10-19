@@ -1,5 +1,6 @@
 
 exports.bind = function(context, method/*, args... */) {
+	if (!context || !method || (typeof method == 'string' && !context[method])) { throw "bad bind arguments" }
 	var args = Array.prototype.slice.call(arguments, 2)
 	return function() {
 		fn = (typeof method == 'string' ? context[method] : method)

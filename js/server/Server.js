@@ -49,6 +49,7 @@ exports = Class(Server, function(supr) {
  * Connection request handlers *
  *******************************/
 	this.getListItems = function(listKey, from, to, callback) {
+		if (!to) { to = -1 } // grab the entire list if no end index is specified
 		this._redisClient.lrange(listKey, from, to, bind(this, function(err, itemBytesArray) {
 			if (err) { throw logger.error('could not retrieve list range', listKey, from, to, err) }
 			if (!itemBytesArray) {

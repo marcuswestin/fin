@@ -131,10 +131,10 @@ fin = Singleton(function(){
 	 * Observe an item property list, and get notified any time it changes
 	 */
 	this.observeList = function(itemName, propName, callback, length) {
-		if (!itemName || !propName || !callback) { logger.error("observe requires at least three arguments", itemName, propName, callback, length); }
+		if (!itemName || !propName || !callback) { logger.error("observe requires at least three arguments", itemName, propName, callback, length) }
 		
 		var subId = this._observe({ id: itemName, property: propName, snapshot: false }, callback)
-		this.extendList(itemName, propName, length || 10)
+		this.extendList(itemName, propName, length)
 		return subId
 	}
 	
@@ -142,17 +142,18 @@ fin = Singleton(function(){
 	 * Extend the history of an observed list
 	 */
 	this._listLength = {}
-	this.extendList = function(itemName, propName, maxLen) {
-		if (!itemName || !propName || !maxLen) { logger.error("extendList requires three arguments", itemName, propName, maxLen); }
+	this.extendList = function(itemName, propName, extendToIndex) {
+		if (!itemName || !propName) { logger.error("extendList requires two arguments", itemName, propName) }
 		
 		var itemID = this._getItemID(itemName),
 			listKey = shared.keys.getItemPropertyKey(itemID, propName),
 			listLength = this._listLength[listKey] || 0
 		
-		if (maxLen <= listLength) { return }
-		this._listLength[listKey] = maxLen
+		if (extendToIndex <= listLength) { return }
+		this._listLength[listKey] = extendToIndex
 		
-		var args = { key: listKey, from: listLength, to: maxLen }
+		var args = { key: listKey, from: listLength }
+		if (extendToIndex) { args.to = extendToIndex }
 		this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
 			var mutation = { id: listKey, op: 'listAppend', args: items, index: listLength }
 			this._handleMutation(mutation)

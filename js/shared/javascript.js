@@ -87,7 +87,7 @@ exports.blockCallback = function(callback, opts) {
 			var blockReleased = false
 			return function(err) {
 				if (err && opts.throwErr) {
-					throw err
+					throw new Error(err)
 				}
 				if (blockReleased) {
 					result.tryNow()

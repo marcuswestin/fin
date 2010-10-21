@@ -4,13 +4,12 @@ var sys = require('sys')
 
 require('../lib/js.io/packages/jsio')
 
+jsio.addPath('js', 'shared')
+jsio.addPath('js', 'server')
+jsio.addPath('js', 'client')
+jsio.addPath('.', 'test')
 
-jsio.path.shared = '../js/'
-jsio.path.server = '../js/'
-jsio.path.client = '../js/'
-jsio.path.test = '../'
-
-jsio('import client.fin') // makes fin globally accesible
+jsio('import client.api') // makes fin globally accesible
 jsio('import test.tests')
 jsio('from shared.javascript import blockCallback')
 jsio('import base')

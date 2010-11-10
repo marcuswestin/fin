@@ -36,9 +36,9 @@ fin.js: Makefile lib/js.io lib/js.io/packages/jsio.js
 	echo "" >> fin.js
 	echo ";(function(){" >> fin.js
 	echo "	var finPath = jsio.__path.__default__" >> fin.js
-	echo "	jsio.setPath(finPath + 'lib/js.io/packages')" >> fin.js
-	echo "	jsio.addPath(finPath + 'js', 'client')" >> fin.js
-	echo "	jsio.addPath(finPath + 'js', 'shared')" >> fin.js
+	echo "	jsio.setPath(finPath + '/lib/js.io/packages')" >> fin.js
+	echo "	jsio.addPath(finPath + '/js', 'client')" >> fin.js
+	echo "	jsio.addPath(finPath + '/js', 'shared')" >> fin.js
 	echo "	jsio('import client.api')" >> fin.js
 	echo "})()" >> fin.js
 

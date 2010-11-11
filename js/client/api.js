@@ -338,11 +338,19 @@ fin = Singleton(function(){
 			case 'set':
 				mutation.value = args[0] = JSON.parse(args[0])
 				break
-			case 'listAppend':
-			case 'listPrepend':
+			case 'push':
+			case 'unshift':
 			case 'sadd':
 			case 'srem':
 				for (var i=0; i < args.length; i++) { args[i] = JSON.parse(args[i]) }
+				break
+			case 'increment':
+			case 'decrement':
+				if (args.length) { throw logger.error("Argument for operation without signature " + operation) }
+				break
+			case 'add':
+			case 'subtract':
+				if (args.length != 1) { throw logger.error('Missing argument for "'+operation+'"') }
 				break
 			default: throw logger.error("Unknown operation for deserialization " + operation)
 		}
@@ -369,7 +377,8 @@ fin = Singleton(function(){
 	this._cacheMutation = function(mutation, key) {
 		var mutationCache = this._mutationCache,
 			cachedMutation = mutationCache[key],
-			cachedArgs = cachedMutation && cachedMutation.args
+			cachedArgs = cachedMutation && cachedMutation.args,
+			cachedValue = cachedMutation && cachedMutation.value
 		
 		if (!cachedMutation) {
 			return mutationCache[key] = mutation
@@ -379,10 +388,10 @@ fin = Singleton(function(){
 			case 'set':
 				mutationCache[key] = mutation
 				break
-			case 'listAppend':
+			case 'push':
 				cachedArgs = cachedArgs.concat(mutation.args)
 				break
-			case 'listPrepend':
+			case 'unshift':
 				cachedArgs = mutation.args.concat(cachedArgs)
 				break
 			case 'sadd':
@@ -395,8 +404,20 @@ fin = Singleton(function(){
 					cachedArgs.splice(cachedArgs.indexOf(itemId), 1)
 				}
 				break
+			case 'increment':
+				cachedMutation.value = mutation.value = (cachedValue || 0) + 1
+				break
+			case 'decrement':
+				cachedMutation.value = mutation.value = (cachedValue || 0) - 1
+				break
+			case 'add':
+				cachedMutation.value = mutation.value = (cachedValue || 0) + mutation.args[0]
+				break
+			case 'subtract':
+				cachedMutation.value = mutation.value = (cachedValue || 0) - mutation.args[0]
+				break
 			default:
-				throw logger.error("Unknown operation for caching "+ operation)
+				throw logger.error('Unknown operation for caching "'+mutation.op+'"')
 		}
 		return mutationCache[key]
 	}

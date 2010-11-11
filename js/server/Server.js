@@ -135,10 +135,14 @@ exports = Class(Server, function(supr) {
 	// TODO Only publish srem and sadd mutations if the membership changed
 	this._operationMap = {
 		'set': 'set',
-		'listAppend': 'rpush',
-		'listPrepend': 'lpush',
+		'push': 'rpush',
+		'unshift': 'lpush',
 		'sadd': 'sadd',
-		'srem': 'srem'
+		'srem': 'srem',
+		'increment': 'incr',
+		'decrement': 'decr',
+		'add': 'incrby',
+		'subtract': 'decrby'
 	}
 	this.mutateItem = function(mutation, originConnection, callback) {
 		var key = mutation.id,

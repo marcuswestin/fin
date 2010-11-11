@@ -44,12 +44,7 @@ fin = Singleton(function(){
 	 * Mutate a fin item with the given operation
 	 */
 	this.set = function(itemID, propName, value) {
-		this._mutate({
-			id: itemID,
-			prop: propName,
-			op: 'set',
-			args: [JSON.stringify(value)]
-		})
+		this.mutate('set', itemID, propName, [JSON.stringify(value)])
 	}
 	
 	/*
@@ -117,11 +112,11 @@ fin = Singleton(function(){
 	}
 
 	this.addToSet = function(itemName, propName, member) {
-		this._mutate({ id: itemName, op: 'sadd', prop: propName, args: [JSON.stringify(member)] })
+		this.mutate('sadd', itemName, propName, [JSON.stringify(member)])
 	}
 
 	this.removeFromSet = function(itemName, propName, member) {
-		this._mutate({ id: itemName, op: 'srem', prop: propName, args: [JSON.stringify(member)] })
+		this.mutate('srem', itemName, propName, [JSON.stringify(member)])
 	}
 
 /************
@@ -155,26 +150,26 @@ fin = Singleton(function(){
 		var args = { key: listKey, from: listLength }
 		if (extendToIndex) { args.to = extendToIndex }
 		this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
-			var mutation = { id: listKey, op: 'listAppend', args: items, index: listLength }
+			var mutation = { id: listKey, op: 'push', args: items, index: listLength }
 			this._handleMutation(mutation)
 		}))
 	}
 	
 	this.append = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
-		this._listOp(itemId, propName, 'listAppend', values)
+		this._listOp(itemId, propName, 'push', values)
 	}
 	
 	this.prepend = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
-		this._listOp(itemId, propName, 'listPrepend', values)
+		this._listOp(itemId, propName, 'unshift', values)
 	}
 	
 	this._listOp = function(itemId, propName, op, values) {
 		for (var i=0; i < values.length; i++) {
 			values[i] = JSON.stringify(values[i])
 		}
-		this._mutate({ id: itemId, op: op, prop: propName, args: values })
+		this.mutate(op, itemId, propName, values)
 	}
 	
 /********************
@@ -322,13 +317,13 @@ fin = Singleton(function(){
 		
 	this._localID = '__fin_local'
 	this._globalID = 0
-	this._mutate = function(params) {
-		var itemID = this._getItemID(params.id)
+	this.mutate = function(op, id, prop, args) {
+		var itemID = this._getItemID(id)
 		var mutation = {
-			op: params.op,
-			args: params.args,
-			prop: params.prop,
-			id: shared.keys.getItemPropertyKey(itemID, params.prop) // this should be called key
+			op: op,
+			args: args,
+			prop: prop,
+			id: shared.keys.getItemPropertyKey(itemID, prop) // this should be called key
 		}
 		
 		if (itemID != this._localID) { this.send('FIN_REQUEST_MUTATE', mutation) }

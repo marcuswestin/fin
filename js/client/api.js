@@ -70,19 +70,20 @@ fin = Singleton(function(){
 	 */
 	this.release = function(subId) {
 		if (typeof subId == 'string') {
-			var channel = this._subIdToChannel[subId],
-				key = this._subscriptionPool.remove(channel, subId),
+			var key = this._subIdToKey[subId],
 				keyInfo = shared.keys.getKeyInfo(key),
 				itemID = keyInfo.id
 			
-			if (this._subscriptionPool.count(channel) == 0) {
+			this._subscriptionPool.remove(key, subId)
+			
+			if (this._subscriptionPool.count(key) == 0) {
 				if (itemID != this._localID) {
-					this.send('FIN_REQUEST_UNSUBSCRIBE', channel)
+					this.send('FIN_REQUEST_UNSUBSCRIBE', key)
 				}
-				delete this._listLength[channel]
+				delete this._listLength[key]
 			}
 			
-			delete this._subIdToChannel[subId]
+			delete this._subIdToKey[subId]
 		} else { // it's a fin template element
 			this._templateFactory.releaseTemplate(subId)
 		}
@@ -289,7 +290,7 @@ fin = Singleton(function(){
 		}))
 	}
 	
-	this._subIdToChannel = {}
+	this._subIdToKey = {}
 	this._subscriptionPool = new shared.Pool()
 	this._observe = function(params, callback) {
 		var itemID = this._getItemID(params.id)
@@ -308,7 +309,7 @@ fin = Singleton(function(){
 			this._handleMutation(cachedMutation, callback)
 		}
 		
-		this._subIdToChannel[subId] = key
+		this._subIdToKey[subId] = key
 		return subId
 	}
 		

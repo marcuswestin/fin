@@ -44,7 +44,7 @@ fin = Singleton(function(){
 	 * Mutate a fin item with the given operation
 	 */
 	this.set = function(itemID, propName, value) {
-		this.mutate('set', itemID, propName, [JSON.stringify(value)])
+		this.mutate('set', itemID, propName, [value])
 	}
 	
 	/*
@@ -112,11 +112,11 @@ fin = Singleton(function(){
 	}
 
 	this.addToSet = function(itemName, propName, member) {
-		this.mutate('sadd', itemName, propName, [JSON.stringify(member)])
+		this.mutate('sadd', itemName, propName, [member])
 	}
 
 	this.removeFromSet = function(itemName, propName, member) {
-		this.mutate('srem', itemName, propName, [JSON.stringify(member)])
+		this.mutate('srem', itemName, propName, [member])
 	}
 
 /************
@@ -166,9 +166,6 @@ fin = Singleton(function(){
 	}
 	
 	this._listOp = function(itemId, propName, op, values) {
-		for (var i=0; i < values.length; i++) {
-			values[i] = JSON.stringify(values[i])
-		}
 		this.mutate(op, itemId, propName, values)
 	}
 	
@@ -318,10 +315,16 @@ fin = Singleton(function(){
 	this._localID = '__fin_local'
 	this._globalID = 0
 	this.mutate = function(op, id, prop, args) {
-		var itemID = this._getItemID(id)
+		var itemID = this._getItemID(id),
+			mutationArgs = []
+		
+		for (var i=0; i < args.length; i++) {
+			mutationArgs[i] = JSON.stringify(args[i])
+		}
+		
 		var mutation = {
 			op: op,
-			args: args,
+			args: mutationArgs,
 			prop: prop,
 			id: shared.keys.getItemPropertyKey(itemID, prop) // this should be called key
 		}

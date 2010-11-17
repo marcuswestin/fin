@@ -7,10 +7,10 @@ jsio('import net.protocols.rtjp')
 
 exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 
-	this.init = function(id, redisClient) {
+	this.init = function(id, storeEngine) {
 		supr(this, 'init')
 		this._id = id
-		this._redisClient = redisClient
+		this._store = storeEngine.getStore()
 		this._requestHandlers = {}
 		
 		this._setupHandlers()
@@ -22,10 +22,9 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 	}
 	
 	this.connectionLost = function() {
-		this._log('connection lost - closing redis client')
+		this._log('connection lost - closing store')
 		this._clientConnected = false
-		// TODO do we need to unsubscribe from redis channels?
-		this._redisClient.close()
+		this._store.close()
 	}
 	
 	this.getId = function() { return this._id }
@@ -35,7 +34,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			var mutationInfo = shared.mutations.parseMutationBytes(mutationBytes)
 			if (mutationInfo.originId == this._id) { return }
 			if (!this._clientConnected) {
-				logger.warn("Received item mutation event even though redis client is closed", mutationInfo.json)
+				logger.warn("Received item mutation event even though store is closed", mutationInfo.json)
 				return
 			}
 			this.sendFrame('FIN_EVENT_MUTATION', mutationInfo.json)
@@ -45,8 +44,8 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			var type = args.type,
 				key = args.key
 			
-			logger.log("Subscribe redis channel:", key)
-			this._redisClient.subscribeTo(key, this._itemChannelHandler)
+			logger.log("Subscribe channel:", key)
+			this._store.subscribe(key, this._itemChannelHandler)
 			
 			if (args.snapshot != false) {
 				// fake an item mutation event
@@ -57,7 +56,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		}))
 		
 		this.handleRequest('FIN_REQUEST_UNSUBSCRIBE', bind(this, function(key) {
-			this._redisClient.unsubscribeFrom(key)
+			this._store.unsubscribeFrom(key)
 		}))
 		
 		this.handleRequest('FIN_REQUEST_MONITOR_QUERY', bind(this, function(queryJSON) {

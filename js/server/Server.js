@@ -4,45 +4,18 @@ jsio('import shared.keys')
 
 exports = Class(Server, function(supr) {
 	
-	this.init = function(connectionCtor, redis) {
+	this.init = function(connectionCtor, storeEngine) {
 		supr(this, 'init');
-		this._redis = redis
+		this._storeEngine = storeEngine
+		this._store = this._storeEngine.getStore()
+		
 		this._uniqueId = 0
 		this._connectionCtor = connectionCtor;
-		this._redisClient = this._createRedisClient()
-
-		// TODO For now we clear out all the query locks on every start up.
-		//	This is because if the query observer loses its connection to 
-		//	the redis server before shut down, then it never gets the chance
-		//	to release the queries it is observing. I'm not sure what the correct
-		//	solution to the this problem is.
-		this._redisClient.stream.addListener('connect', bind(this, function() {
-			var locksPattern = shared.keys.getQueryLockPattern()
-			this._redisClient.keys(locksPattern, bind(this, function(err, keysBytes) {
-				if (err) { throw logger.error('Could not retrieve query lock keys on startup', err) }
-				if (!keysBytes) { return }
-				// This is really really ugly - keys are concatenated with commas. Split on ,L and then append
-				//	an L in front of every key. This will break if there is a query with the string ",L" in a key or value
-				var keys = keysBytes.toString().substr(1).split(',L') 
-				logger.log("Clear out query lock keys", keys)
-				for (var i=0, key; key = keys[i]; i++) {
-					this._redisClient.del('L' + key, function(err) {
-						if (err) { throw logger.error("Could not clear out key") }
-					})
-				}
-			}))
-		}))
 	}
 	
-	this._createRedisClient = function() {
-		var client = this._redis.createClient()
-		client.stream.setTimeout(0) // the stream is the redis client's net connection
-		return client
-	}
-
 	var connectionId = 0 // TODO Each server will need a unique id as well to make each connection id globally unique
 	this.buildProtocol = function() {
-		return new this._connectionCtor('c' + connectionId++, this._createRedisClient());
+		return new this._connectionCtor('c' + connectionId++, this._storeEngine)
 	}
 
 /*******************************
@@ -50,14 +23,8 @@ exports = Class(Server, function(supr) {
  *******************************/
 	this.getListItems = function(listKey, from, to, callback) {
 		if (!to) { to = -1 } // grab the entire list if no end index is specified
-		this._redisClient.lrange(listKey, from, to, bind(this, function(err, itemBytesArray) {
+		this._store.getListItems(listKey, from, to, bind(this, function(err, items) {
 			if (err) { throw logger.error('could not retrieve list range', listKey, from, to, err) }
-			if (!itemBytesArray) {
-				callback([])
-				return
-			}
-			
-			var items = map(itemBytesArray, function(itemBytes) { return itemBytes.toString() })
 			callback(items)
 		}))
 	}
@@ -82,20 +49,15 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this._retrieveBytes = function(key, callback) {
-		this._redisClient.get(key, function(err, valueBytes) {
+		this._store.getBytes(key, function(err, value) {
 			if (err) { throw logger.error('could not retrieve BYTES for key', key, err) }
-			callback((valueBytes ? valueBytes.toString() : "null"))
+			callback(value)
 		})
 	}
 	
 	this.retrieveSet = function(key, callback) {
-		this._redisClient.smembers(key, bind(this, function(err, membersBytes) {
+		this._store.getMembers(key, bind(this, function(err, members) {
 			if (err) { throw logger.error('could not retrieve set members', key, err) }
-			membersBytes = membersBytes || []
-			var members = []
-			for (var i=0, memberBytes; memberBytes = membersBytes[i]; i++) {
-				members.push(memberBytes.toString())
-			}
 			callback(members)
 		}))
 		
@@ -105,17 +67,17 @@ exports = Class(Server, function(supr) {
 		var queryKey = shared.keys.getQueryKey(queryJSON),
 			lockKey = shared.keys.getQueryLockKey(queryJSON)
 		
-		this._redisClient.get(lockKey, bind(this, function(err, queryIsHeld) {
+		this._store.get(lockKey, bind(this, function(err, queryIsHeld) {
 			if (err) { throw logger.error('could not check for query lock', lockKey, err) }
 			if (queryIsHeld) { return }
-
+			
 			logger.log('Publish request for query observer to monitor this query', queryJSON)
-			this._redisClient.publish(shared.keys.queryRequestChannel, queryJSON)
+			this._store.publish(shared.keys.queryRequestChannel, queryJSON)
 		}))
 	}
 	
 	this.createItem = function(itemProperties, origConnection, callback) {
-		this._redisClient.incr(shared.keys.uniqueIdKey, bind(this, function(err, newItemId) {
+		this._store.increment(shared.keys.uniqueIdKey, bind(this, function(err, newItemId) {
 			if (err) { throw logger.error('Could not increment unique item id counter', err) }
 			
 			var doCallback = blockCallback(bind(this, callback, newItemId), { throwErr: true, fireOnce: true })
@@ -132,22 +94,10 @@ exports = Class(Server, function(supr) {
 		}))
 	}
 	
-	// TODO Only publish srem and sadd mutations if the membership changed
-	this._operationMap = {
-		'set': 'set',
-		'push': 'rpush',
-		'unshift': 'lpush',
-		'sadd': 'sadd',
-		'srem': 'srem',
-		'increment': 'incr',
-		'decrement': 'decr',
-		'add': 'incrby',
-		'subtract': 'decrby'
-	}
 	this.mutateItem = function(mutation, originConnection, callback) {
 		var key = mutation.id,
 			propName = shared.keys.getKeyInfo(key).property,
-			operation = this._operationMap[mutation.op],
+			operation = mutation.op,
 			args = Array.prototype.slice.call(mutation.args, 0)
 			connId = originConnection ? originConnection.getId() : '',
 			mutationBytes = connId.length + connId + JSON.stringify(mutation)
@@ -159,7 +109,7 @@ exports = Class(Server, function(supr) {
 		args.unshift(key)
 		logger.log('Apply and publish mutation', operation, args)
 		if (callback) { args.push(callback) }
-		this._redisClient[operation].apply(this._redisClient, args)
+		this._store.handleOperation(operation, args)
 		
 		// TODO clients should subscribe against pattern channels, 
 		//	e.g. for item props *:1@type:* and for prop channels *:#type:*
@@ -167,8 +117,8 @@ exports = Class(Server, function(supr) {
 		//	e.g. :1@type:#type: for a mutation that changes the type of item 1
 		var propChannel = shared.keys.getPropertyChannel(propName)
 		
-		this._redisClient.publish(key, mutationBytes)
-		this._redisClient.publish(propChannel, mutationBytes)
+		this._store.publish(key, mutationBytes)
+		this._store.publish(propChannel, mutationBytes)
 	}
 })
 

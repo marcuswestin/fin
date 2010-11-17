@@ -109,7 +109,7 @@ exports = Class(Server, function(supr) {
 		args.unshift(key)
 		logger.log('Apply and publish mutation', operation, args)
 		if (callback) { args.push(callback) }
-		this._store.handleOperation(operation, args)
+		this._store.handleMutation(operation, args)
 		
 		// TODO clients should subscribe against pattern channels, 
 		//	e.g. for item props *:1@type:* and for prop channels *:#type:*

@@ -9,12 +9,18 @@ function create(oldObject) {
 }
 
 var storeAPI = {
-	getListItems: getListItems,
 	getBytes: getBytes,
+	getListItems: getListItems,
 	getMembers: getMembers,
-	subscribe: subscribe,
-	publish: publish,
-	handleOperation: handleOperation,
+	
+	subscribe: createRedisOp('subscribeTo'),
+	publish: createRedisOp('publish'),
+	
+	set: createRedisOp('set'),
+	setIfNull: createRedisOp('setnx'),
+	
+	handleMutation: handleMutation,
+	
 	close: close
 }
 
@@ -58,9 +64,9 @@ function getListItems(listKey, from, to, callback) {
 }
 
 function getBytes(key, callback) {
-	this.redisClient.getBytes(key, function(err, value) {
+	this.redisClient.get(key, function(err, valueBytes) {
 		if (err) { return callback(err) }
-		if (!valueBytes) { return callback(null, "null") }
+		if (!valueBytes) { return callback(null, null) }
 		callback(null, valueBytes.toString())
 	})
 }
@@ -74,14 +80,6 @@ function getMembers(key, callback) {
 		}
 		callback(null, members)
 	})
-}
-
-function subscribe(channel, callback) {
-	this.redisClient.subscribeTo(channel, callback)
-}
-
-function publish(channel, bytes) {
-	this.redisClient.publish(channel, bytes)
 }
 
 function close() {
@@ -100,7 +98,13 @@ var operationMap = {
 	'subtract': 'decrby'
 }
 
-function handleOperation(operation, args) {
+function handleMutation(operation, args) {
 	var redisOp = operationMap[operation]
 	this.redisClient[redisOp].apply(this.redisClient, args)
+}
+
+function createRedisOp(redisOp) {
+	return function() {
+		this.redisClient[redisOp].apply(this.redisClient, args)
+	}
 }

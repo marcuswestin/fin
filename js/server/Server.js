@@ -49,7 +49,7 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this._retrieveBytes = function(key, callback) {
-		this._store.getBytes(key, function(err, value) {
+		this._store.getString(key, function(err, value) {
 			if (err) { throw logger.error('could not retrieve BYTES for key', key, err) }
 			callback(value)
 		})

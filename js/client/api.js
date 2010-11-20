@@ -316,16 +316,10 @@ fin = Singleton(function(){
 	this._localID = '__fin_local'
 	this._globalID = 0
 	this.mutate = function(op, id, prop, args) {
-		var itemID = this._getItemID(id),
-			mutationArgs = []
-		
-		for (var i=0; i < args.length; i++) {
-			mutationArgs[i] = JSON.stringify(args[i])
-		}
-		
+		var itemID = this._getItemID(id)
 		var mutation = {
 			op: op,
-			args: mutationArgs,
+			args: args,
 			prop: prop,
 			id: shared.keys.getItemPropertyKey(itemID, prop) // this should be called key
 		}
@@ -340,13 +334,13 @@ fin = Singleton(function(){
 			operation = mutation.op
 		switch(operation) {
 			case 'set':
-				mutation.value = args[0] = JSON.parse(args[0])
+				mutation.value = args[0]
 				break
 			case 'push':
 			case 'unshift':
 			case 'sadd':
 			case 'srem':
-				for (var i=0; i < args.length; i++) { args[i] = JSON.parse(args[i]) }
+				for (var i=0; i < args.length; i++) { args[i] = args[i] }
 				break
 			case 'increment':
 			case 'decrement':

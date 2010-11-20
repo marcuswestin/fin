@@ -49,7 +49,7 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this._retrieveBytes = function(key, callback) {
-		this._store.getString(key, function(err, value) {
+		this._store.getBytes(key, function(err, value) {
 			if (err) { throw logger.error('could not retrieve BYTES for key', key, err) }
 			callback(value)
 		})
@@ -100,7 +100,7 @@ exports = Class(Server, function(supr) {
 			operation = mutation.op,
 			args = Array.prototype.slice.call(mutation.args, 0)
 			connId = originConnection ? originConnection.getId() : '',
-			mutationBytes = connId.length + connId + JSON.stringify(mutation)
+			mutationBuffer = connId.length + connId + JSON.stringify(mutation)
 		
 		if (connId.length > 9) {
 			throw logger.error("Connection ID is longer than 9 digits! Parsing this connection ID won't work")
@@ -115,10 +115,10 @@ exports = Class(Server, function(supr) {
 		//	e.g. for item props *:1@type:* and for prop channels *:#type:*
 		//	mutations then come with a single publication channel, 
 		//	e.g. :1@type:#type: for a mutation that changes the type of item 1
-		var propChannel = shared.keys.getPropertyChannel(propName)
+		// var propChannel = shared.keys.getPropertyChannel(propName)
 		
-		this._store.publish(key, mutationBytes)
-		this._store.publish(propChannel, mutationBytes)
+		this._store.publish(key, mutationBuffer)
+		// this._store.publish(propChannel, mutationBuffer)
 	}
 })
 

@@ -1,10 +1,5 @@
-var redis = require('../lib/redis-node-client/lib/redis-client')
-
-function create(oldObject) {
-	function F() {}
-	F.prototype = oldObject;
-	return new F();
-}
+var redis = require('../lib/redis-node-client/lib/redis-client'),
+	create = require('./util').create
 
 /* Get a store
  *************/
@@ -18,7 +13,7 @@ exports.getStore = function() {
 /* The store's API
  *****************/
 var storeAPI = {
-	getString: getString,
+	getBytes: getBytes,
 	getListItems: getListItems,
 	getMembers: getMembers,
 	
@@ -48,7 +43,7 @@ function getListItems(listKey, from, to, callback) {
 }
 
 // Returns a string
-function getString(key, callback) {
+function getBytes(key, callback) {
 	this.redisClient.get(key, function(err, valueBytes) {
 		if (err) { return callback(err) }
 		if (!valueBytes) { return callback(null, null) }

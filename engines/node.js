@@ -1,9 +1,29 @@
-var Buffer = require('buffer').Buffer,
+var fs = require('fs'),
+	path = require('path'),
+	Buffer = require('buffer').Buffer,
 	util = require('./util'),
 	create = util.create
 
 var data = {},
+	dataDumpFile = './node-engine-dump.json',
 	pubsub = {}
+
+if (path.existsSync(dataDumpFile)) {
+	console.log('node engine found ' + dataDumpFile + ' - loading data...')
+	data = JSON.parse(fs.readFileSync(dataDumpFile))
+	console.log('done loading data')
+}
+
+process.on('SIGINT', function() {
+	console.log('\nnode engine caught SIGINT - shutting down cleanly')
+	process.exit()
+})
+
+process.on('exit', function() {
+	console.log('node engine detected shutdown - dumping data...')
+	fs.writeFileSync(dataDumpFile, JSON.stringify(data))
+	console.log('done dumping data.')
+})
 
 /* Get a store
  *************/

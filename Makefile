@@ -60,13 +60,12 @@ lib/redis-node-client:
 
 .PHONY: install-node
 install-node:
-	rm -rf /tmp/fin-node
 	git clone git://github.com/ry/node.git /tmp/fin-node
 	cd /tmp/fin-node; git checkout v0.2.3; ./configure; make; sudo make install
-
+	rm -rf /tmp/fin-node
 
 .PHONY: install-redis
 install-redis:
-	rm -rf /tmp/fin-redis
 	git clone git://github.com/antirez/redis.git /tmp/fin-redis
 	cd /tmp/fin-redis; git checkout v2.0.2-stable; make; sudo cp redis-server /usr/local/bin; sudo cp redis-cli /usr/local/bin;
+	rm -rf /tmp/fin-redis

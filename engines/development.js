@@ -1,4 +1,5 @@
 var fs = require('fs'),
+	sys = require('sys'),
 	path = require('path'),
 	Buffer = require('buffer').Buffer,
 	util = require('./util'),
@@ -9,20 +10,20 @@ var data = {},
 	pubsub = {}
 
 if (path.existsSync(dataDumpFile)) {
-	console.log('node engine found ' + dataDumpFile + ' - loading data...')
+	sys.puts('node engine found ' + dataDumpFile + ' - loading data...')
 	data = JSON.parse(fs.readFileSync(dataDumpFile))
-	console.log('done loading data')
+	sys.puts('done loading data')
 }
 
 process.on('SIGINT', function() {
-	console.log('\nnode engine caught SIGINT - shutting down cleanly')
+	sys.puts('\nnode engine caught SIGINT - shutting down cleanly')
 	process.exit()
 })
 
 process.on('exit', function() {
-	console.log('node engine detected shutdown - dumping data...')
+	sys.puts('node engine detected shutdown - dumping data...')
 	fs.writeFileSync(dataDumpFile, JSON.stringify(data))
-	console.log('done dumping data.')
+	sys.puts('done dumping data.')
 })
 
 /* Get a store

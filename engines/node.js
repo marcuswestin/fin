@@ -39,6 +39,7 @@ var storeAPI = {
 	},
 	
 	publish: function(channel, message) {
+		if (!pubsub[channel]) { return }
 		var messageBuffer = new Buffer(message),
 			subscribers = pubsub[channel]
 		for (var i=0, subscriber; subscriber = subscribers[i]; i++) {

@@ -50,7 +50,7 @@ var storeAPI = {
 	/* Getters
 	 *********/
 	getBytes: function(key, callback) {
-		if (!data[key]) {
+		if (typeof data[key] == 'undefined') {
 			callback(null, null)
 		} else if (typeof data[key] == 'string' || typeof data[key] == 'number') {
 			callback(null, data[key])
@@ -60,7 +60,7 @@ var storeAPI = {
 	},
 	
 	getListItems: function(key, from, to, callback) {
-		if (!data[key]) {
+		if (typeof data[key] == 'undefined') {
 			callback(null, [])
 		} else if (!(data[key] instanceof Array)) {
 			callback(typeError('getListItems', 'list', key))
@@ -72,90 +72,118 @@ var storeAPI = {
 		}
 	},
 	
-	getMembers: function() { throw new Error("getMembers not yet implemented") },
+	getMembers: function(key, callback) {
+		if (typeof data[key] == 'undefined') {
+			callback(null, [])
+		} else if (!(data[key] instanceof Array)) {
+			callback(typeError('getMembers', 'set', key))
+		} else {
+			callback(null, data[key].members)
+		}
+	},
 	
 	/* Mutation handlers
 	 *******************/
 	handleMutation: function(operation, args) {
-		mutationHandlers[operation].apply(this, args)
-	}
-}
-
-var mutationHandlers = {
-	set: function(key, value) {
+		storeAPI[operation].apply(this, args)
+	},
+	
+	setIfNull: function(key, value, callback) {
+		if (typeof data[key] == 'undefined') {
+			data[key] = value
+			callback(null, true)
+		} else {
+			callback(null, false)
+		}
+	},
+	
+	set: function(key, value, callback) {
 		if (typeof data[key] == 'undefined' || typeof data[key] == 'string' || typeof data[key] == 'number') {
 			data[key] = value
+			callback(null, data[key])
 		} else {
-			throw typeError('set', 'string or number', key)
+			callback(typeError('set', 'string or number', key), null)
 		}
 	},
 	
-	push: function(key/* value1, value2, ... */) {
-		var values = Array.prototype.slice.call(arguments, 1)
+	push: function(key, values, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = values
+			callback(null, null)
 		} else if (data[key] instanceof Array) {
 			data[key] = data[key].concat(values)
+			callback(null, null)
 		} else {
-			throw typeError('push', 'list', key)
+			callback(typeError('push', 'list', key), null)
 		}
 	},
 	
-	unshift: function(key/* value1, value2, ... */) {
+	unshift: function(key, values, callback) {
 		var values = Array.prototype.slice.call(arguments, 1)
 		if (typeof data[key] == 'undefined') {
 			data[key] = values
+			callback(null, null)
 		} else if (data[key] instanceof Array) {
 			data[key] = values.concat(data[key])
+			callback(null, null)
 		} else {
-			throw typeError('push', 'list', key)
+			callback(typeError('push', 'list', key), null)
 		}
 	},
 	
-	increment: function(key) {
+	increment: function(key, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = 1
+			callback(null, data[key])
 		} else if (typeof data[key] == 'number') {
 			data[key] += 1
+			callback(null, data[key])
 		} else {
-			throw typeError('increment', 'number', key)
+			callback(typeError('increment', 'number', key), null)
 		}
 	},
 	
-	decrement: function(key) {
+	decrement: function(key, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = -1
+			callback(null, data[key])
 		} else if (typeof data[key] == 'number') {
 			data[key] -= 1
+			callback(null, data[key])
 		} else {
-			throw typeError('decrement', 'number', key)
+			callback(typeError('decrement', 'number', key), null)
 		}
 	},
 	
-	add: function(key, value) {
+	add: function(key, value, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = value
+			callback(null, data[key])
 		} else if (typeof data[key] == 'number') {
 			data[key] += value
+			callback(null, data[key])
 		} else {
-			throw typeError('add', 'number', key)
+			callback(typeError('add', 'number', key), null)
 		}
 	},
 	
-	subtract: function(key, value) {
+	subtract: function(key, value, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = -value
+			callback(null, data[key])
 		} else if (typeof data[key] == 'number') {
 			data[key] -= value
+			callback(null, data[key])
 		} else {
-			throw typeError('subtract', 'number', key)
+			callback(typeError('subtract', 'number', key), null)
 		}
 	},
 	
 	sadd: function() { throw new Error('sadd not yet implemented') },
-	srem: function() { throw new Error('srem not yet implemented') }
+	srem: function() { throw new Error('srem not yet implemented') }	
 }
 
+
 function typeError(operation, type, key) {
-	return new Error('"'+operation+'" expected a '+type+' at key "'+key+'" but found a '+typeof data[key])
-}	
+	return '"'+operation+'" expected a '+type+' at key "'+key+'" but found a '+typeof data[key]
+}

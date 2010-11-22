@@ -72,34 +72,34 @@ var storeAPI = {
 	 *********/
 	getBytes: function(key, callback) {
 		if (typeof data[key] == 'undefined') {
-			callback(null, null)
+			callback && callback(null, null)
 		} else if (typeof data[key] == 'string' || typeof data[key] == 'number') {
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else {
-			callback(typeError('getBytes', 'string or number', key))
+			callback && callback(typeError('getBytes', 'string or number', key))
 		}
 	},
 	
 	getListItems: function(key, from, to, callback) {
 		if (typeof data[key] == 'undefined') {
-			callback(null, [])
+			callback && callback(null, [])
 		} else if (!(data[key] instanceof Array)) {
-			callback(typeError('getListItems', 'list', key))
+			callback && callback(typeError('getListItems', 'list', key))
 		} else {
 			if (to < 0) { to = data[key].length + to + 1 }
 			from = Math.max(from, 0)
 			to = Math.min(to, data[key].length)
-			callback(null, data[key].slice(from, to - from))
+			callback && callback(null, data[key].slice(from, to - from))
 		}
 	},
 	
 	getMembers: function(key, callback) {
 		if (typeof data[key] == 'undefined') {
-			callback(null, [])
+			callback && callback(null, [])
 		} else if (!(data[key] instanceof Array)) {
-			callback(typeError('getMembers', 'set', key))
+			callback && callback(typeError('getMembers', 'set', key))
 		} else {
-			callback(null, data[key].members)
+			callback && callback(null, data[key].members)
 		}
 	},
 	
@@ -112,30 +112,30 @@ var storeAPI = {
 	setIfNull: function(key, value, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = value
-			callback(null, true)
+			callback && callback(null, true)
 		} else {
-			callback(null, false)
+			callback && callback(null, false)
 		}
 	},
 	
 	set: function(key, value, callback) {
 		if (typeof data[key] == 'undefined' || typeof data[key] == 'string' || typeof data[key] == 'number') {
 			data[key] = value
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else {
-			callback(typeError('set', 'string or number', key), null)
+			callback && callback(typeError('set', 'string or number', key), null)
 		}
 	},
 	
 	push: function(key, values, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = values
-			callback(null, null)
+			callback && callback(null, null)
 		} else if (data[key] instanceof Array) {
 			data[key] = data[key].concat(values)
-			callback(null, null)
+			callback && callback(null, null)
 		} else {
-			callback(typeError('push', 'list', key), null)
+			callback && callback(typeError('push', 'list', key), null)
 		}
 	},
 	
@@ -143,60 +143,60 @@ var storeAPI = {
 		var values = Array.prototype.slice.call(arguments, 1)
 		if (typeof data[key] == 'undefined') {
 			data[key] = values
-			callback(null, null)
+			callback && callback(null, null)
 		} else if (data[key] instanceof Array) {
 			data[key] = values.concat(data[key])
-			callback(null, null)
+			callback && callback(null, null)
 		} else {
-			callback(typeError('push', 'list', key), null)
+			callback && callback(typeError('push', 'list', key), null)
 		}
 	},
 	
 	increment: function(key, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = 1
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else if (typeof data[key] == 'number') {
 			data[key] += 1
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else {
-			callback(typeError('increment', 'number', key), null)
+			callback && callback(typeError('increment', 'number', key), null)
 		}
 	},
 	
 	decrement: function(key, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = -1
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else if (typeof data[key] == 'number') {
 			data[key] -= 1
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else {
-			callback(typeError('decrement', 'number', key), null)
+			callback && callback(typeError('decrement', 'number', key), null)
 		}
 	},
 	
 	add: function(key, value, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = value
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else if (typeof data[key] == 'number') {
 			data[key] += value
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else {
-			callback(typeError('add', 'number', key), null)
+			callback && callback(typeError('add', 'number', key), null)
 		}
 	},
 	
 	subtract: function(key, value, callback) {
 		if (typeof data[key] == 'undefined') {
 			data[key] = -value
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else if (typeof data[key] == 'number') {
 			data[key] -= value
-			callback(null, data[key])
+			callback && callback(null, data[key])
 		} else {
-			callback(typeError('subtract', 'number', key), null)
+			callback && callback(typeError('subtract', 'number', key), null)
 		}
 	},
 	

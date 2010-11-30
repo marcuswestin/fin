@@ -300,6 +300,7 @@ fin = Singleton(function(){
 			cachedMutation = this._mutationCache[key]
 		
 		if (itemID != this._localID && pool.count(key) == 1) {
+			if (typeof itemID != 'number') { throw new Error('Expected numeric ID but got "'+itemID+'"') }
 			var netParams = { key: key, type: (params.type || 'BYTES') }
 			if (typeof params.snapshot != 'undefined') {
 				netParams.snapshot = params.snapshot

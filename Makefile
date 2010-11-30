@@ -35,17 +35,17 @@ fin.js: Makefile lib/js.io lib/js.io/packages/jsio.js
 	cat lib/js.io/packages/jsio.js | sed s/jsio.js/fin.js/g >> fin.js
 	echo "" >> fin.js
 	echo ";(function(){" >> fin.js
-	echo "	var finPath = jsio.__path.__default__" >> fin.js
-	echo "	jsio.setPath(finPath + '/lib/js.io/packages')" >> fin.js
-	echo "	jsio.addPath(finPath + '/js', 'client')" >> fin.js
-	echo "	jsio.addPath(finPath + '/js', 'shared')" >> fin.js
+	echo "	var finPath = jsio.path.get()[0]" >> fin.js
+	echo "	jsio.path.set(finPath + '/lib/js.io/packages')" >> fin.js
+	echo "	jsio.path.add(finPath + '/js', 'client')" >> fin.js
+	echo "	jsio.path.add(finPath + '/js', 'shared')" >> fin.js
 	echo "	jsio('import client.api')" >> fin.js
 	echo "})()" >> fin.js
 
 lib/js.io:
 	git clone git://github.com/mcarter/js.io.git
 	mv js.io lib/
-	cd lib/js.io/; git checkout 964e26904fe3f091348f890329adaed44341cba8
+	cd lib/js.io/; git checkout 5adde223f065b75dfc6a884c9a7903876f0c0297
 	rm -rf lib/js.io/examples
 
 lib/redis-node-client:

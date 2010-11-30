@@ -22,7 +22,10 @@ exports = Class(function(){
 	this.remove = function(name, id) {
 		var item = this._pool[name][id]
 		delete this._pool[name][id]
-		if (this._counts[name]-- == 0) { delete this._counts[name] }
+		if (this._counts[name]-- == 0) {
+			delete this._counts[name]
+			delete this._pool[name]
+		}
 		return item
 	}
 	

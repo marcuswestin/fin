@@ -32,12 +32,35 @@ fin = Singleton(function(){
 	}
 
 	/*
-	 * Observe an item property, and get notified any time it changes
+	 * Observe an item property, and get notified any time it changes.
+	 * The item property may be chained (e.g. observe(1, 'driver.car.model')),
+	 *  assuming that driver.car will resolve to an item ID
 	 */
-	this.observe = function(itemId, propName, callback) {
-		if (!itemId || !propName || !callback) { logger.error("observe requires three arguments", itemId, propName, callback); }
+	this.observe = function(itemID, propName, callback) {
+		if (!itemID || !propName || !callback) { logger.error("observe requires three arguments", itemId, propName, callback); }
+		var propertyChain = propName.split('.')
+		return this._observeChain(itemID, propertyChain, 0, callback)
+	}
+	
+	/*
+	 * Observe a chain of item properties, e.g. observe(1, 'driver.car.model')
+	 */
+	this._chainDependants = {}
+	this._observeChain = function(itemID, propertyChain, index, callback) {
+		var property = propertyChain[index],
+			subID, dependantSubID, lastSubItemID
 		
-		return this._observe({ id: itemId, property: propName }, callback)
+		if (index == propertyChain.length - 1) {
+			return this._observe({ id: itemID, property: property }, callback)
+		} else {
+			return subID = this._observe({ id: itemID, property: property }, bind(this, function(mutation, subItemID) {
+				if (subItemID == lastSubItemID) { return }
+				lastSubItemID = subItemID
+				if (dependantSubID) { this.release(dependantSubID) }
+				dependantSubID = this._observeChain(subItemID, propertyChain, index + 1, callback)
+				this._chainDependants[subID] = dependantSubID
+			}))
+		}
 	}
 	
 	/*
@@ -84,6 +107,10 @@ fin = Singleton(function(){
 			}
 			
 			delete this._subIdToKey[subId]
+			if (this._chainDependants[subId]) {
+				this.release(this._chainDependants[subId])
+				delete this._chainDependants[subId]
+			}
 		} else { // it's a fin template element
 			this._templateFactory.releaseTemplate(subId)
 		}

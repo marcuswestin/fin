@@ -129,7 +129,7 @@ var storeAPI = {
 	
 	push: function(key, values, callback) {
 		if (typeof data[key] == 'undefined') {
-			data[key] = values
+			data[key] = [].concat(values)
 			callback && callback(null, null)
 		} else if (data[key] instanceof Array) {
 			data[key] = data[key].concat(values)
@@ -142,7 +142,7 @@ var storeAPI = {
 	unshift: function(key, values, callback) {
 		var values = Array.prototype.slice.call(arguments, 1)
 		if (typeof data[key] == 'undefined') {
-			data[key] = values
+			data[key] = [].concat(values)
 			callback && callback(null, null)
 		} else if (data[key] instanceof Array) {
 			data[key] = values.concat(data[key])

@@ -26,9 +26,14 @@ fin = Singleton(function(){
 	 * Create an item with the given data as properties, 
 	 * and get notified of the new item id when it's been created
 	 */
-	this.create = function(data, callback) {
+	this.create = function(properties, callback) {
 		if (typeof callback != 'function') { throw logger.error('Second argument to fin.create should be a callback') }
-		this.requestResponse('FIN_REQUEST_CREATE_ITEM', { data: data }, callback)
+		for (var key in properties) {
+			if (properties[key] instanceof Array && !properties[key].length) {
+				delete properties[key] // For now we assume that engines treat NULL values as empty lists, a la redis
+			}
+		}
+		this.requestResponse('FIN_REQUEST_CREATE_ITEM', { data: properties }, callback)
 	}
 
 	/*

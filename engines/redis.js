@@ -19,6 +19,7 @@ var storeAPI = {
 	
 	subscribe: createRedisOp('subscribeTo'),
 	publish: createRedisOp('publish'),
+	unsubscribe: createRedisOp('unsubscribeFrom'),
 	
 	set: createRedisOp('set'),
 	setIfNull: createRedisOp('setnx'), // Do we really want this?

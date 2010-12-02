@@ -56,7 +56,7 @@ var storeAPI = {
 	 ********/
 	subscribe: function(channel, callback) {
 		if (!pubsub[channel]) { pubsub[channel] = [] }
-		pubsub[channel].push([callback, this])
+		pubsub[channel].push(callback)
 	},
 	
 	publish: function(channel, message) {
@@ -64,7 +64,15 @@ var storeAPI = {
 		var messageBuffer = new Buffer(message),
 			subscribers = pubsub[channel]
 		for (var i=0, subscriber; subscriber = subscribers[i]; i++) {
-			subscriber[0](channel, messageBuffer)
+			subscriber(channel, messageBuffer)
+		}
+	},
+	
+	unsubscribe: function(channel, callback) {
+		for (var i=0, subscriber; subscriber = subscribers[i]; i++) {
+			if (subscriber != callback) { continue }
+			subscribers.splice(i, 1)
+			break
 		}
 	},
 	

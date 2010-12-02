@@ -56,7 +56,7 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		}))
 		
 		this.handleRequest('FIN_REQUEST_UNSUBSCRIBE', bind(this, function(key) {
-			this._store.unsubscribeFrom(key)
+			this._store.unsubscribe(key, this._itemChannelHandler)
 		}))
 		
 		this.handleRequest('FIN_REQUEST_MONITOR_QUERY', bind(this, function(queryJSON) {

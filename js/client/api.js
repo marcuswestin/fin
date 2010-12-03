@@ -44,25 +44,27 @@ fin = Singleton(function(){
 	this.observe = function(itemID, propName, callback) {
 		if (!itemID || !propName || !callback) { logger.error("observe requires three arguments", itemId, propName, callback); }
 		var propertyChain = propName.split('.')
-		return this._observeChain(itemID, propertyChain, 0, callback)
+		return this._observeChain(itemID, propertyChain, 0, callback, {})
 	}
 	
 	/*
 	 * Observe a chain of item properties, e.g. observe(1, 'driver.car.model')
 	 */
 	this._chainDependants = {}
-	this._observeChain = function(itemID, propertyChain, index, callback) {
+	this._observeChain = function(itemID, propertyChain, index, callback, observeArgs) {
 		var property = propertyChain[index],
 			subID, dependantSubID, lastSubItemID
 		
 		if (index == propertyChain.length - 1) {
-			return this._observe({ id: itemID, property: property }, callback)
+			observeArgs.id = itemID
+			observeArgs.property = property
+			return this._observe(observeArgs, callback)
 		} else {
 			return subID = this._observe({ id: itemID, property: property }, bind(this, function(mutation, subItemID) {
 				if (subItemID == lastSubItemID) { return }
 				lastSubItemID = subItemID
 				if (dependantSubID) { this.release(dependantSubID) }
-				dependantSubID = this._observeChain(subItemID, propertyChain, index + 1, callback)
+				dependantSubID = this._observeChain(subItemID, propertyChain, index + 1, callback, observeArgs)
 				this._chainDependants[subID] = dependantSubID
 			}))
 		}
@@ -161,7 +163,9 @@ fin = Singleton(function(){
 	this.observeList = function(itemName, propName, callback, length) {
 		if (!itemName || !propName || !callback) { logger.error("observe requires at least three arguments", itemName, propName, callback, length) }
 		
-		var subId = this._observe({ id: itemName, property: propName, snapshot: false }, callback)
+		var propertyChain = propName.split('.'),
+			subId = this._observeChain(itemName, propertyChain, 0, callback, { snapshot: false })
+		
 		this.extendList(itemName, propName, length)
 		return subId
 	}
@@ -170,21 +174,23 @@ fin = Singleton(function(){
 	 * Extend the history of an observed list
 	 */
 	this._listLength = {}
-	this.extendList = function(itemName, propName, extendToIndex) {
-		if (!itemName || !propName) { logger.error("extendList requires two arguments", itemName, propName) }
+	this.extendList = function(id, prop, extendToIndex) {
+		if (!id || !prop) { logger.error("extendList requires two arguments", itemID, prop) }
 		
-		var itemID = this._getItemID(itemName),
-			listKey = shared.keys.getItemPropertyKey(itemID, propName),
-			listLength = this._listLength[listKey] || 0
-		
-		if (extendToIndex <= listLength) { return }
-		this._listLength[listKey] = extendToIndex
-		
-		var args = { key: listKey, from: listLength }
-		if (extendToIndex) { args.to = extendToIndex }
-		this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
-			var mutation = { id: listKey, op: 'push', args: items, index: listLength }
-			this._handleMutation(mutation)
+		this._resolvePropertyChain(id, prop, bind(this, function(resolved) {
+			var itemID = this._getItemID(resolved.id),
+				listKey = shared.keys.getItemPropertyKey(itemID, resolved.property),
+				listLength = this._listLength[listKey] || 0
+
+			if (extendToIndex <= listLength) { return }
+			this._listLength[listKey] = extendToIndex
+
+			var args = { key: listKey, from: listLength }
+			if (extendToIndex) { args.to = extendToIndex }
+			this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
+				var mutation = { id: listKey, op: 'push', args: items, index: listLength }
+				this._handleMutation(mutation)
+			}))
 		}))
 	}
 	
@@ -345,15 +351,38 @@ fin = Singleton(function(){
 		this._subIdToKey[subId] = key
 		return subId
 	}
-		
+	
+	this._resolvePropertyChain = function(id, prop, callback) {
+		var propertyChain = prop.split('.')
+		propertyChain.pop() // for foo.bar.cat, we're trying to resolve the item ID of foo.bar
+		if (!propertyChain.length) {
+			callback(this._resolveCachedPropertyChain(id, prop))
+		} else {
+			var subID = this._observeChain(id, propertyChain, 0, bind(this, function() {
+				callback(this._resolveCachedPropertyChain(id, prop))
+				this.release(subID)
+			}), {})
+		}
+	}
+	
+	this._resolveCachedPropertyChain = function(id, prop) {
+		var propertyChain = prop.split('.')
+		while (propertyChain.length > 1) {
+			id = this.getCachedMutation(id, propertyChain.shift()).value
+		}
+		return { id: id, property: propertyChain[0] }
+	}
+	
 	this._localID = '__fin_local'
 	this._globalID = 0
 	this.mutate = function(op, id, prop, args) {
-		var itemID = this._getItemID(id)
+		var resolved = this._resolveCachedPropertyChain(id, prop),
+			itemID = this._getItemID(resolved.id)
+		
 		var mutation = {
 			op: op,
 			args: args,
-			prop: prop,
+			prop: resolved.property,
 			id: shared.keys.getItemPropertyKey(itemID, prop) // this should be called key
 		}
 		

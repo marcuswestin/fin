@@ -82,17 +82,18 @@ fin = Singleton(function(){
 	 * any time an item enters or leaves the matching set
 	 */
 	this.query = function(query, callback) {
-		if (!query || !callback) { logger.error("query requires two arguments", query, callback) }
-		
-		var queryJSON = JSON.stringify(query),
-			key = shared.keys.getQueryKey(queryJSON),
-			subId = this._observe({ key: key, type: 'SET' }, callback)
-		
-		if (this._subscriptionPool.count(key) == 1) {
-			this.send('FIN_REQUEST_MONITOR_QUERY', queryJSON)
-		}
-		
-		return subId
+		logger.error("query no longer supported, since there's no straight forward good implementation of them")
+		// if (!query || !callback) { logger.error("query requires two arguments", query, callback) }
+		// 
+		// var queryJSON = JSON.stringify(query),
+		// 	key = shared.keys.getQueryKey(queryJSON),
+		// 	subId = this._observe({ key: key, type: 'SET' }, callback)
+		// 
+		// if (this._subscriptionPool.count(key) == 1) {
+		// 	this.send('FIN_REQUEST_MONITOR_QUERY', queryJSON)
+		// }
+		// 
+		// return subId
 	}
 	
 	/* 
@@ -333,7 +334,7 @@ fin = Singleton(function(){
 	this._observe = function(params, callback) {
 		var itemID = this._getItemID(params.id)
 			pool = this._subscriptionPool,
-			key = params.key || shared.keys.getItemPropertyKey(itemID, params.property),
+			key = shared.keys.getItemPropertyKey(itemID, params.property),
 			subId = pool.add(key, callback),
 			cachedMutation = this._mutationCache[key]
 		

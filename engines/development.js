@@ -69,6 +69,7 @@ var storeAPI = {
 	},
 	
 	unsubscribe: function(channel, callback) {
+		var subscribers = pubsub[channel]
 		for (var i=0, subscriber; subscriber = subscribers[i]; i++) {
 			if (subscriber != callback) { continue }
 			subscribers.splice(i, 1)

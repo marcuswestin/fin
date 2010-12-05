@@ -83,7 +83,7 @@ exports = Class(Server, function(supr) {
 			var doCallback = blockCallback(bind(this, callback, newItemId), { throwErr: true, fireOnce: true })
 			
 			for (var propName in itemProperties) {
-				var value = JSON.stringify(itemProperties[propName]),
+				var value = itemProperties[propName],
 					key = shared.keys.getItemPropertyKey(newItemId, propName),
 					mutation = { id: key, op: 'set', args: [value] }
 				

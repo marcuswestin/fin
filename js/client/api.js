@@ -336,11 +336,16 @@ fin = Singleton(function(){
 			pool = this._subscriptionPool,
 			key = shared.keys.getItemPropertyKey(itemID, params.property),
 			subId = pool.add(key, callback),
+			type = params.type || 'BYTES',
 			cachedMutation = this._mutationCache[key]
+		
+		if (itemID == this._localID && !cachedMutation) {
+			cachedMutation = this._getNullMutation(type)
+		}
 		
 		if (itemID != this._localID && pool.count(key) == 1) {
 			if (typeof itemID != 'number') { throw new Error('Expected numeric ID but got "'+itemID+'"') }
-			var netParams = { key: key, type: (params.type || 'BYTES') }
+			var netParams = { key: key, type: type }
 			if (typeof params.snapshot != 'undefined') {
 				netParams.snapshot = params.snapshot
 			}
@@ -351,6 +356,18 @@ fin = Singleton(function(){
 		
 		this._subIdToKey[subId] = key
 		return subId
+	}
+	
+	this._getNullMutation = function(type) {
+		var mutation
+		switch(type) {
+			case 'LIST':
+				mutation = { op: 'push', args: [] }
+			case 'BYTES': // fall through
+			default:
+				mutation = { op: 'set', args: [''], value: '' }
+		}
+		return mutation
 	}
 	
 	this._resolvePropertyChain = function(id, prop, callback) {

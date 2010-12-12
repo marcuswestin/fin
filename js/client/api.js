@@ -111,6 +111,7 @@ fin = Singleton(function(){
 				if (itemID != this._localID) {
 					this.send('FIN_REQUEST_UNSUBSCRIBE', key)
 				}
+				delete this._mutationCache[key]
 				delete this._listLength[key]
 			}
 			

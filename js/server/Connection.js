@@ -70,7 +70,10 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			}))
 		}))
 		
-		this.handleRequest('FIN_REQUEST_MUTATE', bind(this, '_handleMutationRequest'))
+		this.handleRequest('FIN_REQUEST_MUTATE', bind(this, function(mutation) {
+			mutation.time = new Date().getTime()
+			this.server.mutateItem(mutation, this)
+		}))
 		
 		this.handleRequest('FIN_REQUEST_EXTEND_LIST', bind(this, function(request) {
 			var key = request.key,
@@ -125,12 +128,5 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			}
 		}
 		logger.log.apply(logger, args)
-	}
-/*
- ******/
-
-	this._handleMutationRequest = function(mutation) {
-		mutation.time = new Date().getTime()
-		this.server.mutateItem(mutation, this)
 	}
 })

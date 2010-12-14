@@ -22,7 +22,6 @@ var storeAPI = {
 	unsubscribe: createRedisOp('unsubscribeFrom'),
 	
 	set: createRedisOp('set'),
-	setIfNull: createRedisOp('setnx'), // Do we really want this?
 	
 	handleMutation: handleMutation,
 	

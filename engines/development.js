@@ -118,15 +118,6 @@ var storeAPI = {
 		storeAPI[operation].apply(this, args)
 	},
 	
-	setIfNull: function(key, value, callback) {
-		if (typeof data[key] == 'undefined') {
-			data[key] = value
-			callback && callback(null, true)
-		} else {
-			callback && callback(null, false)
-		}
-	},
-	
 	set: function(key, value, callback) {
 		if (typeof data[key] == 'undefined' || typeof data[key] == 'string' || typeof data[key] == 'number') {
 			data[key] = value

@@ -4,9 +4,6 @@ API
 Create an item
 	fin.create({ type: 'user', name: 'marcus' }, function(newItemId) { ... })
 
-Query for items
-	fin.query({ type: 'user' }, function(mutation) { ... })
-
 Subscribe to an item property
 	fin.observe(itemId, propertyName, function(mutation) { ... })
 
@@ -23,10 +20,9 @@ Fin requires node and redis
 Fin also needs some local libraries
 	make
 
-Run redis server, fin server, and fin query observer
+Run redis server and fin server
 	redis-server redis.conf
 	node run_server.js
-	node run_query_observer.js
 
 or just
     make run

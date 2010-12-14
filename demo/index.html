@@ -95,6 +95,7 @@
 			}
 			
 			demo.subscribeTo = function(itemId, propName) {
+				itemId = parseInt(itemId)
 				var el = demo.createOutput()
 				el.innerHTML = '<strong>subscribed</strong> to item ' + itemId + ' ' + propName + ' = <input style="width: 100px;"></input>'
 				el.className += ' item'

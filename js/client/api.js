@@ -121,6 +121,7 @@ fin = Singleton(function(){
 				delete this._chainDependants[subId]
 			}
 		} else { // it's a fin template element
+			// TODO Remove this
 			this._templateFactory.releaseTemplate(subId)
 		}
 	}

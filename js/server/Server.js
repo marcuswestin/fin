@@ -79,10 +79,17 @@ exports = Class(Server, function(supr) {
 		}))
 	}
 	
+	// this.deleteItem = function(itemID, callback) {
+	// 	this._store.delete(itemID, function(err) {
+	// 		if (err) { throw logger.error('Could not delete item ' + itemID, err) }
+	// 		callback()
+	// 	})
+	// }
+	
 	this.mutateItem = function(mutation, originConnection, callback) {
 		var key = shared.keys.getItemPropertyKey(mutation.id, mutation.property),
 			operation = mutation.op,
-			args = Array.prototype.slice.call(mutation.args, 0)
+			args = Array.prototype.slice.call(mutation.args, 0),
 			connId = originConnection ? originConnection.getId() : '',
 			mutationBuffer = connId.length + connId + JSON.stringify(mutation)
 		

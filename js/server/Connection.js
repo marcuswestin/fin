@@ -12,7 +12,6 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 		this._id = id
 		this._store = storeEngine.getStore()
 		this._requestHandlers = {}
-		
 		this._setupHandlers()
 	}
 	

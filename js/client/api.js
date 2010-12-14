@@ -90,7 +90,7 @@ fin = Singleton(function(){
 			
 			if (this._subscriptionPool.count(key) == 0) {
 				if (itemID != this._localID) {
-					this.send('FIN_REQUEST_UNSUBSCRIBE', key)
+					this.send('FIN_REQUEST_UNSUBSCRIBE', { id: itemID, property: keyInfo.property })
 				}
 				delete this._mutationCache[key]
 				delete this._listLength[key]
@@ -163,17 +163,18 @@ fin = Singleton(function(){
 		
 		this._resolvePropertyChain(id, prop, bind(this, function(resolved) {
 			var itemID = this._getItemID(resolved.id),
-				listKey = shared.keys.getItemPropertyKey(itemID, resolved.property),
+				property = resolved.property,
+				listKey = shared.keys.getItemPropertyKey(itemID, property),
 				listLength = this._listLength[listKey] || 0
 
 			if (extendToIndex <= listLength) { return }
 			this._listLength[listKey] = extendToIndex
 
-			var args = { key: listKey, from: listLength }
-			if (extendToIndex) { args.to = extendToIndex }
-			this.requestResponse('FIN_REQUEST_EXTEND_LIST', args, bind(this, function(items) {
-				var mutation = { id: listKey, op: 'push', args: items, index: listLength }
-				this._handleMutation(mutation)
+			var extendArgs = { id: itemID, property: property, from: listLength }
+			if (extendToIndex) { extendArgs.to = extendToIndex }
+			this.requestResponse('FIN_REQUEST_EXTEND_LIST', extendArgs, bind(this, function(items) {
+				var mockMutation = { id: itemID, property: property, op: 'push', args: items, index: listLength }
+				this._handleMutation(mockMutation)
 			}))
 		}))
 	}
@@ -315,9 +316,10 @@ fin = Singleton(function(){
 	this._subIdToKey = {}
 	this._subscriptionPool = new shared.Pool()
 	this._observe = function(params, callback) {
-		var itemID = this._getItemID(params.id)
+		var itemID = this._getItemID(params.id),
+			property = params.property,
 			pool = this._subscriptionPool,
-			key = shared.keys.getItemPropertyKey(itemID, params.property),
+			key = shared.keys.getItemPropertyKey(itemID, property),
 			subId = pool.add(key, callback),
 			type = params.type || 'BYTES',
 			cachedMutation = this._mutationCache[key]
@@ -327,8 +329,8 @@ fin = Singleton(function(){
 		}
 		
 		if (itemID != this._localID && pool.count(key) == 1) {
-			if (typeof itemID != 'number') { throw new Error('Expected numeric ID but got "'+itemID+'"') }
-			var netParams = { key: key, type: type }
+			if (typeof itemID != 'number') { debugger; throw new Error('Expected numeric ID but got "'+itemID+'"') }
+			var netParams = { id: itemID, property: property, type: type }
 			if (typeof params.snapshot != 'undefined') {
 				netParams.snapshot = params.snapshot
 			}
@@ -383,8 +385,8 @@ fin = Singleton(function(){
 		var mutation = {
 			op: op,
 			args: args,
-			prop: resolved.property,
-			key: shared.keys.getItemPropertyKey(itemID, resolved.property)
+			id: itemID,
+			property: resolved.property
 		}
 		
 		if (itemID != this._localID) { this.send('FIN_REQUEST_MUTATE', mutation) }
@@ -423,7 +425,7 @@ fin = Singleton(function(){
 			var args = [mutation.op].concat(mutation.args)
 			setTimeout(function() { singleCallback(mutation, mutation.value) })
 		} else {
-			var key = mutation.id,
+			var key = shared.keys.getItemPropertyKey(mutation.id, mutation.property),
 				subs = this._subscriptionPool.get(key)
 			
 			this._deserializeMutation(mutation)

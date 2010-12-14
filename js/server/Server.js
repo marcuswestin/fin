@@ -33,13 +33,13 @@ exports = Class(Server, function(supr) {
 		switch(type) {
 			case 'BYTES':
 				this._retrieveBytes(key, function(json) {
-					callback({ id: key, op: 'set', args: [json] })
+					callback({ op: 'set', args: [json] })
 				})
 				break
 			
 			case 'SET':
 				this.retrieveSet(key, function(members) {
-					callback({ id: key, op: 'sadd', args: members })
+					callback({ op: 'sadd', args: members })
 				})
 				break
 				
@@ -64,16 +64,14 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this.createItem = function(itemProperties, origConnection, callback) {
-		this._store.increment(shared.keys.uniqueIdKey, bind(this, function(err, newItemId) {
+		this._store.increment(shared.keys.uniqueIdKey, bind(this, function(err, newItemID) {
 			if (err) { throw logger.error('Could not increment unique item id counter', err) }
 			
-			var doCallback = blockCallback(bind(this, callback, newItemId), { throwErr: true, fireOnce: true })
+			var doCallback = blockCallback(bind(this, callback, newItemID), { throwErr: true, fireOnce: true })
 			
 			for (var propName in itemProperties) {
-				var value = itemProperties[propName],
-					key = shared.keys.getItemPropertyKey(newItemId, propName),
-					mutation = { id: key, op: 'set', args: [value] }
-				
+				var value = itemProperties[propName]
+					mutation = { id: newItemID, property: propName, op: 'set', args: [value] }
 				this.mutateItem(mutation, origConnection, doCallback.addBlock())
 			}
 			
@@ -82,8 +80,7 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this.mutateItem = function(mutation, originConnection, callback) {
-		var key = mutation.key,
-			propName = shared.keys.getKeyInfo(key).property,
+		var key = shared.keys.getItemPropertyKey(mutation.id, mutation.property),
 			operation = mutation.op,
 			args = Array.prototype.slice.call(mutation.args, 0)
 			connId = originConnection ? originConnection.getId() : '',

@@ -40,22 +40,25 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			this.sendFrame('FIN_EVENT_MUTATION', mutationInfo.json)
 		})
 		
-		this.handleRequest('FIN_REQUEST_OBSERVE', bind(this, function(args) {
-			var type = args.type,
-				key = args.key
+		this.handleRequest('FIN_REQUEST_OBSERVE', bind(this, function(request) {
+			var type = request.type,
+				key = shared.keys.getItemPropertyKey(request.id, request.property)
 			
 			logger.log("Subscribe channel:", key)
 			this._store.subscribe(key, this._itemChannelHandler)
 			
-			if (args.snapshot != false) {
+			if (request.snapshot != false) {
 				// fake an item mutation event
 				this.server.retrieveStateMutation(key, type, bind(this, function(mutation) {
+					mutation.id = request.id
+					mutation.property = request.property
 					this.sendFrame('FIN_EVENT_MUTATION', JSON.stringify(mutation))
 				}))
 			}
 		}))
 		
-		this.handleRequest('FIN_REQUEST_UNSUBSCRIBE', bind(this, function(key) {
+		this.handleRequest('FIN_REQUEST_UNSUBSCRIBE', bind(this, function(request) {
+			var key = shared.keys.getItemPropertyKey(request.id, request.property)
 			this._store.unsubscribe(key, this._itemChannelHandler)
 		}))
 		
@@ -66,13 +69,20 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			}))
 		}))
 		
+		// this.handleRequest('FIN_REQUEST_DELETE_ITEM', bind(this, function(request) {
+		// 	this.server.deleteItem(request.data, bind(this, function() {
+		// 		var response = { _requestId: request._requestId }
+		// 		this.sendFrame('FIN_RESPONSE', response)
+		// 	}))
+		// }))
+		
 		this.handleRequest('FIN_REQUEST_MUTATE', bind(this, function(mutation) {
 			mutation.time = new Date().getTime()
 			this.server.mutateItem(mutation, this)
 		}))
 		
 		this.handleRequest('FIN_REQUEST_EXTEND_LIST', bind(this, function(request) {
-			var key = request.key,
+			var key = shared.keys.getItemPropertyKey(request.id, request.property),
 				from = request.from,
 				to = request.to
 			

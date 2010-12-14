@@ -95,7 +95,7 @@ exports = Class(Server, function(supr) {
 	}
 	
 	this.mutateItem = function(mutation, originConnection, callback) {
-		var key = mutation.id,
+		var key = mutation.key,
 			propName = shared.keys.getKeyInfo(key).property,
 			operation = mutation.op,
 			args = Array.prototype.slice.call(mutation.args, 0)

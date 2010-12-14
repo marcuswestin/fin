@@ -403,7 +403,7 @@ fin = Singleton(function(){
 			op: op,
 			args: args,
 			prop: resolved.property,
-			id: shared.keys.getItemPropertyKey(itemID, resolved.property) // this should be called key
+			key: shared.keys.getItemPropertyKey(itemID, resolved.property)
 		}
 		
 		if (itemID != this._localID) { this.send('FIN_REQUEST_MUTATE', mutation) }

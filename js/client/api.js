@@ -12,7 +12,7 @@ fin = Singleton(function(){
 
 /**********************************
  * The core API: connect, create, *
- * observe, set, query & release  *
+ * observe, set & release  *
  **********************************/
 	/*
 	 * Connect to the fin database. The callback will be called
@@ -77,27 +77,8 @@ fin = Singleton(function(){
 		this.mutate('set', itemID, propName, [value])
 	}
 	
-	/*
-	 * Query fin for items matching a set of properties, and get notified
-	 * any time an item enters or leaves the matching set
-	 */
-	this.query = function(query, callback) {
-		logger.error("query no longer supported, since there's no straight forward good implementation of them")
-		// if (!query || !callback) { logger.error("query requires two arguments", query, callback) }
-		// 
-		// var queryJSON = JSON.stringify(query),
-		// 	key = shared.keys.getQueryKey(queryJSON),
-		// 	subId = this._observe({ key: key, type: 'SET' }, callback)
-		// 
-		// if (this._subscriptionPool.count(key) == 1) {
-		// 	this.send('FIN_REQUEST_MONITOR_QUERY', queryJSON)
-		// }
-		// 
-		// return subId
-	}
-	
 	/* 
-	 * Release an observation or query
+	 * Release an observation
 	 */
 	this.release = function(subId) {
 		if (typeof subId == 'string') {

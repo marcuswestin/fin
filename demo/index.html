@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>fin - create, query, subscribe, mutate</title>
+		<title>fin - create, subscribe, mutate</title>
 		<style type="text/css">
 			body { margin: 50px; padding: 0; color: #333; font-family: helvetica; }
 			.column { width: 350px; float: left; margin: 3px; }
@@ -11,8 +11,6 @@
 			.button-holder { margin-top: 5px;}
 			button { font-family: 'courier new'; font-size: 15px; margin: 2px; }
 			input { border: 1px solid #333; padding: 1px 3px; position: relative; bottom: 1px; text-align: center;}
-			.query-container div { margin-bottom: 2px; }
-			.query-container span { font-size: 12px; }
 		</style>
 	</head>
 	<body>
@@ -29,14 +27,6 @@
 				</div>
 				<div class="button-holder"><button id="create-button">fin.create()</button></div>
 			</div>
-			<div id="query-header" class="header">
-				<div class="label"><strong>query</strong> items with 
-					<input id="query-prop-input" value='type'></input>
-					=
-					<input id="query-val-input" value='user'></input>
-				</div>
-				<div class="button-holder"><button id="query-button">fin.query()</button></div>
-			</div>
 			<div id="results-header" class="header">
 				<div class="label"><strong>subscribe & mutate</strong>
 					item <input id="subscribe-itemId" style="width: 30px;" value="1"></input> 
@@ -47,7 +37,7 @@
 		</div>
 		
 		<div id="output-column" class="column">
-			<div id="query-output" class="header">Results</div>
+			<div class="header">Results</div>
 			<div></div>
 		</div>
 		
@@ -59,9 +49,6 @@
 				var createButton = document.getElementById('create-button'),
 					createPropInput = document.getElementById('create-prop-input'),
 					createValInput = document.getElementById('create-val-input'),
-					queryButton = document.getElementById('query-button'),
-					queryPropInput = document.getElementById('query-prop-input'),
-					queryValInput = document.getElementById('query-val-input'),
 					subscribeIdInput = document.getElementById('subscribe-itemId'),
 					subscribePropInput = document.getElementById('subscribe-property'),
 					subscribeButton = document.getElementById('subscribe-button')
@@ -80,15 +67,6 @@
 					})
 				}
 				
-				queryButton.onclick = function() {
-					var query = {},
-						propName = queryPropInput.value,
-						propVal = queryValInput.value
-					
-					query[propName] = propVal
-					demo.query(query)
-				}
-				
 				subscribeButton.onclick = function() {
 					var itemId = subscribeIdInput.value
 					var propName = subscribePropInput.value
@@ -100,18 +78,12 @@
 				}
 				createValInput.onkeyup = createPropInput.onkeyup
 				
-				queryPropInput.onkeyup = function() { 
-					queryButton.innerHTML = 'fin.query({"'+queryPropInput.value+'":"'+queryValInput.value+'"})'
-				}
-				queryValInput.onkeyup = queryPropInput.onkeyup
-				
 				subscribeIdInput.onkeyup = function() { 
 					subscribeButton.innerHTML = 'fin.observe('+subscribeIdInput.value+',"'+subscribePropInput.value+'")'
 				}
 				subscribePropInput.onkeyup = subscribeIdInput.onkeyup
 				
 				createValInput.onkeyup()
-				queryPropInput.onkeyup()
 				subscribeIdInput.onkeyup()
 			})
 			
@@ -122,19 +94,6 @@
 				return el
 			}
 			
-			demo.query = function(query) {
-				var queryJSON = JSON.stringify(query),
-					domId = 'queryId-' + queryJSON
-					
-				if (document.getElementById(domId)) { return }
-				fin.query(query, function(mutation) { demo.onQueryUpdate(query, mutation) })
-				
-				var queryOutput = demo.createOutput()
-				queryOutput.id = domId
-				queryOutput.className += ' query-container'
-				queryOutput.innerHTML = '<div><strong>queried</strong> for items with ' + queryJSON + '</div>'
-			}
-
 			demo.subscribeTo = function(itemId, propName) {
 				var el = demo.createOutput()
 				el.innerHTML = '<strong>subscribed</strong> to item ' + itemId + ' ' + propName + ' = <input style="width: 100px;"></input>'
@@ -143,29 +102,6 @@
 				fin.observe(itemId, propName, function(mutation, newVal) { input.value = newVal })
 				input.onkeyup = function() { fin.set(itemId, propName, input.value) }
 			}
-			
-			demo.onQueryUpdate = function(query, mutation) {
-				var itemIds = mutation.args,
-					queryJSON = JSON.stringify(query)
-				
-				for (var i=0, itemId; itemId = itemIds[i]; i++) {
-					demo.queryHandlers[mutation.op](queryJSON, itemId)
-				}
-			}
-			demo.queryHandlers = {
-				sadd: function(queryJSON, itemId) {
-					var queryDomId = 'queryId-' + queryJSON
-					var parent = document.getElementById(queryDomId)
-					var el = parent.appendChild(document.createElement('span'))
-					el.id = 'queryResult-' + queryJSON + '-' + itemId
-					el.innerHTML = itemId + ', '
-				},
-				srem: function(queryJSON, itemId) {
-					var el = document.getElementById('queryResult-' + queryJSON + '-' + itemId)
-					el.parentNode.removeChild(el)
-				}
-			}
-			
 		</script>
 		
 	</body>

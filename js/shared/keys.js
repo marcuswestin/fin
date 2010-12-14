@@ -6,35 +6,15 @@ jsio('from shared.javascript import assert')
 
 // The unique ID key is used to consistently increase item id's. Should we use guid's instead?
 exports.uniqueIdKey = '__fin_unique_id'
-exports.queryRequestChannel = '__fin_query_request_monitor'
 
 // item properties are stored at 		I<item id>@<propName>	e.g. I20@books
-// query result sets are stored at		Q<queryJSON>			e.g. Q{\"type\":\"task\"}
-// the lock key for a query is at		L<queryJSON>			e.g. L{\"type\":\"task\"}
 // channel names for items are			#I<item id>				e.g. #I20
-// channel names for queries are		#Q<queryJSON>			e.g. #Q{\"type\":\"task\"}
 // channel names for properties are		#P<propName>			e.g. #Pbooks
-
-exports.getPropertyKeyPattern = function(propName) {
-	return 'I*@' + propName
-}
-
-exports.getQueryLockPattern = function() {
-	return 'L*'
-}
 
 // Data state keys
 exports.getItemPropertyKey = function(itemId, propName) {
 	assert(propName && typeof itemId != 'undefined', "itemId and propName are required for shared.keys.getItemPropertyKey")
 	return 'I' + itemId + '@' + propName
-}
-
-exports.getQueryKey = function(queryJSON) {
-	return 'Q' + queryJSON
-}
-
-exports.getQueryLockKey = function(queryJSON) {
-	return 'L' + queryJSON
 }
 
 exports.getKeyInfo = function(key) {

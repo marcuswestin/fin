@@ -63,19 +63,6 @@ exports = Class(Server, function(supr) {
 		
 	}
 	
-	this.monitorQuery = function(queryJSON) {
-		var queryKey = shared.keys.getQueryKey(queryJSON),
-			lockKey = shared.keys.getQueryLockKey(queryJSON)
-		
-		this._store.getBytes(lockKey, bind(this, function(err, queryIsHeld) {
-			if (err) { throw logger.error('could not check for query lock', lockKey, err) }
-			if (queryIsHeld) { return }
-			
-			logger.log('Publish request for query observer to monitor this query', queryJSON)
-			this._store.publish(shared.keys.queryRequestChannel, queryJSON)
-		}))
-	}
-	
 	this.createItem = function(itemProperties, origConnection, callback) {
 		this._store.increment(shared.keys.uniqueIdKey, bind(this, function(err, newItemId) {
 			if (err) { throw logger.error('Could not increment unique item id counter', err) }

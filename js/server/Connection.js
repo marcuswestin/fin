@@ -59,10 +59,6 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 			this._store.unsubscribe(key, this._itemChannelHandler)
 		}))
 		
-		this.handleRequest('FIN_REQUEST_MONITOR_QUERY', bind(this, function(queryJSON) {
-			this.server.monitorQuery(queryJSON)
-		}))
-		
 		this.handleRequest('FIN_REQUEST_CREATE_ITEM', bind(this, function(request) {
 			this.server.createItem(request.data, this, bind(this, function(itemData) {
 				var response = { _requestId: request._requestId, data: itemData }

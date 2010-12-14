@@ -81,13 +81,6 @@ exports = Class(net.protocols.rtjp.RTJPProtocol, function(supr) {
 				this.sendFrame('FIN_RESPONSE', response)
 			}))
 		}))
-		
-		// TODO: get Reduction handler to work
-		this.handleRequest('FIN_REQUEST_ADD_REDUCTION', bind(this, function(args) {
-			var itemSetId = args.id,
-				reductionId = args.reductionId
-			this.server.addItemSetReduction(itemSetId, reductionId, this._itemSetSubs[itemSetId])
-		}))
 	}
 	
 /* Requests

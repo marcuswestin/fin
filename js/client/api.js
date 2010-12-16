@@ -423,7 +423,7 @@ fin = Singleton(function(){
 	this._handleMutation = function(mutation, singleCallback) {
 		if (singleCallback) {
 			var args = [mutation.op].concat(mutation.args)
-			setTimeout(function() { singleCallback(mutation, mutation.value) })
+			singleCallback(mutation, mutation.value)
 		} else {
 			var key = shared.keys.getItemPropertyKey(mutation.id, mutation.property),
 				subs = this._subscriptionPool.get(key)

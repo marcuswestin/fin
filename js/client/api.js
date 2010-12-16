@@ -363,7 +363,8 @@ fin = Singleton(function(){
 		} else {
 			var subID = this._observeChain(id, propertyChain, 0, bind(this, function() {
 				callback(this._resolveCachedPropertyChain(id, prop))
-				this.release(subID)
+				// observeChain can yielf synchronously - ensure subID has been assigned
+				setTimeout(bind(this, function() { this.release(subID) }), 0)
 			}), {})
 		}
 	}

@@ -356,6 +356,7 @@ fin = Singleton(function(){
 	}
 	
 	this._resolvePropertyChain = function(id, prop, callback) {
+		// TODO Do we need a _getItemID here?
 		var propertyChain = prop.split('.')
 		propertyChain.pop() // for foo.bar.cat, we're trying to resolve the item ID of foo.bar
 		if (!propertyChain.length) {
@@ -370,6 +371,7 @@ fin = Singleton(function(){
 	}
 	
 	this._resolveCachedPropertyChain = function(id, prop) {
+		// TODO Do we need a _getItemID here?
 		var propertyChain = prop.split('.')
 		while (propertyChain.length > 1) {
 			id = this.getCachedMutation(id, propertyChain.shift()).value

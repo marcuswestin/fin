@@ -2,8 +2,7 @@ var fs = require('fs'),
 	sys = require('sys'),
 	path = require('path'),
 	Buffer = require('buffer').Buffer,
-	util = require('./util'),
-	create = util.create
+	util = require('./util')
 
 var data = {},
 	dataDumpFile = './node-engine-dump.json',
@@ -29,7 +28,7 @@ process.on('exit', function() {
 /* Get a store
  *************/
 exports.getStore = function() {
-	return create(storeAPI)
+	return util.create(storeAPI)
 }
 
 /* The store's API

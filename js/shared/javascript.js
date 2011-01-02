@@ -130,14 +130,23 @@ exports.getPromise = function() {
 	return promise
 }
 
-exports.bytesToString = function(byteArray, offset) {
-	return byteArray.toString();
-	return String.fromCharCode.apply(String, Array.prototype.slice.call(byteArray, offset || 0))
-}
-
-exports.recall = function(self, args, timeout) {
-	var fn = args.callee
-	return function(){ return fn.apply(self, args) }
+exports.getDependable = function() {
+	var dependants = [],
+		dependable = {}
+	
+	dependable.depend = function(onFulfilled) {
+		dependants.push(onFulfilled)
+		if (dependable.fulfillment) {
+			onFulfilled.apply(this, dependable.fulfillment)
+		}
+	}
+	dependable.fulfill = function() {
+		dependable.fulfillment = arguments
+		for (var i=0; i < dependants.length; i++) {
+			dependants[i].apply(this, dependable.fulfillment)
+		}
+	}
+	return dependable
 }
 
 exports.assert = function(shouldBeTrue, msg, values) {

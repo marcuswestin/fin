@@ -1,34 +1,40 @@
-jsio('from shared.javascript import assert')
-
 /************************************
  * Redis key and channel namespaces *
  ************************************/
 
-// The unique ID key is used to consistently increase item id's. Should we use guid's instead?
-exports.uniqueIdKey = '__fin_unique_id'
+module.exports = {
+	getItemPropertyKey: getItemPropertyKey,
+	getKeyInfo: getKeyInfo,
+	getPropertyChannel: getPropertyChannel,
+	getFocusProperty: getFocusProperty,
+	// The unique ID key is used to consistently increase item id's. Should we use guid's instead?
+	uniqueIdKey: '__fin_unique_id'
+}
 
 // item properties are stored at 		I<item id>@<propName>	e.g. I20@books
 // channel names for items are			#I<item id>				e.g. #I20
 // channel names for properties are		#P<propName>			e.g. #Pbooks
 
 // Data state keys
-exports.getItemPropertyKey = function(itemId, propName) {
-	assert(propName && typeof itemId != 'undefined', "itemId and propName are required for shared.keys.getItemPropertyKey")
+function getItemPropertyKey(itemId, propName) {
+	if (!propName || typeof itemId == 'undefined') {
+		throw new Error("itemId and propName are required for keys.getItemPropertyKey")
+	}
 	return 'I' + itemId + '@' + propName
 }
 
-exports.getKeyInfo = function(key) {
+function getKeyInfo(key) {
 	var type = key[0],
 		parts = key.substr(1).split('@')
 	
 	return { type: type, id: parseInt(parts[0]), property: parts[1] }
 }
 
-exports.getPropertyChannel = function(propName) {
+function getPropertyChannel(propName) {
 	return '#P' + propName
 }
 
 // Misc
-this.getFocusProperty = function(propName) {
+function getFocusProperty(propName) {
 	return '_focus_' + propName
 }

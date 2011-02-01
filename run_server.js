@@ -1,16 +1,26 @@
-require('./lib/js.io/packages/jsio')
+var http = require('http'),
+	path = require('path'),
+	fs = require('fs'),
+	finServer = require('./js/server/SocketServer'),
+	engine = require('./engines/development')
 
-jsio.addPath('js', 'shared')
-jsio.addPath('js', 'server')
+var contentTypes = {
+	'.js':   'application/javascript',
+	'.css':  'text/css',
+	'.html': 'text/html'
+}
 
-jsio('import server.Server')
-jsio('import server.Connection')
+var httpServer = http.createServer(function(req, res) {
+	var requestPath = req.url.replace(/\.\./g, '') // don't want visitors to climb the path
+	fs.readFile(__dirname + requestPath, function(err, text) {
+		var extension = path.extname(requestPath)
+		res.writeHead(err ? 404 : 200, {
+			'Content-Type':contentTypes[extension]
+		})
+		res.end(text || '')
+	})
+})
+httpServer.listen(8080);
+finServer.start(httpServer, engine)
 
-var engine = require('./engines/development')
-var finServer = new server.Server(server.Connection, engine)
-
-// for browser clients
-finServer.listen('csp', { port: 5555 }) 
-
-// for robots
-finServer.listen('tcp', { port: 5556, timeout: 0 }) 
+console.log('fin server running on :8080')

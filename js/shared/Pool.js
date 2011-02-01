@@ -1,6 +1,6 @@
-jsio('from shared.javascript import Class')
+var Class = require('../shared/util').Class
 
-exports = Class(function(){
+module.exports = Class(function(){
 	
 	this.init = function() {
 		this._pool = {}

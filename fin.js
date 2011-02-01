@@ -1,14 +1,22 @@
-jsio('from shared.javascript import Singleton, bind, forEach')
+var util = require('./js/shared/util'),
+	Pool = require('./js/shared/Pool'),
+	keys = require('./js/shared/keys')
 
-jsio('import shared.Pool')
-jsio('import shared.keys')
+// socket.io expects the request for the js file to come in at root
+//  level, and puts the io object in the global scope
+require('/socket.io/socket.io')
 
-jsio('import client.Client')
-jsio('import client.TemplateFactory')
-jsio('import client.ViewFactory')
+// aliases
+var bind = util.bind,
+	forEach = util.forEach
 
-// expose fin to global namespace
-fin = Singleton(function(){
+var debug = true,
+	log = debug ? console.log : function(){}
+
+// jsio('import client.TemplateFactory')
+// jsio('import client.ViewFactory')
+
+var fin = module.exports = new (function(){
 
 /**********************************
  * The core API: connect, create, *
@@ -19,7 +27,15 @@ fin = Singleton(function(){
 	 * once you're connected with the server
 	 */
 	this.connect = function(callback) {
-		this._client.connect(callback)
+		this._requestCallbacks = {}
+		
+		this._socket = new io.Socket()
+		this._socket.connect()
+		this._socket.on('connect', bind(this, '_handleConnected', callback))
+		this._socket.on('message', bind(this, '_handleMessage'))
+		this._socket.on('disconnect', bind(this, '_handleDisconnect'))
+		
+		return this
 	}
 	
 	/* 
@@ -27,13 +43,13 @@ fin = Singleton(function(){
 	 * and get notified of the new item id when it's been created
 	 */
 	this.create = function(properties, callback) {
-		if (typeof callback != 'function') { throw logger.error('Second argument to fin.create should be a callback') }
+		if (typeof callback != 'function') { throw log('Second argument to fin.create should be a callback') }
 		for (var key in properties) {
 			if (properties[key] instanceof Array && !properties[key].length) {
 				delete properties[key] // For now we assume that engines treat NULL values as empty lists, a la redis
 			}
 		}
-		this.requestResponse('FIN_REQUEST_CREATE_ITEM', { data: properties }, callback)
+		this.requestResponse({ request:'create', data:properties }, callback)
 	}
 
 	/*
@@ -42,7 +58,7 @@ fin = Singleton(function(){
 	 *  assuming that driver.car will resolve to an item ID
 	 */
 	this.observe = function(itemID, propName, callback) {
-		if (!itemID || !propName || !callback) { logger.error("observe requires three arguments", itemId, propName, callback); }
+		if (!itemID || !propName || !callback) { log("observe requires three arguments", itemId, propName, callback); }
 		var propertyChain = propName.split('.')
 		return this._observeChain(itemID, propertyChain, 0, callback, {})
 	}
@@ -83,14 +99,14 @@ fin = Singleton(function(){
 	this.release = function(subId) {
 		if (typeof subId == 'string') {
 			var key = this._subIdToKey[subId],
-				keyInfo = shared.keys.getKeyInfo(key),
+				keyInfo = keys.getKeyInfo(key),
 				itemID = keyInfo.id
 			
 			this._subscriptionPool.remove(key, subId)
 			
 			if (this._subscriptionPool.count(key) == 0) {
 				if (itemID != this._localID) {
-					this.send('FIN_REQUEST_UNSUBSCRIBE', { id: itemID, property: keyInfo.property })
+					this._socket.send({ request:'unsubscribe', id:itemID, property:keyInfo.property })
 				}
 				delete this._mutationCache[key]
 				delete this._listLength[key]
@@ -118,7 +134,7 @@ fin = Singleton(function(){
 	 */
 	this.getCachedMutation = function(itemName, propName) {
 		var itemID = this._getItemID(itemName),
-			key = shared.keys.getItemPropertyKey(itemID, propName)
+			key = keys.getItemPropertyKey(itemID, propName)
 		
 		return this._mutationCache[key]
 	}
@@ -145,7 +161,7 @@ fin = Singleton(function(){
 	 * Observe an item property list, and get notified any time it changes
 	 */
 	this.observeList = function(itemName, propName, callback, length) {
-		if (!itemName || !propName || !callback) { logger.error("observe requires at least three arguments", itemName, propName, callback, length) }
+		if (!itemName || !propName || !callback) { log("observe requires at least three arguments", itemName, propName, callback, length) }
 		
 		var propertyChain = propName.split('.'),
 			subId = this._observeChain(itemName, propertyChain, 0, callback, { snapshot: false })
@@ -159,20 +175,20 @@ fin = Singleton(function(){
 	 */
 	this._listLength = {}
 	this.extendList = function(id, prop, extendToIndex) {
-		if (!id || !prop) { logger.error("extendList requires two arguments", itemID, prop) }
+		if (!id || !prop) { log("extendList requires two arguments", itemID, prop) }
 		
 		this._resolvePropertyChain(id, prop, bind(this, function(resolved) {
 			var itemID = this._getItemID(resolved.id),
 				property = resolved.property,
-				listKey = shared.keys.getItemPropertyKey(itemID, property),
+				listKey = keys.getItemPropertyKey(itemID, property),
 				listLength = this._listLength[listKey] || 0
 
 			if (extendToIndex <= listLength) { return }
 			this._listLength[listKey] = extendToIndex
 
-			var extendArgs = { id: itemID, property: property, from: listLength }
+			var extendArgs = { request:'extend_list', id:itemID, property:property, from:listLength }
 			if (extendToIndex) { extendArgs.to = extendToIndex }
-			this.requestResponse('FIN_REQUEST_EXTEND_LIST', extendArgs, bind(this, function(items) {
+			this.requestResponse(extendArgs, bind(this, function(items) {
 				var mockMutation = { id: itemID, property: property, op: 'push', args: items, index: listLength }
 				this._handleMutation(mockMutation)
 			}))
@@ -200,24 +216,10 @@ fin = Singleton(function(){
 	 * Make a request with an associated requestId, 
 	 * and call the callback upon response
 	 */
-	this.requestResponse = function(frameName, args, callback) {
+	this.requestResponse = function(args, callback) {
 		var requestId = this._scheduleCallback(callback)
 		args._requestId = requestId
-		this.send(frameName, args)
-	}
-	
-	/* 
-	 * Send a frame to the server
-	 */
-	this.send = function(frameName, args) {
-		this._client.sendFrame(frameName, args)
-	}
-	
-	/*
-	 * Register a handler for a type of event from the server
-	 */
-	this.registerEventHandler = function(frameName, callback) {
-		this._client.registerEventHandler(frameName, callback)
+		this._socket.send(args)
 	}
 	
 	/* 
@@ -226,8 +228,8 @@ fin = Singleton(function(){
 	 */
 	this.focus = function(itemId, propName, onBlurCallback) {
 		var sessionId = this._client.getSessionID(),
-			focusProp = shared.keys.getFocusProperty(propName),
-			sendFocusInfo = { session: sessionId, user: gUserId, time: fin.now() },
+			focusProp = keys.getFocusProperty(propName),
+			sendFocusInfo = { session: sessionId, user: gUserId, time: this.now() },
 			subId, observation, releaseFn
 		
 		this.set(itemId, focusProp, JSON.stringify(sendFocusInfo))
@@ -293,33 +295,35 @@ fin = Singleton(function(){
 /*******************
  * Private methods *
  *******************/
-	this.init = function() {
-		this._requestCallbacks = {}
-		
-		this._viewFactory = new client.ViewFactory()
-		this._templateFactory = new client.TemplateFactory(this._viewFactory)
-		
-		this._client = new client.Client()
-		
-		this._client.registerEventHandler('FIN_RESPONSE', bind(this, function(response) {
-			logger.info('FIN_RESPONSE', response._requestId, response.data)
-			this._executeCallback(response._requestId, response.data)
-		}))
-		
-		this._client.registerEventHandler('FIN_EVENT_MUTATION', bind(this, function(mutationJSON) {
-			var mutation = JSON.parse(mutationJSON)
-			logger.info('FIN_EVENT_MUTATION', mutation)
+	this._handleConnected = function(callback) {
+		log("Connected!")
+		callback()
+	}
+	
+	this._handleMessage = function(message) {
+		if (message.response) {
+			log('handle resonse', message.response)
+			this._executeCallback(message.response, message)
+		} else if (message.event == 'mutation') {
+			var mutation = JSON.parse(message.data)
+			log('handle mutation', mutation)
 			this._handleMutation(mutation)
-		}))
+		} else {
+			log('received unknown message', message)
+		}
+	}
+	
+	this._handleDisconnect = function() {
+		log('_handleDisconnect', arguments)
 	}
 	
 	this._subIdToKey = {}
-	this._subscriptionPool = new shared.Pool()
+	this._subscriptionPool = new Pool()
 	this._observe = function(params, callback) {
 		var itemID = this._getItemID(params.id),
 			property = params.property,
 			pool = this._subscriptionPool,
-			key = shared.keys.getItemPropertyKey(itemID, property),
+			key = keys.getItemPropertyKey(itemID, property),
 			subId = pool.add(key, callback),
 			type = params.type || 'BYTES',
 			cachedMutation = this._mutationCache[key]
@@ -330,11 +334,11 @@ fin = Singleton(function(){
 		
 		if (itemID != this._localID && pool.count(key) == 1) {
 			if (typeof itemID != 'number') { debugger; throw new Error('Expected numeric ID but got "'+itemID+'"') }
-			var netParams = { id: itemID, property: property, type: type }
+			var request = { request:'observe', id:itemID, property:property, type:type }
 			if (typeof params.snapshot != 'undefined') {
-				netParams.snapshot = params.snapshot
+				request.snapshot = params.snapshot
 			}
-			this.send('FIN_REQUEST_OBSERVE', netParams)
+			this._socket.send(request)
 		} else if (cachedMutation && params.useCache !== false) {
 			this._handleMutation(cachedMutation, callback)
 		}
@@ -385,16 +389,19 @@ fin = Singleton(function(){
 		var resolved = this._resolveCachedPropertyChain(id, prop),
 			itemID = this._getItemID(resolved.id)
 		
-		var mutation = {
-			op: op,
-			args: args,
-			id: itemID,
-			property: resolved.property
+		var request = {
+			request: 'mutate',
+			mutation: {
+				op: op,
+				args: args,
+				id: itemID,
+				property: resolved.property
+			}
 		}
 		
-		if (itemID != this._localID) { this.send('FIN_REQUEST_MUTATE', mutation) }
+		if (itemID != this._localID) { this._socket.send(request) }
 		
-		this._handleMutation(mutation)
+		this._handleMutation(request.mutation)
 	}
 	
 	this._deserializeMutation = function(mutation) {
@@ -412,13 +419,13 @@ fin = Singleton(function(){
 				break
 			case 'increment':
 			case 'decrement':
-				if (args.length) { throw logger.error("Argument for operation without signature " + operation) }
+				if (args.length) { throw log("Argument for operation without signature " + operation) }
 				break
 			case 'add':
 			case 'subtract':
-				if (args.length != 1) { throw logger.error('Missing argument for "'+operation+'"') }
+				if (args.length != 1) { throw log('Missing argument for "'+operation+'"') }
 				break
-			default: throw logger.error("Unknown operation for deserialization " + operation)
+			default: throw log("Unknown operation for deserialization " + operation)
 		}
 	}
 	
@@ -428,7 +435,7 @@ fin = Singleton(function(){
 			var args = [mutation.op].concat(mutation.args)
 			singleCallback(mutation, mutation.value)
 		} else {
-			var key = shared.keys.getItemPropertyKey(mutation.id, mutation.property),
+			var key = keys.getItemPropertyKey(mutation.id, mutation.property),
 				subs = this._subscriptionPool.get(key)
 			
 			this._deserializeMutation(mutation)
@@ -483,7 +490,7 @@ fin = Singleton(function(){
 				cachedMutation.value = mutation.value = (cachedValue || 0) - mutation.args[0]
 				break
 			default:
-				throw logger.error('Unknown operation for caching "'+mutation.op+'"')
+				throw log('Unknown operation for caching "'+mutation.op+'"')
 		}
 		return mutationCache[key]
 	}
@@ -500,4 +507,4 @@ fin = Singleton(function(){
 		delete this._requestCallbacks[requestId]
 		callback(response)
 	}
-})
+})()

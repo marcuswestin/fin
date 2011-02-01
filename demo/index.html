@@ -41,8 +41,10 @@
 			<div></div>
 		</div>
 		
-		<script type="text/javascript" src="../fin.js"></script>
+		<script type="text/javascript" src="../lib/browser-require/require.js"></script>
 		<script type="text/javascript">
+			var fin = require('../fin')
+			
 			var demo = {}
 			
 			fin.connect(function(){ 

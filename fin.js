@@ -13,9 +13,6 @@ var bind = util.bind,
 var debug = true,
 	log = debug ? console.log : function(){}
 
-// jsio('import client.TemplateFactory')
-// jsio('import client.ViewFactory')
-
 var fin = module.exports = new (function(){
 
 /**********************************
@@ -97,29 +94,24 @@ var fin = module.exports = new (function(){
 	 * Release an observation
 	 */
 	this.release = function(subId) {
-		if (typeof subId == 'string') {
-			var key = this._subIdToKey[subId],
-				keyInfo = keys.getKeyInfo(key),
-				itemID = keyInfo.id
-			
-			this._subscriptionPool.remove(key, subId)
-			
-			if (this._subscriptionPool.count(key) == 0) {
-				if (itemID != this._localID) {
-					this._socket.send({ request:'unsubscribe', id:itemID, property:keyInfo.property })
-				}
-				delete this._mutationCache[key]
-				delete this._listLength[key]
+		var key = this._subIdToKey[subId],
+			keyInfo = keys.getKeyInfo(key),
+			itemID = keyInfo.id
+		
+		this._subscriptionPool.remove(key, subId)
+		
+		if (this._subscriptionPool.count(key) == 0) {
+			if (itemID != this._localID) {
+				this._socket.send({ request:'unsubscribe', id:itemID, property:keyInfo.property })
 			}
-			
-			delete this._subIdToKey[subId]
-			if (this._chainDependants[subId]) {
-				this.release(this._chainDependants[subId])
-				delete this._chainDependants[subId]
-			}
-		} else { // it's a fin template element
-			// TODO Remove this
-			this._templateFactory.releaseTemplate(subId)
+			delete this._mutationCache[key]
+			delete this._listLength[key]
+		}
+		
+		delete this._subIdToKey[subId]
+		if (this._chainDependants[subId]) {
+			this.release(this._chainDependants[subId])
+			delete this._chainDependants[subId]
 		}
 	}
 	
@@ -264,34 +256,6 @@ var fin = module.exports = new (function(){
 	// TODO The timestamp should be offset by a time given by the server
 	this.now = function() { return new Date().getTime() }
 	
-	/*
-	 * Generate a unique ID
-	 */
-	var _unique = 1
-	this.unique = function() { return 'fan_u' + _unique++ }
-	
-	/*
-	 * Apply a template to a fin item (or multiple items)
-	 */
-	this.applyTemplate = function(templateString, itemIds) {
-		return this._templateFactory.applyTemplate(templateString, itemIds)
-	}
-	
-	/*
-	 * Create a view directly, and get a reference to the javascript object. Make sure you release it correctly!
-	 */
-	this.createView = function(viewName) {
-		var args = Array.prototype.slice.call(arguments, 1)
-		return this._viewFactory.createView(viewName, args)
-	}
-	
-	/*
-	 * Register a template view
-	 */
-	this.registerView = function(viewName, viewCtor) {
-		this._viewFactory.registerView(viewName, viewCtor)
-	}
-
 /*******************
  * Private methods *
  *******************/

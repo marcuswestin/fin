@@ -267,7 +267,7 @@ var fin = module.exports = new (function(){
 	this._handleMessage = function(message) {
 		if (message.response) {
 			log('handle resonse', message.response)
-			this._executeCallback(message.response, message)
+			this._executeCallback(message.response, message.data)
 		} else if (message.event == 'mutation') {
 			var mutation = JSON.parse(message.data)
 			log('handle mutation', mutation)

@@ -11,7 +11,7 @@ var bind = util.bind,
 	forEach = util.forEach
 
 var debug = true,
-	log = debug ? console.log : function(){}
+	log = debug ? function() { console.log.apply(console, arguments) } : function(){}
 
 var fin = module.exports = new (function(){
 

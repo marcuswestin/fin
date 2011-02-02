@@ -24,15 +24,16 @@ var fin = module.exports = new (function(){
 	 * once you're connected with the server
 	 */
 	this.connect = function(callback) {
-		this._requestCallbacks = {}
-		
-		this._socket = new io.Socket()
-		this._socket.connect()
-		this._socket.on('connect', bind(this, '_handleConnected', callback))
-		this._socket.on('message', bind(this, '_handleMessage'))
-		this._socket.on('disconnect', bind(this, '_handleDisconnect'))
-		
-		return this
+		if (this._socket.connected) {
+			if (callback) { callback() }
+			return
+		}
+		if (callback) {
+			this._connectCallbacks.push(callback)
+		}
+		if (!this._socket.connecting) {
+			this._socket.connect()
+		}
 	}
 	
 	/* 
@@ -259,9 +260,21 @@ var fin = module.exports = new (function(){
 /*******************
  * Private methods *
  *******************/
-	this._handleConnected = function(callback) {
+	this._init = function() {
+		this._connectCallbacks = []
+		this._requestCallbacks = {}
+		this._socket = new io.Socket()
+		this._socket.on('connect', bind(this, '_handleConnected'))
+		this._socket.on('message', bind(this, '_handleMessage'))
+		this._socket.on('disconnect', bind(this, '_handleDisconnect'))
+	}
+	
+	this._handleConnected = function() {
 		log("Connected!")
-		callback()
+		for (var i=0; i<this._connectCallbacks.length; i++) {
+			this._connectCallbacks[i]()
+		}
+		this._connectCallbacks = []
 	}
 	
 	this._handleMessage = function(message) {
@@ -471,4 +484,6 @@ var fin = module.exports = new (function(){
 		delete this._requestCallbacks[requestId]
 		callback(response)
 	}
+	
+	this._init()
 })()

@@ -33,7 +33,6 @@ function _handleConnection(client) {
 	client.subscriptionStore = engine.getStore()
 	client.on('message', curry(_handleMessage, client))
 	client.on('disconnect', curry(_handleDisconnect, client))
-	client.send("Welcome")
 }
 
 function _handleMessage(client, message) {

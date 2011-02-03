@@ -21,7 +21,7 @@ lib/redis-node-client:
 lib/browser-require:
 	git clone git://github.com/marcuswestin/browser-require.git
 	mv browser-require lib/
-	cd lib/browser-require; git checkout dc6f1cff1b98e3cf9d7b35a929aaaed64aca36f5
+	cd lib/browser-require; git checkout 48e59a6739c812ebf6283d7b1bd975dc2e6d7b96
 
 lib/socket.io:
 	git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io

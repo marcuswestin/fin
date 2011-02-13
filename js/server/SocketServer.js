@@ -1,12 +1,16 @@
-var io = require('../../lib/socket.io'),
+var events = require('events'),
+	io = require('../../lib/socket.io'),
 	storage = require('./storage'),
 	requests = require('./requests'),
 	log = require('./logger').log,
-	curry = require('../shared/util').curry
+	util = require('../shared/util')
+
+var emitter = new events.EventEmitter()
 
 module.exports = {
 	start: start,
-	handleRequest: handleRequest
+	handleRequest: handleRequest,
+	on: util.bind(emitter, 'on')
 }
 
 /* State
@@ -47,8 +51,9 @@ function handleRequest(messageType, handler) {
 function _handleConnection(client) {
 	log('new connection', client.sessionId)
 	client.subscriptionStore = engine.getStore()
-	client.on('message', curry(_handleMessage, client))
-	client.on('disconnect', curry(_handleDisconnect, client))
+	client.on('message', util.curry(_handleMessage, client))
+	client.on('disconnect', util.curry(_handleDisconnect, client))
+	emitter.emit('client_connect', client)
 }
 
 function _handleMessage(client, message) {
@@ -60,6 +65,5 @@ function _handleMessage(client, message) {
 }
 
 function _handleDisconnect(client) {
-	log('TODO implement _handleDisconnect', arguments)
+	emitter.emit('client_disconnect', client)
 }
-

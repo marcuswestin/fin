@@ -22,6 +22,10 @@ function start(httpServer, withEngine) {
 	engine = withEngine
 	storage.setStore(engine.getStore())
 	
+	if (!httpServer) {
+		httpServer = require('http').createServer(function(){})
+		httpServer.listen(8080, '127.0.0.1')
+	}
 	var socket = io.listen(httpServer)
 	socket.on('connection', _handleConnection)
 }

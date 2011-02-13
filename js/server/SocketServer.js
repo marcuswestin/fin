@@ -17,7 +17,7 @@ var started = false,
 
 /* Exported API
  **************/
-function start(httpServer, withEngine) {
+function start(withEngine, httpServer) {
 	if (started) { throw new Error("Tried to start server twice") }
 	engine = withEngine
 	storage.setStore(engine.getStore())

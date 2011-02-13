@@ -274,8 +274,12 @@ var fin = module.exports = new (function(){
 	this._init = function() {
 		this._connectCallbacks = []
 		this._requestCallbacks = {}
-		this._socket = new io.Socket()
 		this._eventHandlers = {}
+		this._socket = new io.Socket(location.hostname, {
+			connectTimeout: 500,
+			transports: 'websocket,xhr-multipart,flashsocket,htmlfile,xhr-polling,jsonp-polling'.split(',')
+		})
+		
 		this._socket.on('connect', bind(this, '_handleConnected'))
 		this._socket.on('message', bind(this, '_handleMessage'))
 		this._socket.on('disconnect', bind(this, '_handleDisconnect'))

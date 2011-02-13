@@ -10,15 +10,13 @@ module.exports = {
 
 /* State
  *******/
-var started = false,
-	engine = null,
+var	engine = null,
 	store = null,
 	debug = true
 
 /* Exported API
  **************/
 function start(withEngine, httpServer) {
-	if (started) { throw new Error("Tried to start server twice") }
 	engine = withEngine
 	storage.setStore(engine.getStore())
 	

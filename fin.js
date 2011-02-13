@@ -280,9 +280,10 @@ var fin = module.exports = new (function(){
 			transports: 'websocket,xhr-multipart,flashsocket,htmlfile,xhr-polling,jsonp-polling'.split(',')
 		})
 		
-		this._socket.on('connect', bind(this, '_handleConnected'))
-		this._socket.on('message', bind(this, '_handleMessage'))
-		this._socket.on('disconnect', bind(this, '_handleDisconnect'))
+		this._socket
+			.on('connect', bind(this, '_handleConnected'))
+			.on('message', bind(this, '_handleMessage'))
+			.on('disconnect', bind(this, '_handleDisconnect'))
 		
 		this.handle('mutation', bind(this, '_onMutationMessage'))
 	}

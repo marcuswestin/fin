@@ -44,7 +44,7 @@ function handleRequest(messageType, handler) {
 }
 
 function on(event, handler) {
-	emitter.on(event, handler)
+	return emitter.on(event, handler)
 }
 
 /* Handler functions

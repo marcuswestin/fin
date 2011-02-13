@@ -5,13 +5,15 @@ var io = require('../../lib/socket.io'),
 	curry = require('../shared/util').curry
 
 module.exports = {
-	start: start
+	start: start,
+	handleRequest: handleRequest
 }
 
 /* State
  *******/
 var	engine = null,
 	store = null,
+	requestHandlers = {}
 
 /* Exported API
  **************/
@@ -26,6 +28,18 @@ function start(withEngine, httpServer) {
 	}
 	var socket = io.listen(httpServer)
 	socket.on('connection', _handleConnection)
+	
+	handleRequest
+		('observe', requests.observeHandler)
+		('unsubscribe', requests.unsubscribeHandler)
+		('create', requests.createHandler)
+		('mutate', requests.mutateHandler)
+		('extend_list', requests.extendListHandler)
+}
+
+function handleRequest(messageType, handler) {
+	requestHandlers[messageType] = handler
+	return handleRequest
 }
 
 /* Handler functions
@@ -38,7 +52,11 @@ function _handleConnection(client) {
 }
 
 function _handleMessage(client, message) {
-	requests.handleRequest(client, message)
+	if (!requestHandlers[message.request]) {
+		log('unknown request type', message.request)
+		return
+	}
+	requestHandlers[message.request](client, message)
 }
 
 function _handleDisconnect(client) {

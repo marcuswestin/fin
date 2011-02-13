@@ -333,7 +333,7 @@ var fin = module.exports = new (function(){
 		}
 		
 		if (itemID != this._localID && pool.count(key) == 1) {
-			if (typeof itemID != 'number') { debugger; throw new Error('Expected numeric ID but got "'+itemID+'"') }
+			if (typeof itemID != 'number') { throw new Error('Expected numeric ID but got "'+itemID+'"') }
 			var request = { id:itemID, property:property, type:type }
 			if (typeof params.snapshot != 'undefined') {
 				request.snapshot = params.snapshot

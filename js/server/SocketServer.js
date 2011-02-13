@@ -12,7 +12,6 @@ module.exports = {
  *******/
 var	engine = null,
 	store = null,
-	debug = true
 
 /* Exported API
  **************/

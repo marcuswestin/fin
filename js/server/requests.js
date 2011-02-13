@@ -4,26 +4,14 @@ var storage = require('./storage'),
 	log = require('./logger').log
 
 module.exports = {
-	handleRequest: handleRequest
+	observeHandler: handleObserveRequest,
+	unsubscribeHandler: handleUnsubscribeRequest,
+	createHandler: handleCreateRequest,
+	mutateHandler: handleMutateRequest,
+	extendListHandler: handleExtendListRequest
 }
 
-function handleRequest(client, request) {
-	log('handleRequest', JSON.stringify(request))
-	if (request.request) {
-		if (!_requestHandlers[request.request]) { log('unknown request', request) }
-		_requestHandlers[request.request](client, request)
-	}
-}
-
-var _requestHandlers = {
-	'observe': _handleObserveRequest,
-	'unsubscribe': _handleUnsubscribeRequest,
-	'create': _handleCreateRequest,
-	'mutate': _handleMutateRequest,
-	'extend_list': _handleExtendListRequest
-}
-
-function _handleObserveRequest(client, request) {
+function handleObserveRequest(client, request) {
 	var type = request.type,
 		key = keys.getItemPropertyKey(request.id, request.property)
 	
@@ -40,23 +28,23 @@ function _handleObserveRequest(client, request) {
 	}
 }
 
-function _handleUnsubscribeRequest(client, request) {
+function handleUnsubscribeRequest(client, request) {
 	var key = keys.getItemPropertyKey(request.id, request.property)
 	client.subscriptionStore.unsubscribe(key)
 }
 
-function _handleCreateRequest(client, request) {
+function handleCreateRequest(client, request) {
 	storage.createItem(request.data, client, function(itemData) {
 		client.send({ response:request._requestId, data:itemData })
 	})
 }
 
-function _handleMutateRequest(client, request) {
+function handleMutateRequest(client, request) {
 	request.mutation.time = new Date().getTime()
 	storage.mutateItem(request.mutation, client)
 }
 
-function _handleExtendListRequest(client, request) {
+function handleExtendListRequest(client, request) {
 	var key = keys.getItemPropertyKey(request.id, request.property),
 		from = request.from,
 		to = request.to

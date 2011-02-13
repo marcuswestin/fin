@@ -5,17 +5,17 @@ var events = require('events'),
 	log = require('./fin/logger').log,
 	util = require('./fin/util')
 
-var emitter = new events.EventEmitter()
-
 module.exports = {
 	start: start,
 	handleRequest: handleRequest,
-	on: util.bind(emitter, 'on')
+	on: on
 }
 
 /* State
  *******/
-var	engine, requestHandlers = {}
+var	requestHandlers = {},
+	emitter = new events.EventEmitter(),
+	engine
 
 /* Exported API
  **************/
@@ -41,6 +41,10 @@ function start(theEngine, httpServer) {
 function handleRequest(messageType, handler) {
 	requestHandlers[messageType] = handler
 	return handleRequest
+}
+
+function on(event, handler) {
+	emitter(event, handler)
 }
 
 /* Handler functions

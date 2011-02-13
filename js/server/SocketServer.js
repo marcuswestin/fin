@@ -17,6 +17,7 @@ var	engine = null,
  **************/
 function start(withEngine, httpServer) {
 	engine = withEngine
+	
 	storage.setStore(engine.getStore())
 	
 	if (!httpServer) {

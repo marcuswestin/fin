@@ -1,7 +1,5 @@
 var fin = require('../api/client')
 
-var demo = {}
-
 fin.connect(function(){ 
 	var createButton = document.getElementById('create-button'),
 		createPropInput = document.getElementById('create-prop-input'),
@@ -44,19 +42,21 @@ fin.connect(function(){
 	subscribeIdInput.onkeyup()
 })
 
-demo.createOutput = function() {
-	var parent = document.getElementById('output-column')
-	var el = parent.insertBefore(document.createElement('div'), parent.childNodes[2])
-	el.className = 'header'
-	return el
-}
-
-demo.subscribeTo = function(itemId, propName) {
-	itemId = parseInt(itemId)
-	var el = demo.createOutput()
-	el.innerHTML = '<strong>subscribed</strong> to item ' + itemId + ' ' + propName + ' = <input style="width: 100px;"></input>'
-	el.className += ' item'
-	var input = el.getElementsByTagName('input')[0]
-	fin.observe(itemId, propName, function(mutation, newVal) { input.value = newVal })
-	input.onkeyup = function() { fin.set(itemId, propName, input.value) }
+var demo = {
+	createOutput: function() {
+		var parent = document.getElementById('output-column')
+		var el = parent.insertBefore(document.createElement('div'), parent.childNodes[2])
+		el.className = 'header'
+		return el
+	},
+	
+	subscribeTo: function(itemId, propName) {
+		itemId = parseInt(itemId)
+		var el = demo.createOutput()
+		el.innerHTML = '<strong>subscribed</strong> to item ' + itemId + ' ' + propName + ' = <input style="width: 100px;"></input>'
+		el.className += ' item'
+		var input = el.getElementsByTagName('input')[0]
+		fin.observe(itemId, propName, function(mutation, newVal) { input.value = newVal })
+		input.onkeyup = function() { fin.set(itemId, propName, input.value) }
+	}
 }

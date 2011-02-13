@@ -11,5 +11,3 @@ var contentTypes = {
 }
 
 fin.start(engine)
-
-console.log('fin server running on :8080')

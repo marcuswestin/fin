@@ -1,5 +1,5 @@
-var keys = require('../shared/keys'),
-	util = require('../shared/util'),
+var keys = require('./keys'),
+	util = require('./util'),
 	log = require('./logger').log
 
 module.exports = {

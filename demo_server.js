@@ -1,7 +1,7 @@
 var http = require('http'),
 	path = require('path'),
 	fs = require('fs'),
-	finServer = require('./js/server/SocketServer'),
+	fin = require('./api/server'),
 	engine = require('./engines/development')
 
 var contentTypes = {
@@ -10,6 +10,6 @@ var contentTypes = {
 	'.html': 'text/html'
 }
 
-finServer.start(engine)
+fin.start(engine)
 
 console.log('fin server running on :8080')

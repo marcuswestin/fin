@@ -1,9 +1,9 @@
 var events = require('events'),
-	io = require('../../lib/socket.io'),
-	storage = require('./storage'),
-	requests = require('./requests'),
-	log = require('./logger').log,
-	util = require('../shared/util')
+	io = require('../lib/socket.io'),
+	storage = require('./fin/storage'),
+	requests = require('./fin/requests'),
+	log = require('./fin/logger').log,
+	util = require('./fin/util')
 
 var emitter = new events.EventEmitter()
 

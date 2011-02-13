@@ -1,4 +1,4 @@
-var fin = require('./fin')
+var fin = require('./api/client')
 
 var demo = {}
 

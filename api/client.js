@@ -1,10 +1,10 @@
-var util = require('./js/shared/util'),
-	Pool = require('./js/shared/Pool'),
-	keys = require('./js/shared/keys')
+var util = require('./fin/util'),
+	Pool = require('./fin/Pool'),
+	keys = require('./fin/keys')
 
 // socket.io expects the request for the js file to come in at root
 //  level, and puts the io object in the global scope
-require('./lib/socket.io/support/socket.io-client/socket.io')
+require('../lib/socket.io/support/socket.io-client/socket.io')
 
 // aliases
 var bind = util.bind,

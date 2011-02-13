@@ -1,6 +1,6 @@
 var events = require('events'),
 	io = require('../lib/socket.io'),
-	storage = require('./fin/storage'),
+	data = require('./fin/data'),
 	requests = require('./fin/requests'),
 	log = require('./fin/logger').log,
 	util = require('./fin/util')
@@ -15,16 +15,13 @@ module.exports = {
 
 /* State
  *******/
-var	engine = null,
-	store = null,
-	requestHandlers = {}
+var	engine, requestHandlers = {}
 
 /* Exported API
  **************/
-function start(withEngine, httpServer) {
-	engine = withEngine
-	
-	storage.setStore(engine.getStore())
+function start(theEngine, httpServer) {
+	engine = theEngine
+	data.setEngine(engine)
 	
 	if (!httpServer) {
 		httpServer = require('http').createServer(function(){})
@@ -50,9 +47,9 @@ function handleRequest(messageType, handler) {
  *******************/
 function _handleConnection(client) {
 	log('new connection', client.sessionId)
-	client.subscriptionStore = engine.getStore()
 	client.on('message', util.curry(_handleMessage, client))
 	client.on('disconnect', util.curry(_handleDisconnect, client))
+	client.pubsub = engine.getPubSub()
 	emitter.emit('client_connect', client)
 }
 

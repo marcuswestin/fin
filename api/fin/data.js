@@ -3,7 +3,7 @@ var keys = require('./keys'),
 	log = require('./logger').log
 
 module.exports = {
-	setStore: setStore,
+	setEngine: setEngine,
 	getListItems: getListItems,
 	retrieveStateMutation: retrieveStateMutation,
 	retrieveSet: retrieveSet,
@@ -13,12 +13,14 @@ module.exports = {
 
 /* State
  *******/
-var store = null
+var store, pubsub
 
 /* Exposed functions
  *******************/
-function setStore(theStore) {
-	store = theStore
+function setEngine(theEngine) {
+	engine = theEngine
+	store = engine.getStore()
+	pubsub = engine.getPubSub()
 }
 
 function getListItems(listKey, from, to, callback) {
@@ -106,8 +108,8 @@ function mutateItem(mutation, origClient, callback) {
 	//	e.g. :1@type:#type: for a mutation that changes the type of item 1
 	// var propChannel = keys.getPropertyChannel(propName)
 	
-	store.publish(key, mutationBuffer)
-	// store.publish(propChannel, mutationBuffer)
+	pubsub.publish(key, mutationBuffer)
+	// pubsub.publish(propChannel, mutationBuffer)
 }
 
 /* Util functions

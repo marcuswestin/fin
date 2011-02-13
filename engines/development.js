@@ -8,6 +8,11 @@ var data = {},
 	dataDumpFile = './node-engine-dump.json',
 	pubsub = {}
 
+module.exports = {
+	getStore: getStore,
+	getPubSub: getPubSub
+}
+
 if (path.existsSync(dataDumpFile)) {
 	sys.puts('node engine found ' + dataDumpFile + ' - loading data...')
 	data = JSON.parse(fs.readFileSync(dataDumpFile))
@@ -25,57 +30,17 @@ process.on('exit', function() {
 	sys.puts('done dumping data.')
 })
 
-/* Get a store
- *************/
-exports.getStore = function() {
+function getStore() {
 	return util.create(storeAPI)
+}
+
+function getPubSub() {
+	return util.create(pubsubAPI)
 }
 
 /* The store's API
  *****************/
 var storeAPI = {
-	/* Setup/teardown
-	 ****************/
-	initialize: function() {
-		this._subscriptions = []
-	},
-	
-	close: function() {
-		for (var i=0, signal; signal = this._subscriptions[i]; i++) {
-			var subscribers = pubsub[signal]
-			for (var j=0, subscriber; subscriber = subscribers[j]; j++) {
-				if (subscriber[1] != this) { continue }
-				subscribers.splice(j, 1)
-				break
-			}
-		}
-	},
-
-	/* Pubsub
-	 ********/
-	subscribe: function(channel, callback) {
-		if (!pubsub[channel]) { pubsub[channel] = [] }
-		pubsub[channel].push(callback)
-	},
-	
-	publish: function(channel, message) {
-		if (!pubsub[channel]) { return }
-		var messageBuffer = new Buffer(message),
-			subscribers = pubsub[channel]
-		for (var i=0, subscriber; subscriber = subscribers[i]; i++) {
-			subscriber(channel, messageBuffer)
-		}
-	},
-	
-	unsubscribe: function(channel, callback) {
-		var subscribers = pubsub[channel]
-		for (var i=0, subscriber; subscriber = subscribers[i]; i++) {
-			if (subscriber != callback) { continue }
-			subscribers.splice(i, 1)
-			break
-		}
-	},
-	
 	/* Getters
 	 *********/
 	getBytes: function(key, callback) {
@@ -203,6 +168,49 @@ var storeAPI = {
 	srem: function() { throw new Error('srem not yet implemented') }	
 }
 
+var pubsubAPI = {
+	/* Setup/teardown
+	 ****************/
+	initialize: function() {
+		this._subscriptions = []
+	},
+	
+	close: function() {
+		for (var i=0, signal; signal = this._subscriptions[i]; i++) {
+			var subscribers = pubsub[signal]
+			for (var j=0, subscriber; subscriber = subscribers[j]; j++) {
+				if (subscriber[1] != this) { continue }
+				subscribers.splice(j, 1)
+				break
+			}
+		}
+		delete this._subscriptions
+	},
+
+	subscribe: function(channel, callback) {
+		if (!pubsub[channel]) { pubsub[channel] = [] }
+		pubsub[channel].push(callback)
+		this._subscriptions.push(this)
+	},
+	
+	publish: function(channel, message) {
+		if (!pubsub[channel]) { return }
+		var messageBuffer = new Buffer(message),
+			subscribers = pubsub[channel]
+		for (var i=0, subscriber; subscriber = subscribers[i]; i++) {
+			subscriber(channel, messageBuffer)
+		}
+	},
+	
+	unsubscribe: function(channel, callback) {
+		var subscribers = pubsub[channel]
+		for (var i=0, subscriber; subscriber = subscribers[i]; i++) {
+			if (subscriber != callback) { continue }
+			subscribers.splice(i, 1)
+			break
+		}
+	}
+}
 
 function typeError(operation, type, key) {
 	return '"'+operation+'" expected a '+type+' at key "'+key+'" but found a '+typeof data[key]

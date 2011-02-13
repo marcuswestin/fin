@@ -1,4 +1,4 @@
-var storage = require('./storage'),
+var data = require('./data'),
 	keys = require('./keys'),
 	util = require('./util'),
 	log = require('./logger').log
@@ -16,11 +16,11 @@ function handleObserveRequest(client, request) {
 		key = keys.getItemPropertyKey(request.id, request.property)
 	
 	log("subscribe to channel", key)
-	client.subscriptionStore.subscribe(key, util.curry(_itemMutationChannelHandler, client))
+	client.pubsub.subscribe(key, util.curry(_itemMutationChannelHandler, client))
 	
 	if (request.snapshot != false) {
 		// fake an item mutation event
-		storage.retrieveStateMutation(key, type, function(mutation) {
+		data.retrieveStateMutation(key, type, function(mutation) {
 			mutation.id = request.id
 			mutation.property = request.property
 			client.send({ event:'mutation', data:JSON.stringify(mutation) })
@@ -30,18 +30,18 @@ function handleObserveRequest(client, request) {
 
 function handleUnsubscribeRequest(client, request) {
 	var key = keys.getItemPropertyKey(request.id, request.property)
-	client.subscriptionStore.unsubscribe(key)
+	client.pubsub.unsubscribe(key)
 }
 
 function handleCreateRequest(client, request) {
-	storage.createItem(request.data, client, function(itemData) {
+	data.createItem(request.data, client, function(itemData) {
 		client.send({ response:request._requestId, data:itemData })
 	})
 }
 
 function handleMutateRequest(client, request) {
 	request.mutation.time = new Date().getTime()
-	storage.mutateItem(request.mutation, client)
+	data.mutateItem(request.mutation, client)
 }
 
 function handleExtendListRequest(client, request) {
@@ -49,7 +49,7 @@ function handleExtendListRequest(client, request) {
 		from = request.from,
 		to = request.to
 	
-	storage.getListItems(key, from, to, function(items) {
+	data.getListItems(key, from, to, function(items) {
 		client.send({ response:request._requestId, data:items })
 	})
 }

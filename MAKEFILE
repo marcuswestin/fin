@@ -4,11 +4,6 @@
 .PHONY: all
 all: lib/redis-node-client lib/browser-require lib/socket.io
 
-.PHONY: clean
-clean:
-	rm -rf lib/*
-	touch lib/empty.txt
-
 #####################
 ### Dependencies ####
 #####################

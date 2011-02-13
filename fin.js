@@ -47,7 +47,7 @@ var fin = module.exports = new (function(){
 				delete properties[key] // For now we assume that engines treat NULL values as empty lists, a la redis
 			}
 		}
-		this.requestResponse({ request:'create', data:properties }, callback)
+		this.requestResponse('create', { data:properties }, callback)
 	}
 
 	/*
@@ -103,7 +103,7 @@ var fin = module.exports = new (function(){
 		
 		if (this._subscriptionPool.count(key) == 0) {
 			if (itemID != this._localID) {
-				this._socket.send({ request:'unsubscribe', id:itemID, property:keyInfo.property })
+				this.request('unsubscribe', { id:itemID, property:keyInfo.property })
 			}
 			delete this._mutationCache[key]
 			delete this._listLength[key]
@@ -179,9 +179,9 @@ var fin = module.exports = new (function(){
 			if (extendToIndex <= listLength) { return }
 			this._listLength[listKey] = extendToIndex
 
-			var extendArgs = { request:'extend_list', id:itemID, property:property, from:listLength }
+			var extendArgs = { id:itemID, property:property, from:listLength }
 			if (extendToIndex) { extendArgs.to = extendToIndex }
-			this.requestResponse(extendArgs, bind(this, function(items) {
+			this.requestResponse('extend_list', extendArgs, bind(this, function(items) {
 				var mockMutation = { id: itemID, property: property, op: 'push', args: items, index: listLength }
 				this._handleMutation(mockMutation)
 			}))
@@ -205,12 +205,19 @@ var fin = module.exports = new (function(){
 /********************
  * Miscelaneous API *
  ********************/
+	this.request = function(request, args) {
+		args = args || {}
+		args.request = request
+		this._socket.send(args)
+	}
+	
 	/* 
 	 * Make a request with an associated requestId, 
 	 * and call the callback upon response
 	 */
-	this.requestResponse = function(args, callback) {
+	this.requestResponse = function(request, args, callback) {
 		var requestId = this._scheduleCallback(callback)
+		args.request = request
 		args._requestId = requestId
 		this._socket.send(args)
 	}
@@ -311,11 +318,11 @@ var fin = module.exports = new (function(){
 		
 		if (itemID != this._localID && pool.count(key) == 1) {
 			if (typeof itemID != 'number') { debugger; throw new Error('Expected numeric ID but got "'+itemID+'"') }
-			var request = { request:'observe', id:itemID, property:property, type:type }
+			var request = { id:itemID, property:property, type:type }
 			if (typeof params.snapshot != 'undefined') {
 				request.snapshot = params.snapshot
 			}
-			this._socket.send(request)
+			this.request('observe', request)
 		} else if (cachedMutation && params.useCache !== false) {
 			this._handleMutation(cachedMutation, callback)
 		}
@@ -366,19 +373,16 @@ var fin = module.exports = new (function(){
 		var resolved = this._resolveCachedPropertyChain(id, prop),
 			itemID = this._getItemID(resolved.id)
 		
-		var request = {
-			request: 'mutate',
-			mutation: {
-				op: op,
-				args: args,
-				id: itemID,
-				property: resolved.property
-			}
+		var mutation = {
+			op: op,
+			args: args,
+			id: itemID,
+			property: resolved.property
 		}
 		
-		if (itemID != this._localID) { this._socket.send(request) }
+		if (itemID != this._localID) { this.request('mutate', { mutation:mutation }) }
 		
-		this._handleMutation(request.mutation)
+		this._handleMutation(mutation)
 	}
 	
 	this._deserializeMutation = function(mutation) {

@@ -131,7 +131,11 @@ var fin = module.exports = new (function(){
 		
 		return this._mutationCache[key]
 	}
-
+	
+	this.handle = function(messageType, handler) {
+		this._eventHandlers[messageType] = handler
+	}
+	
 /***********
  * Set API *
  ***********/
@@ -271,9 +275,18 @@ var fin = module.exports = new (function(){
 		this._connectCallbacks = []
 		this._requestCallbacks = {}
 		this._socket = new io.Socket()
+		this._eventHandlers = {}
 		this._socket.on('connect', bind(this, '_handleConnected'))
 		this._socket.on('message', bind(this, '_handleMessage'))
 		this._socket.on('disconnect', bind(this, '_handleDisconnect'))
+		
+		this.handle('mutation', bind(this, '_onMutationMessage'))
+	}
+	
+	this._onMutationMessage = function(data) {
+		var mutation = JSON.parse(data)
+		log('handle mutation', mutation)
+		this._handleMutation(mutation)
 	}
 	
 	this._handleConnected = function() {
@@ -288,10 +301,8 @@ var fin = module.exports = new (function(){
 		if (message.response) {
 			log('handle resonse', message.response)
 			this._executeCallback(message.response, message.data)
-		} else if (message.event == 'mutation') {
-			var mutation = JSON.parse(message.data)
-			log('handle mutation', mutation)
-			this._handleMutation(mutation)
+		} else if (this._eventHandlers[message.event]) {
+			this._eventHandlers[message.event](message.data)
 		} else {
 			log('received unknown message', message)
 		}

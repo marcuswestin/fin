@@ -276,6 +276,7 @@ var fin = module.exports = new (function(){
 		this._requestCallbacks = {}
 		this._eventHandlers = {}
 		this._socket = new io.Socket(location.hostname, {
+			port: 8080,
 			connectTimeout: 500,
 			transports: 'websocket,xhr-multipart,flashsocket,htmlfile,xhr-polling,jsonp-polling'.split(',')
 		})

@@ -15,7 +15,6 @@ clean:
 lib/redis-node-client:
 	git clone git://github.com/fictorial/redis-node-client.git 
 	mv redis-node-client lib/
-	# Check out "works with just-released node v0.1.90"
 	cd lib/redis-node-client/; git checkout v0.3.5
 
 lib/browser-require:
@@ -26,7 +25,6 @@ lib/browser-require:
 lib/socket.io:
 	git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io
 	mv socket.io lib/
-	# Check out version 0.6.1
 	cd lib/socket.io; git checkout 0.6.1
 
 ##################

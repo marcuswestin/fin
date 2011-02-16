@@ -30,21 +30,22 @@ function start(theEngine, httpServer) {
 	var socket = io.listen(httpServer)
 	socket.on('connection', _handleConnection)
 	
-	handleRequest
-		('observe', requests.observeHandler)
-		('unsubscribe', requests.unsubscribeHandler)
-		('create', requests.createHandler)
-		('mutate', requests.mutateHandler)
-		('extend_list', requests.extendListHandler)
+	module.exports
+		.handleRequest('observe', requests.observeHandler)
+		.handleRequest('unsubscribe', requests.unsubscribeHandler)
+		.handleRequest('create', requests.createHandler)
+		.handleRequest('mutate', requests.mutateHandler)
+		.handleRequest('extend_list', requests.extendListHandler)
 }
 
 function handleRequest(messageType, handler) {
 	requestHandlers[messageType] = handler
-	return handleRequest
+	return module.exports
 }
 
 function on(event, handler) {
-	return emitter.on(event, handler)
+	emitter.on(event, handler)
+	return module.exports
 }
 
 /* Handler functions

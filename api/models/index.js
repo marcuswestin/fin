@@ -6,10 +6,7 @@ var models = module.exports = {
 function process(modelDescriptions) {
 	for (var modelName in modelDescriptions) {
 		_validateModel(modelName, modelDescriptions[modelName])
-		_createModel(modelName)
-	}
-	for (var modelName in modelDescriptions) {
-		_createModelProperties(modelName, modelDescriptions[modelName])
+		_createModel(modelName, modelDescriptions[modelName])
 	}
 }
 
@@ -27,12 +24,12 @@ var _validateModel = function(modelName, properties) {
 	}
 }
 
-var _createModel = function(modelName) {
-	models[modelName] = function modelInstantiator() { this._instantiate.apply(this, arguments) }
-}
-
-var _createModelProperties = function(modelName, modelProperties) {
-	models[modelName].prototype._instantiate = function instantiateModel(instanceProperties) {
+var _createModel = function(modelName, modelProperties) {
+	var model = models[modelName] = function modelInstantiator() {
+		this._instantiate.apply(this, arguments)
+	}
+	
+	model.prototype._instantiate = function(instanceProperties) {
 		// for (var propertyName in instanceProperties) {
 		// 	// TODO check that each instance property is present in modelProperties
 		// }

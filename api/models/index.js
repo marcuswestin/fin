@@ -1,6 +1,5 @@
 // nothing here yet :)
-
-var models = exports.module = {
+var models = module.exports = {
 	process: process
 }
 

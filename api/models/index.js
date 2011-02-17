@@ -1,3 +1,27 @@
 // nothing here yet :)
 
-exports.module = {}
+var models = exports.module = {
+	process: process
+}
+
+function process(modelDescriptions) {
+	for (var modelName in modelDescriptions) {
+		_validateModel(modelName, modelDescriptions[modelName])
+		_createModel(modelName)
+	}
+	for (var modelName in modelDescriptions) {
+		_createModelProperties(modelName, modelDescriptions[modelName])
+	}
+}
+
+var _validateModel = function(modelName, properties) {
+	
+}
+
+var _createModel = function(modelName) {
+	
+}
+
+var _createModelProperties = function(modelName, properties) {
+	
+}

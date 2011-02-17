@@ -28,14 +28,35 @@ var _validateModel = function(modelName, properties) {
 }
 
 var _createModel = function(modelName) {
-	
+	models[modelName] = function modelInstantiator() { this._instantiate.apply(this, arguments) }
 }
 
-var _createModelProperties = function(modelName, properties) {
-	
+var _createModelProperties = function(modelName, modelProperties) {
+	models[modelName].prototype._instantiate = function instantiateModel(instanceProperties) {
+		for (var propertyName in modelProperties) {
+			var modelProperty = modelProperties[propertyName],
+				valueModel = instanceProperties[propertyName]
+			if (typeof valueModel == 'object') {
+				this[propertyName] = valueModel
+			} else {
+				this[propertyName] = new rootModels[modelProperty.type](propertyName, modelName, modelProperty.id, modelProperty.type, this, valueModel)
+			}
+		}
+	}
 }
 
+// UTILS
 function assert(isOK, msg) {
 	if (isOK) { return }
 	throw new Error(msg)
+}
+
+var RootModel = function(propertyName, modelName, propertyID, propertyType, parentModel, value) {
+	console.log('Instantiate', propertyType, propertyName, '('+propertyID+')', value, 'for', modelName, parentModel)
+	this._value = value
+}
+
+var rootModels = {
+	"Text": RootModel,
+	"Number": RootModel
 }

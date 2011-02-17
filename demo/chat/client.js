@@ -5,7 +5,8 @@ var fin = require('../../api/client'),
 
 models.process({
 	"User": {
-		"name": { id:1, type:"Text" }
+		"name": { id:1, type:"Text" },
+		"age": { id:1, type:"Number" }
 	},
 	"Message": {
 		"text": { id:1, type:"Text" },
@@ -13,5 +14,7 @@ models.process({
 	}
 })
 
-var marcus = new models.User({ name: 'Marcus Westin' }),
+var marcus = new models.User({ name:'Marcus Westin', age:25 }),
 	message = new models.Message({ user:marcus, text:'Hello, world' })
+
+console.log(message.user)

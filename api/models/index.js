@@ -33,7 +33,12 @@ var _createModel = function(modelName) {
 
 var _createModelProperties = function(modelName, modelProperties) {
 	models[modelName].prototype._instantiate = function instantiateModel(instanceProperties) {
+		// for (var propertyName in instanceProperties) {
+		// 	// TODO check that each instance property is present in modelProperties
+		// }
+		
 		for (var propertyName in modelProperties) {
+			// TODO check that instanceProperties fullfill "type" & "required" in modelProperties
 			var modelProperty = modelProperties[propertyName],
 				valueModel = instanceProperties[propertyName]
 			if (typeof valueModel == 'object') {
@@ -60,3 +65,12 @@ var rootModels = {
 	"Text": RootModel,
 	"Number": RootModel
 }
+
+/* TODO
+ - add on, observe and promise to RootModel
+ - have Text and Number extend RootModel with set
+ - have Set and List extend RootModel and publish on('add') and on('remove')
+ - to implement on/observe/promise, climb the parent models to create the observation chain
+ - call fin.create in initializer
+ - add fin.transact
+*/

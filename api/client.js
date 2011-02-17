@@ -13,7 +13,7 @@ var bind = util.bind,
 var debug = true,
 	log = debug ? function() { console.log.apply(console, arguments) } : function(){}
 
-var fin = module.exports = new (function(){
+module.exports = new (function(){
 
 /**********************************
  * The core API: connect, create, *

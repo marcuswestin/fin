@@ -73,6 +73,7 @@ var _waitForPropertyIDs = function(model, callback) {
 }
 
 var _waitForID = function(model, callback) {
-	// TODO check if model has ID
-	// If not, listen for it and call callback when it exists
+	if (model._id) { callback() }
+	else if (model._waitingForID) { model._waitingForID.push(callback) }
+	else { model._waitingForID = [callback] }
 }

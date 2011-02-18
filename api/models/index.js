@@ -39,12 +39,14 @@ var _createModelConstructor = function(modelName, modelDescription) {
 	modelConstructor.description = modelDescription
 }
 
+/* Custom Models objects
+ ***********************/
 var CustomModelPrototype = {
-	_instantiate: instantiateModel,
-	create: createModel
+	_instantiate: _instantiate,
+	create: create
 }
 
-function instantiateModel(idOrValues) {
+function _instantiate(idOrValues) {
 	var values
 	if (typeof idOrValues == 'number') { this._id = idOrValues }
 	else { values = idOrValues || {} }
@@ -59,12 +61,43 @@ function instantiateModel(idOrValues) {
 	}
 }
 
-function createModel() {
-	// TODO sync with server
+function create() {
+	if (this._id) { return this } // already created
+	_waitForPropertyIDs(this, function() {
+		_createModelOnServer(this, function(newID) {
+			this._id = newID
+		})
+	})
+	return this
 }
 
+var _createModelOnServer = function(model, callback) {
+	fin.create(model._currentValues(), function(newID) {
+		callback.call(model, newID)
+	})
+}
+
+var _waitForPropertyIDs = function(model, callback) {
+	var waitingFor = 0
+	function tryNow() {
+		if (waitingFor) { return }
+		callback.call(model)
+	}
+	each(model._constructor.description, function(propertyDescription) {
+		if (propertyModels[propertyDescription.type]) { return }
+		waitingFor++
+		_waitForID(model, tryNow)
+	})
+	tryNow()
+}
+
+var _waitForID = function(model, callback) {
+	// TODO check if model has ID
+	// If not, listen for it and call callback when it exists
+}
 
 // UTILS
+
 function assert(isOK, msg) {
 	if (isOK) { return }
 	throw new Error(msg)

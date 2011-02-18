@@ -1,6 +1,7 @@
 // This is what we want - it doesn't work yet :)
 
-var models = require('../../api/models')
+var fin = require('../../api/client'),
+	models = require('../../api/models')
 
 var user = null,
 	$ = function(id) { return document.getElementById(id) }
@@ -17,6 +18,11 @@ models.process({
 	"Global": {
 		"messages": { id:1, type:"List", of:"Message" }
 	}
+})
+
+fin.connect(function() {
+	$('connecting').style.display = 'none'
+	$('loginForm').style.display = 'block'
 })
 
 $('login').onclick = function() {

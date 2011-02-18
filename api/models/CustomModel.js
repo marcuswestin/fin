@@ -27,7 +27,7 @@ function _instantiate(idOrValues) {
 function create() {
 	if (this._id) { return this } // already created
 	_waitForPropertyIDs(this, function() {
-		_createModelOnServer(this, function(newID) {
+		_createInDatabase(this, function(newID) {
 			this._id = newID
 		})
 	})
@@ -36,10 +36,18 @@ function create() {
 
 /* Util
  ******/
-var _createModelOnServer = function(model, callback) {
-	fin.create(model._currentValues(), function(newID) {
+var _createInDatabase = function(model, callback) {
+	fin.create(_currentValues(model), function(newID) {
 		callback.call(model, newID)
 	})
+}
+
+function _currentValues(model) {
+	var keyValuePairs = {}
+	each(model._constructor.description, function(propertyDescription, propertyName) {
+		keyValuePairs[propertyDescription.id] = model[propertyName]._value
+	})
+	return keyValuePairs
 }
 
 var _waitForPropertyIDs = function(model, callback) {

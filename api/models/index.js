@@ -1,6 +1,6 @@
 module.exports = {
 	process: process,
-	_propertyModels: {}
+	_propertyModels: require('./propertyModels')
 }
 
 var CustomModelPrototype = require('./CustomModel'),
@@ -49,32 +49,6 @@ var _createModelConstructor = function(modelName, modelDescription) {
 function assert(isOK, msg) {
 	if (isOK) { return }
 	throw new Error(msg)
-}
-
-/* Property models
- *****************/
-propertyModels["Text"] = PropertyModel
-propertyModels["Number"] = PropertyModel
-
-function PropertyModel(value) {
-	this._value = value
-}
-
-PropertyModel.prototype.observe = function(callback) {
-	var info = _getObservationInfo(this)
-	fin.observe(info.id, info.chain, function(mutation) {
-		callback(mutation.value, mutation.op)
-	})
-}
-
-var _getObservationInfo = function(propertyModel) {
-	var propertyNameChain = []
-	
-	while(propertyModel._parent) {
-		propertyNameChain.push(propertyModel._propertyID)
-		propertyModel = propertyModel._parent
-	}
-	return { id:propertyModel._id, chain:propertyNameChain }
 }
 
 /* TODO

@@ -31,6 +31,11 @@ $('login').onclick = function() {
 	$('chat').style.display = 'block'
 }
 
+$('send').onclick = function() {
+	var message = new models.Message({ from:user, text:$('message').value }).create()
+	models.global.messages.push(message)
+}
+
 models.global.messages.on('add', function(message) {
 	var div = $('messages').appendChild(document.createElement('div')),
 		sender = div.appendChild(document.createElement('div')),

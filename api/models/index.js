@@ -9,12 +9,12 @@ var customModels = module.exports = {
 
 function process(modelDescriptions) {
 	for (var modelName in modelDescriptions) {
-		_validateModel(modelName, modelDescriptions[modelName])
-		_createModel(modelName, modelDescriptions[modelName])
+		_validateModelDescription(modelName, modelDescriptions[modelName])
+		_createModelConstructor(modelName, modelDescriptions[modelName])
 	}
 }
 
-var _validateModel = function(modelName, properties) {
+var _validateModelDescription = function(modelName, properties) {
 	var firstLetterCode = modelName.charCodeAt(0)
 	assert(65 <= firstLetterCode && firstLetterCode <= 90, 'Model names should start with an upper case letter. "'+modelName+'" does not.')
 	assert(!customModels[modelName], 'Model "'+modelName+'" already exists')
@@ -29,7 +29,7 @@ var _validateModel = function(modelName, properties) {
 	}
 }
 
-var _createModel = function(modelName, modelDescription) {
+var _createModelConstructor = function(modelName, modelDescription) {
 	var modelConstructor = customModels[modelName] = function(idOrValues) {
 		this._constructor = customModels[modelName]
 		this._instantiate.call(this, idOrValues)

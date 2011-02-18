@@ -1,4 +1,3 @@
-// nothing here yet :)
 var customModels = module.exports = {
 	process: process
 }

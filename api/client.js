@@ -384,7 +384,7 @@ module.exports = new (function(){
 		return { id: id, property: propertyChain[0] }
 	}
 	
-	this._localID = '__fin_local'
+	this._localID = -1
 	this._globalID = 0
 	this.mutate = function(op, id, prop, args) {
 		var resolved = this._resolveCachedPropertyChain(id, prop),

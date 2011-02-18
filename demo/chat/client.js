@@ -8,7 +8,7 @@ var user = null,
 models.process({
 	"User": {
 		"name": { id:1, type:"Text" },
-		"age": { id:1, type:"Number" }
+		"age": { id:2, type:"Number" }
 	},
 	"Message": {
 		"text": { id:1, type:"Text" },

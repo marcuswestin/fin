@@ -17,10 +17,14 @@ function _instantiate(idOrValues) {
 	for (var propertyName in this._constructor.description) {
 		var propertyDescription = this._constructor.description[propertyName],
 			valueType = propertyDescription.type,
-			Model = models._propertyModels[valueType] || customModels[valueType],
 			value = values[propertyName]
 		
-		this[propertyName] = new Model(value)
+		if (customModels[valueType] && typeof value != 'number') {
+			this[propertyName] = value
+		} else {
+			var Model = models._propertyModels[valueType] || customModels[valueType]
+			this[propertyName] = new Model(value)
+		}
 	}
 }
 

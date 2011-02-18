@@ -1,5 +1,9 @@
+var util = require('../fin/util'),
+	map = util.map,
+	bind = util.bind
+
 // nothing here yet :)
-var models = module.exports = {
+var customModels = module.exports = {
 	process: process
 }
 
@@ -13,7 +17,7 @@ function process(modelDescriptions) {
 var _validateModel = function(modelName, properties) {
 	var firstLetterCode = modelName.charCodeAt(0)
 	assert(65 <= firstLetterCode && firstLetterCode <= 90, 'Model names should start with an upper case letter. "'+modelName+'" does not.')
-	assert(!models[modelName], 'Model "'+modelName+'" already exists')
+	assert(!customModels[modelName], 'Model "'+modelName+'" already exists')
 	var propertyIDs = {}
 	for (propertyName in properties) {
 		firstLetterCode = propertyName.charCodeAt(0)
@@ -21,30 +25,46 @@ var _validateModel = function(modelName, properties) {
 		assert(97 <= firstLetterCode && firstLetterCode <= 122, 'Property names should start with a lowercase letter. "'+propertyName+'" does not.')
 		assert(typeof property.id == 'number', 'Properties need an id. "'+propertyName+'" does not')
 		assert(!propertyIDs[property.id], 'Property IDs need to be unique. "'+modelName+'" has two properties with the id '+property.id+'')
+		assert(!CustomModelPrototype[propertyName], 'Certain property names would overwrite important model methods. "'+propertyName+'" on "'+modelName+'" is such a property - pick a different property name.')
 	}
 }
 
-var _createModel = function(modelName, modelProperties) {
-	var model = models[modelName] = function modelInstantiator() {
-		this._instantiate.apply(this, arguments)
+var _createModel = function(modelName, modelDescription) {
+	var modelConstructor = customModels[modelName] = function(idOrValues) {
+		this._constructor = customModels[modelName]
+		this._instantiate.call(this, idOrValues)
 	}
+	var modelPropertiesID = []
+	for (var propertyName in modelDescription) {
+		modelPropertiesID.push(modelDescription[propertyName].id)
+	}
+	modelConstructor.prototype = CustomModelPrototype
+	modelConstructor.description = modelDescription
+	modelConstructor.properties = map(modelDescription, function(propDescr) { return propDescr.id })
+}
+
+var CustomModelPrototype = {
+	_instantiate: instantiateModel,
+	create: createModel
+}
+
+function instantiateModel(idOrValues) {
+	var values
+	if (typeof idOrValues == 'number') { this._id = idOrValues }
+	else { values = idOrValues || {} }
 	
-	model.prototype._instantiate = function(instanceProperties) {
-		// for (var propertyName in instanceProperties) {
-		// 	// TODO check that each instance property is present in modelProperties
-		// }
+	for (var propertyName in this._constructor.description) {
+		var propertyDescription = this._constructor.description[propertyName],
+			valueType = propertyDescription.type,
+			Model = propertyModels[valueType] || customModels[valueType],
+			value = values[propertyName]
 		
-		for (var propertyName in modelProperties) {
-			// TODO check that instanceProperties fullfill "type" & "required" in modelProperties
-			var modelProperty = modelProperties[propertyName],
-				valueModel = instanceProperties[propertyName]
-			if (typeof valueModel == 'object') {
-				this[propertyName] = valueModel
-			} else {
-				this[propertyName] = new rootModels[modelProperty.type](propertyName, modelName, modelProperty.id, modelProperty.type, this, valueModel)
-			}
-		}
+		this[propertyName] = new Model(value)
 	}
+}
+
+function createModel() {
+	// TODO sync with server
 }
 
 // UTILS
@@ -53,14 +73,13 @@ function assert(isOK, msg) {
 	throw new Error(msg)
 }
 
-var RootModel = function(propertyName, modelName, propertyID, propertyType, parentModel, value) {
-	console.log('Instantiate', propertyType, propertyName, '('+propertyID+')', value, 'for', modelName, parentModel)
+var PropertyModel = function(value) {
 	this._value = value
 }
 
-var rootModels = {
-	"Text": RootModel,
-	"Number": RootModel
+var propertyModels = {
+	"Text": PropertyModel,
+	"Number": PropertyModel
 }
 
 /* TODO

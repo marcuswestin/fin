@@ -49,7 +49,9 @@ var _createInDatabase = function(model, callback) {
 function _currentValues(model) {
 	var keyValuePairs = {}
 	each(model._constructor.description, function(propertyDescription, propertyName) {
-		keyValuePairs[propertyDescription.id] = model[propertyName]._value
+		var property = model[propertyName],
+			value = customModels[propertyDescription.type] ? property._id : property._value
+		keyValuePairs[propertyDescription.id] = value
 	})
 	return keyValuePairs
 }

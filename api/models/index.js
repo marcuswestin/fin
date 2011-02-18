@@ -62,3 +62,4 @@ function assert(isOK, msg) {
 
 // TODO check that each instance property is present in modelProperties when created
 // TODO check that instanceProperties fullfill "type" & "required" in modelProperties
+// TODO don't require create to be called explicitly for new models - add another params to suppress creation

@@ -1,7 +1,3 @@
-var util = require('../fin/util'),
-	map = util.map,
-	bind = util.bind
-
 // nothing here yet :)
 var customModels = module.exports = {
 	process: process
@@ -41,7 +37,6 @@ var _createModelConstructor = function(modelName, modelDescription) {
 	}
 	modelConstructor.prototype = CustomModelPrototype
 	modelConstructor.description = modelDescription
-	modelConstructor.properties = map(modelDescription, function(propDescr) { return propDescr.id })
 }
 
 var CustomModelPrototype = {

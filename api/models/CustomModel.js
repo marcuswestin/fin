@@ -33,6 +33,8 @@ function create() {
 	_waitForPropertyIDs(this, function() {
 		_createInDatabase(this, function(newID) {
 			this._id = newID
+			each(this._waitingForID, function(fn) { fn() })
+			delete this._waitingForID
 		})
 	})
 	return this
@@ -65,7 +67,7 @@ var _waitForPropertyIDs = function(model, callback) {
 	each(model._constructor.description, function(propertyDescription) {
 		if (models._propertyModels[propertyDescription.type]) { return }
 		waitingFor++
-		_waitForID(model, tryNow)
+		_waitForID(model[propertyName], tryNow)
 	})
 	tryNow()
 }

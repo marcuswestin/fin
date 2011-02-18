@@ -67,6 +67,9 @@ function createModel() {
 	// TODO sync with server
 }
 
+// TODO check that each instance property is present in modelProperties when created
+// TODO check that instanceProperties fullfill "type" & "required" in modelProperties
+
 // UTILS
 function assert(isOK, msg) {
 	if (isOK) { return }

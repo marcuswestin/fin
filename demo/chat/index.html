@@ -1,9 +1,21 @@
 <html>
 	<head>
 		<title>chat with fin</title>
+		<style type="text/css">
+		#chat { display:none; }
+		</style>
 	</head>
 	<body>
 		<h1>chat with fin</h1>
+		<div id="loginForm">
+			<input id="username"></input>
+			<button id="login">login</button>
+		</div>
+		<div id="chat">
+			<input id="message"></input>
+			<div id="messages"></div>
+		</div>
+		
 		<script src="../../lib/browser-require/require.js" main="./client" id="browser-require"></script>
 	</body>
 </html>

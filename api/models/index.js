@@ -67,8 +67,6 @@ function createModel() {
 	// TODO sync with server
 }
 
-// TODO check that each instance property is present in modelProperties when created
-// TODO check that instanceProperties fullfill "type" & "required" in modelProperties
 
 // UTILS
 function assert(isOK, msg) {
@@ -93,3 +91,6 @@ var propertyModels = {
  - call fin.create in initializer
  - add fin.transact
 */
+
+// TODO check that each instance property is present in modelProperties when created
+// TODO check that instanceProperties fullfill "type" & "required" in modelProperties

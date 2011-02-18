@@ -1,10 +1,11 @@
-var CustomModelPrototype = require('./CustomModel')
-
 module.exports = {
-	process: process
+	process: process,
+	_propertyModels: {}
 }
 
-var customModels = module.exports
+var CustomModelPrototype = require('./CustomModel'),
+	customModels = module.exports,
+	propertyModels = module.exports._propertyModels
 
 function process(modelDescriptions) {
 	for (var modelName in modelDescriptions) {
@@ -49,13 +50,15 @@ function assert(isOK, msg) {
 	throw new Error(msg)
 }
 
-var PropertyModel = function(value) {
+/* Property models
+ *****************/
+propertyModels["Text"] = PropertyModel
+propertyModels["Number"] = PropertyModel
+
+function PropertyModel(value) {
 	this._value = value
 }
 
-var propertyModels = {
-	"Text": PropertyModel,
-	"Number": PropertyModel
 }
 
 /* TODO

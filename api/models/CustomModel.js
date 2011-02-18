@@ -3,6 +3,12 @@ module.exports = {
 	create: create
 }
 
+var models = require('./index'),
+	fin = require('../client'),
+	each = require('../fin/util').each
+
+var customModels = models
+
 function _instantiate(idOrValues) {
 	var values
 	if (typeof idOrValues == 'number') { this._id = idOrValues }
@@ -11,7 +17,7 @@ function _instantiate(idOrValues) {
 	for (var propertyName in this._constructor.description) {
 		var propertyDescription = this._constructor.description[propertyName],
 			valueType = propertyDescription.type,
-			Model = propertyModels[valueType] || customModels[valueType],
+			Model = models._propertyModels[valueType] || customModels[valueType],
 			value = values[propertyName]
 		
 		this[propertyName] = new Model(value)
@@ -43,7 +49,7 @@ var _waitForPropertyIDs = function(model, callback) {
 		callback.call(model)
 	}
 	each(model._constructor.description, function(propertyDescription) {
-		if (propertyModels[propertyDescription.type]) { return }
+		if (models._propertyModels[propertyDescription.type]) { return }
 		waitingFor++
 		_waitForID(model, tryNow)
 	})

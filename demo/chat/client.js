@@ -17,4 +17,4 @@ models.process({
 var marcus = new models.User({ name:'Marcus Westin', age:25 }),
 	message = new models.Message({ user:marcus, text:'Hello, world' })
 
-console.log(message.user)
+console.log(message)

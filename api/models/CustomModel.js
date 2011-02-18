@@ -64,7 +64,7 @@ var _waitForPropertyIDs = function(model, callback) {
 		if (--waitingFor) { return }
 		callback.call(model)
 	}
-	each(model._constructor.description, function(propertyDescription) {
+	each(model._constructor.description, function(propertyDescription, propertyName) {
 		if (models._propertyModels[propertyDescription.type]) { return }
 		waitingFor++
 		_waitForID(model[propertyName], tryNow)

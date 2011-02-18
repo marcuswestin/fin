@@ -57,9 +57,9 @@ function _currentValues(model) {
 }
 
 var _waitForPropertyIDs = function(model, callback) {
-	var waitingFor = 0
+	var waitingFor = 1
 	function tryNow() {
-		if (waitingFor) { return }
+		if (--waitingFor) { return }
 		callback.call(model)
 	}
 	each(model._constructor.description, function(propertyDescription) {

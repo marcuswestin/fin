@@ -43,8 +43,8 @@ var _createModelConstructor = function(modelName, modelDescription) {
 	modelConstructor.description = modelDescription
 }
 
-// UTILS
-
+/* Util
+ ******/
 function assert(isOK, msg) {
 	if (isOK) { return }
 	throw new Error(msg)

@@ -18,6 +18,7 @@ var _validateModelDescription = function(modelName, properties) {
 	var firstLetterCode = modelName.charCodeAt(0)
 	assert(65 <= firstLetterCode && firstLetterCode <= 90, 'Model names should start with an upper case letter. "'+modelName+'" does not.')
 	assert(!customModels[modelName], 'Model "'+modelName+'" already exists')
+	assert(!propertyModels[modelName], 'Property model "'+modelName+'" already exists')
 	var propertyIDs = {}
 	for (propertyName in properties) {
 		firstLetterCode = propertyName.charCodeAt(0)

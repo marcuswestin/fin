@@ -12,7 +12,8 @@ var customModels = models
 function _instantiate(idOrValues) {
 	var values
 	if (typeof idOrValues == 'number') { this._id = idOrValues }
-	else { values = idOrValues || {} }
+	else { values = idOrValues }
+	values = values || {}
 	
 	for (var propertyName in this._constructor.description) {
 		var propertyDescription = this._constructor.description[propertyName],

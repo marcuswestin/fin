@@ -26,6 +26,7 @@ function _instantiate(idOrValues) {
 		} else {
 			var Model = models._propertyModels[valueType] || customModels[valueType]
 			this[propertyName] = new Model(value)
+			this[propertyName]._propertyID = propertyDescription.id
 		}
 	}
 }

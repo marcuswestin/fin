@@ -28,6 +28,7 @@ function _instantiate(idOrValues) {
 			this[propertyName] = new Model(value)
 			this[propertyName]._propertyID = propertyDescription.id
 		}
+		this[propertyName]._parent = this
 	}
 }
 

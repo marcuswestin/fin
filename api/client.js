@@ -56,7 +56,7 @@ module.exports = new (function(){
 	 *  assuming that driver.car will resolve to an item ID
 	 */
 	this.observe = function(itemID, propName, callback) {
-		if (!itemID || !propName || !callback) { log("observe requires three arguments", itemId, propName, callback); }
+		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires three arguments", itemId, propName, callback); }
 		var propertyChain = propName.split('.')
 		return this._observeChain(itemID, propertyChain, 0, callback, {})
 	}

@@ -7,17 +7,17 @@ var user = null,
 	$ = function(id) { return document.getElementById(id) }
 
 models.process({
-	"User": {
-		"name": { id:1, type:"Text" },
-		"age": { id:2, type:"Number" }
+	"Global": {
+		"messages": { id:1, type:"List", of:"Message" }
 	},
 	"Message": {
 		"text": { id:1, type:"Text" },
 		"from": { id:2, type:"User" }
 	},
-	"Global": {
-		"messages": { id:1, type:"List", of:"Message" }
-	}
+	"User": {
+		"name": { id:1, type:"Text" },
+		"age": { id:2, type:"Number" }
+	},
 })
 
 fin.connect(function() {

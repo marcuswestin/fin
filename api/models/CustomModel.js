@@ -20,6 +20,7 @@ function _instantiate(idOrValues) {
 			valueType = propertyDescription.type,
 			value = values[propertyName]
 		
+		// If the property type is a custom model, support passing in the ID of the item as a number
 		if (customModels[valueType] && typeof value != 'number') {
 			this[propertyName] = value
 		} else {

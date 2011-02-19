@@ -57,7 +57,7 @@ module.exports = new (function(){
 	 */
 	this.observe = function(itemID, propName, callback) {
 		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires three arguments", itemId, propName, callback); }
-		var propertyChain = propName.split('.')
+		var propertyChain = (typeof propName == 'string' ? string.split('.') : propName
 		return this._observeChain(itemID, propertyChain, 0, callback, {})
 	}
 	

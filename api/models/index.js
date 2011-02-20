@@ -28,15 +28,18 @@ var _validateModelDescription = function(modelName, properties) {
 			firstLetterCode = propertyName.charCodeAt(0),
 			valueType = property.type,
 			collectionOf = property.of,
-			isCollection = (valueType == 'List' || valueType == 'Set')
-		if (isCollection) { assert(collectionOf, 'Collections (Sets and Lists) require the "of" descriptor, e.g. { id:1, type:"List" of:"Number" }. '+modelName+'\'s "'+propertyName+'" is a "'+valueType+'" but it does not have one.') }
-		if (collectionOf) { assert(isCollection, 'Only collections (Sets and Lists) should have an "of" descriptor. '+modelName+'\'s "'+propertyName+'" has one but should not since it is of type "'+valueType+'".') }
+			isCollection = (valueType == 'List' || valueType == 'Set'),
+			id = property.id,
+			friendlyName = modelName+'.'+propertyName
+		if (isCollection) { assert(collectionOf, 'Collections (Sets and Lists) require the "of" descriptor, e.g. { id:1, type:"List" of:"Number" }. "'+friendlyName+'" is a "'+valueType+'" but it does not have one.') }
+		if (collectionOf) { assert(isCollection, 'Only collections (Sets and Lists) should have an "of" descriptor. "'+friendlyName+'" has one but should not since it is of type "'+valueType+'".') }
 		assert(isCollection == !!collectionOf, 'Only collections (Sets and Lists) ')
-		assert(97 <= firstLetterCode && firstLetterCode <= 122, 'Property names should start with a lowercase letter. "'+propertyName+'" does not.')
-		assert(property.id !== undefined, 'Properties need an id. "'+propertyName+'" does not')
-		assert(!CustomModelPrototype[propertyName], 'Certain property names would overwrite important model methods. "'+propertyName+'" on "'+modelName+'" is such a property - pick a different property name.')
-		assert(!propertyIDs[property.id], 'Property IDs need to be unique. "'+modelName+'" has two properties with the id '+property.id+'')
-		propertyIDs[property.id] = true
+		assert(97 <= firstLetterCode && firstLetterCode <= 122, 'Property names should start with a lowercase letter. "'+friendlyName+'" does not.')
+		assert(typeof id == 'number' || typeof id == 'string', 'Properties need an id. "'+friendlyName+'" does not have one.')
+		prefer(typeof id == 'number', 'For better performance property IDs should be numeric. "'+friendlyName+'" has ID "'+id+'".')
+		assert(!CustomModelPrototype[propertyName], 'Certain property names would overwrite important model methods. "'+friendlyName+'" is such a property - pick a different property name.')
+		assert(!propertyIDs[id], 'Property IDs need to be unique. "'+modelName+'" has two properties with the id '+id+', "'+modelName+'.'+propertyIDs[id]+'" and "'+friendlyName+'"')
+		propertyIDs[id] = propertyName
 	}
 }
 
@@ -58,6 +61,12 @@ var _createModelConstructor = function(modelName, modelDescription) {
 function assert(isOK, msg) {
 	if (isOK) { return }
 	throw new Error(msg)
+}
+
+function prefer(isTrue, msg) {
+	if (isTrue) { return }
+	if (window.console) { console.log("Warning: " + msg) }
+	else { alert("Warning: " + msg) }
 }
 
 function _waitForID(model, callback) {

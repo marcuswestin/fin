@@ -37,7 +37,7 @@ function create() {
 	_waitForPropertyIDs(this, function() {
 		_createInDatabase(this, function(newID) {
 			this._id = newID
-			each(this._waitingForID, function(fn) { fn() })
+			each(this._waitingForID, function(fn) { fn(newID) })
 			delete this._waitingForID
 		})
 	})
@@ -77,7 +77,7 @@ var _waitForPropertyIDs = function(model, callback) {
 }
 
 var _waitForID = function(model, callback) {
-	if (model._id) { callback() }
+	if (model._id !== undefined) { callback(model._id) }
 	else if (model._waitingForID) { model._waitingForID.push(callback) }
 	else { model._waitingForID = [callback] }
 }

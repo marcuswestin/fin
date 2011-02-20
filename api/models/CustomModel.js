@@ -4,6 +4,8 @@ module.exports = {
 }
 
 var fin = require('../client'),
+	customModels = require('./'),
+	propertyModels = require('./propertyModels'),
 	each = require('../fin/util').each
 
 function _instantiate(idOrValues) {
@@ -17,14 +19,14 @@ function _instantiate(idOrValues) {
 			valueType = propertyDescription.type,
 			value = values[propertyName]
 		
-		if (fin._customModels[valueType]) {
+		if (customModels[valueType]) {
 			if (typeof value != 'object') {
-				var Model = fin._customModels[valueType]
+				var Model = customModels[valueType]
 				value = new Model(value)
 			}
 			this[propertyName] = value
 		} else {
-			var Model = fin._propertyModels[valueType]
+			var Model = propertyModels[valueType]
 			this[propertyName] = new Model(value, propertyDescription.of)
 		}
 		this[propertyName]._propertyID = propertyDescription.id
@@ -56,7 +58,7 @@ function _currentValues(model) {
 	var keyValuePairs = {}
 	each(model._constructor.description, function(propertyDescription, propertyName) {
 		var property = model[propertyName],
-			value = (fin._customModels[propertyDescription.type] ? property._id : property._value)
+			value = (customModels[propertyDescription.type] ? property._id : property._value)
 		keyValuePairs[propertyDescription.id] = value
 	})
 	return keyValuePairs
@@ -69,9 +71,9 @@ var _waitForPropertyIDs = function(model, callback) {
 		callback.call(model)
 	}
 	each(model._constructor.description, function(propertyDescription, propertyName) {
-		if (fin._propertyModels[propertyDescription.type]) { return }
+		if (propertyModels[propertyDescription.type]) { return }
 		waitingFor++
-		_waitForID(model[propertyName], tryNow)
+		customModels._waitForID(model[propertyName], tryNow)
 	})
 	tryNow()
 }

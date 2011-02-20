@@ -1,11 +1,11 @@
 module.exports = {
-	process: process
+	process: process,
+	_waitForID: _waitForID
 }
 
-var fin = require('../client'),
-	CustomModelPrototype = require('./CustomModel'),
-	propertyModels = fin._propertyModels = require('./propertyModels'),
-	customModels = fin._customModels = module.exports
+var CustomModelPrototype = require('./CustomModel'),
+	propertyModels = require('./propertyModels'),
+	customModels = module.exports
 
 function process(modelDescriptions) {
 	for (var modelName in modelDescriptions) {
@@ -58,6 +58,12 @@ var _createModelConstructor = function(modelName, modelDescription) {
 function assert(isOK, msg) {
 	if (isOK) { return }
 	throw new Error(msg)
+}
+
+function _waitForID(model, callback) {
+	if (model._id !== undefined) { callback(model._id) }
+	else if (model._waitingForID) { model._waitingForID.push(callback) }
+	else { model._waitingForID = [callback] }
 }
 
 /* TODO

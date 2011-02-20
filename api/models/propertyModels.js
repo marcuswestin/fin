@@ -5,6 +5,8 @@ module.exports = {
 }
 
 var fin = require('../client'),
+	propertyModels = module.exports,
+	customModels = require('./'),
 	util = require('../fin/util')
 
 /* Property model types (Text/Number, List/Set)
@@ -39,7 +41,7 @@ var _observe = function(propertyModel, callback) {
 		of = propertyModel._of
 	if (of) {
 		fin.observeList(info.id, info.chain, function(mutation) {
-			var Model = fin._propertyModels[of] || fin._customModels[of],
+			var Model = propertyModels[of] || customModels[of],
 				op = mutation.op
 			util.each(mutation.args, function(arg) {
 				callback.call(propertyModel, new Model(arg), op)

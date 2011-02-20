@@ -82,6 +82,7 @@ function prefer(isTrue, msg) {
  - add "static" descriptor for text and number properties. Static properties won't be observed; only a snapshot will be requested
  - implement List unshift, pop, shift
  - add Set, implement add, remove, has
+ - document models in README.md
 */
 
 // TODO check that each instance property is present in modelProperties when created

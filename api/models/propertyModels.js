@@ -1,10 +1,10 @@
-var fin = require('../client')
-
 module.exports = {
 	"Text": PropertyModel,
 	"Number": PropertyModel,
 	"List": PropertyModel
 }
+
+var fin = require('../client') 
 
 /* Property model types (Text/Number, List/Set)
  **********************************************/

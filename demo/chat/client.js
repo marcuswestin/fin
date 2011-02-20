@@ -17,7 +17,7 @@ models.process({
 	"User": {
 		"name": { id:1, type:"Text" },
 		"age": { id:2, type:"Number" }
-	},
+	}
 })
 
 fin.connect(function() {

@@ -1,7 +1,8 @@
 module.exports = {
-	"Text": ValuePropertyModel,
-	"Number": ValuePropertyModel,
-	"List": CollectionPropertyModel
+	"Text": Value,
+	"Number": Value,
+	"List": List,
+	"Set": Set
 }
 
 var fin = require('../client'),
@@ -11,23 +12,35 @@ var fin = require('../client'),
 
 /* Property model types (Text/Number, List/Set)
  **********************************************/
-function ValuePropertyModel(value) { this._value = value }
-function CollectionPropertyModel(value, of) {
+function Value(value) { this._value = value }
+function List(value, of) {
+	this._value = value
+	this._of = of
+	this._ofCustomModel = !!customModels[this._of]
+}
+function Set(value, of) {
 	this._value = value
 	this._of = of
 	this._ofCustomModel = !!customModels[this._of]
 }
 
-ValuePropertyModel.prototype = {
+Value.prototype = {
 	observe: _modelObserve,
-	on: _modelOn,
 	set: _modelSet
 }
 
-CollectionPropertyModel.prototype = {
+List.prototype = {
 	observe: _modelObserve,
 	on: _modelOn,
-	push: _modelPush
+	push: _listModelPush,
+	unshift: _listModelUnshift
+}
+
+Set.prototype = {
+	observe: _modelObserve,
+	on: _modelOn,
+	add: _setModelAdd,
+	remove: _setModelRemove
 }
 
 function _modelObserve(callback) {
@@ -50,24 +63,13 @@ function _modelSet(value) {
 	})
 }
 
-function _modelPush(value) {
-	// TODO support pushing raw values, e.g. a string if we're of("String"), or an ID number if we're of a CustomModel
-	var propertyID = this._propertyID,
-		parent = this._parent,
-		ofCustomModel = this._ofCustomModel
+function _listModelPush(value) { _collectionOp(this, 'push', value) }
+function _listModelUnshift(value) { _collectionOp(this, 'unshift', value) }
 
-	customModels._waitForID(parent, function(itemID) {
-		if (ofCustomModel) {
-			customModels._waitForID(value, function(valueItemID) {
-				fin.push(itemID, [propertyID], valueItemID)
-			})
-		} else {
-			fin.push(itemID, [propertyID], value._value)
-		}
-	})
-}
+function _setModelAdd(value) { _collectionOp(this, 'sadd', value) }
+function _setModelRemove(value) { _collectionOp(this, 'srem', value) }
 
-/* Util function. All callbacks get called
+/* Util functions. All callbacks get called
  * in the context of the model passed in
  *****************************************/
 var _observe = function(propertyModel, callback) {
@@ -98,5 +100,22 @@ var _getObservationInfo = function(propertyModel, callback) {
 	}
 	customModels._waitForID(propertyModel, function(id) {
 		callback({ id:id, chain:propertyNameChain })
+	})
+}
+
+var _collectionOp = function(propertyModel, op, value) {
+	// TODO support operating on raw values, e.g. a string if we're of("String"), or an ID number if we're of a CustomModel
+	var propertyID = propertyModel._propertyID,
+		parent = propertyModel._parent,
+		ofCustomModel = propertyModel._ofCustomModel
+	
+	customModels._waitForID(parent, function(itemID) {
+		if (ofCustomModel) {
+			customModels._waitForID(value, function(valueItemID) {
+				fin[op](itemID, [propertyID], valueItemID)
+			})
+		} else {
+			fin[op](itemID, [propertyID], value._value)
+		}
 	})
 }

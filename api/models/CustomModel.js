@@ -22,7 +22,7 @@ function _instantiate(idOrValues) {
 			this[propertyName] = value
 		} else {
 			var Model = fin._propertyModels[valueType] || fin._customModels[valueType]
-			this[propertyName] = new Model(value, propertyDescription)
+			this[propertyName] = new Model(value, propertyDescription.of)
 			this[propertyName]._propertyID = propertyDescription.id
 		}
 		this[propertyName]._parent = this

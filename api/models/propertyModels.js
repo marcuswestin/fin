@@ -9,10 +9,9 @@ var fin = require('../client'),
 
 /* Property model types (Text/Number, List/Set)
  **********************************************/
-function PropertyModel(value, propertyDescription) {
+function PropertyModel(value, of) {
 	this._value = value
-	if (!propertyDescription) { propertyDescription = {} }
-	this._of = propertyDescription.of
+	this._of = of
 }
 PropertyModel.prototype = {
 	observe: _modelObserve,

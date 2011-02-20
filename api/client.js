@@ -8,12 +8,13 @@ require('../lib/socket.io/support/socket.io-client/socket.io')
 
 // aliases
 var bind = util.bind,
-	forEach = util.forEach
+	forEach = util.forEach,
+	copyArray = util.copyArray
 
 var debug = true,
 	log = debug ? function() { console.log.apply(console, arguments) } : function(){}
 
-var fin = module.exports = new (function(){
+module.exports = new (function(){
 
 /**********************************
  * The core API: connect, create, *
@@ -56,17 +57,17 @@ var fin = module.exports = new (function(){
 	 *  assuming that driver.car will resolve to an item ID
 	 */
 	this.observe = function(itemID, propName, callback) {
-		if (!itemID || !propName || !callback) { log("observe requires three arguments", itemId, propName, callback); }
-		var propertyChain = propName.split('.')
-		return this._observeChain(itemID, propertyChain, 0, callback, {})
+		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires three arguments", itemId, propName, callback); }
+		return this._observeChain(itemID, propName, 0, callback, {})
 	}
 	
 	/*
 	 * Observe a chain of item properties, e.g. observe(1, 'driver.car.model')
 	 */
 	this._chainDependants = {}
-	this._observeChain = function(itemID, propertyChain, index, callback, observeArgs) {
-		var property = propertyChain[index],
+	this._observeChain = function(itemID, property, index, callback, observeArgs) {
+		var propertyChain = (typeof property == 'string' ? property.split('.') : property),
+			property = propertyChain[index],
 			subID, dependantSubID, lastSubItemID
 		
 		if (index == propertyChain.length - 1) {
@@ -157,13 +158,12 @@ var fin = module.exports = new (function(){
 	/* 
 	 * Observe an item property list, and get notified any time it changes
 	 */
-	this.observeList = function(itemName, propName, callback, length) {
-		if (!itemName || !propName || !callback) { log("observe requires at least three arguments", itemName, propName, callback, length) }
+	this.observeList = function(itemID, propName, callback, length) {
+		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires at least three arguments", itemName, propName, callback, length) }
 		
-		var propertyChain = propName.split('.'),
-			subId = this._observeChain(itemName, propertyChain, 0, callback, { snapshot: false })
+		var subId = this._observeChain(itemID, propName, 0, callback, { snapshot: false })
 		
-		this.extendList(itemName, propName, length)
+		this.extendList(itemID, propName, length)
 		return subId
 	}
 	
@@ -172,7 +172,7 @@ var fin = module.exports = new (function(){
 	 */
 	this._listLength = {}
 	this.extendList = function(id, prop, extendToIndex) {
-		if (!id || !prop) { log("extendList requires two arguments", itemID, prop) }
+		if (typeof id != 'number' || !prop) { log("extendList requires a numeric ID and a property", itemID, prop) }
 		
 		this._resolvePropertyChain(id, prop, bind(this, function(resolved) {
 			var itemID = this._getItemID(resolved.id),
@@ -192,12 +192,12 @@ var fin = module.exports = new (function(){
 		}))
 	}
 	
-	this.append = function(itemId, propName /*, val1, val2, ... */) {
+	this.push = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
 		this._listOp(itemId, propName, 'push', values)
 	}
 	
-	this.prepend = function(itemId, propName /*, val1, val2, ... */) {
+	this.unshift = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
 		this._listOp(itemId, propName, 'unshift', values)
 	}
@@ -360,31 +360,31 @@ var fin = module.exports = new (function(){
 		return mutation
 	}
 	
-	this._resolvePropertyChain = function(id, prop, callback) {
+	this._resolvePropertyChain = function(id, property, callback) {
 		// TODO Do we need a _getItemID here?
-		var propertyChain = prop.split('.')
+		var propertyChain = (typeof property == 'string' ? property : copyArray(property))
 		propertyChain.pop() // for foo.bar.cat, we're trying to resolve the item ID of foo.bar
 		if (!propertyChain.length) {
-			callback(this._resolveCachedPropertyChain(id, prop))
+			callback(this._resolveCachedPropertyChain(id, property))
 		} else {
 			var subID = this._observeChain(id, propertyChain, 0, bind(this, function() {
-				callback(this._resolveCachedPropertyChain(id, prop))
+				callback(this._resolveCachedPropertyChain(id, property))
 				// observeChain can yielf synchronously - ensure subID has been assigned
 				setTimeout(bind(this, function() { this.release(subID) }), 0)
 			}), {})
 		}
 	}
 	
-	this._resolveCachedPropertyChain = function(id, prop) {
+	this._resolveCachedPropertyChain = function(id, property) {
+		var propertyChain = (typeof property == 'string' ? property.split('.') : copyArray(property))
 		// TODO Do we need a _getItemID here?
-		var propertyChain = prop.split('.')
 		while (propertyChain.length > 1) {
 			id = this.getCachedMutation(id, propertyChain.shift()).value
 		}
 		return { id: id, property: propertyChain[0] }
 	}
 	
-	this._localID = '__fin_local'
+	this._localID = -1
 	this._globalID = 0
 	this.mutate = function(op, id, prop, args) {
 		var resolved = this._resolveCachedPropertyChain(id, prop),
@@ -508,3 +508,7 @@ var fin = module.exports = new (function(){
 	
 	this._init()
 })()
+
+// TODO
+// - bake observeList and observeSet together, and (maybe) bake them together with observe as well
+// - move the chaining of observations to the server

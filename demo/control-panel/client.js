@@ -1,4 +1,4 @@
-var fin = require('../api/client')
+var fin = require('../../api/client')
 
 fin.connect(function(){ 
 	var createButton = document.getElementById('create-button'),

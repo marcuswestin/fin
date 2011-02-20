@@ -16,11 +16,11 @@ module.exports = {
 // channel names for properties are		#P<propName>			e.g. #Pbooks
 
 // Data state keys
-function getItemPropertyKey(itemId, propName) {
-	if (!propName || typeof itemId == 'undefined') {
-		throw new Error("itemId and propName are required for keys.getItemPropertyKey")
+function getItemPropertyKey(itemID, propName) {
+	if (itemID === undefined || propName === undefined) {
+		throw new Error("itemID and propName are required for keys.getItemPropertyKey")
 	}
-	return 'I' + itemId + '@' + propName
+	return 'I' + itemID + '@' + propName
 }
 
 function getKeyInfo(key) {

@@ -2,7 +2,10 @@ module.exports = {
 	bind: bind,
 	curry: curry,
 	Class: Class,
-	blockCallback: blockCallback
+	blockCallback: blockCallback,
+	each: each,
+	map: map,
+	copyArray: copyArray
 }
 
 function curry(fn /* arg1, arg2, ... */) {
@@ -22,21 +25,21 @@ function bind(context, method/*, args... */) {
 	}
 }
 
-// function forEach(items, ctx, fn) {
-// 	if (!items) { return }
-// 	if (!fn) { fn = ctx, ctx = this }
-// 	if (exports.isArray(items)) {
-// 		for (var i=0, item; item = items[i]; i++) { fn.call(ctx, item, i) }
-// 	} else {
-// 		for (var key in items) { fn.call(ctx, key, items[key]) }
-// 	}
-// }
-// 
-// function map(items, fn) {
-// 	var results = []
-// 	exports.forEach(items, function(item) { results.push(fn(item)) })
-// 	return results
-// }
+function each(items, ctx, fn) {
+	if (!items) { return }
+	if (!fn) { fn = ctx, ctx = this }
+	if (isArray(items)) {
+		for (var i=0, item; item = items[i]; i++) { fn.call(ctx, item, i) }
+	} else {
+		for (var key in items) { fn.call(ctx, items[key], key) }
+	}
+}
+
+function map(items, fn) {
+	var results = []
+	each(items, function(item, key) { results.push(fn(item, key)) })
+	return results
+}
 
 function Class(parent, proto) {
 	if(!proto) { proto = parent }
@@ -86,10 +89,10 @@ function Class(parent, proto) {
 // 	return str[0].toUpperCase() + str.substring(1)
 // }
 // 
-// exports.isArray = function(obj) {
-// 	return Object.prototype.toString.call(obj) === '[object Array]'
-// }
-// 
+function isArray(obj) {
+	return Object.prototype.toString.call(obj) === '[object Array]'
+}
+
 function blockCallback(callback, opts) {
 	opts = opts || {}
 	opts.fireOnce = (typeof opts.fireOnce != 'undefined' ? opts.fireOnce : true)
@@ -121,6 +124,10 @@ function blockCallback(callback, opts) {
 		}
 	}
 	return result
+}
+
+function copyArray(array) {
+	return Array.prototype.slice.call(array, 0)
 }
 
 // 

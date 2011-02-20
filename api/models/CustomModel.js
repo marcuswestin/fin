@@ -23,8 +23,8 @@ function _instantiate(idOrValues) {
 		} else {
 			var Model = fin._propertyModels[valueType] || fin._customModels[valueType]
 			this[propertyName] = new Model(value, propertyDescription.of)
-			this[propertyName]._propertyID = propertyDescription.id
 		}
+		this[propertyName]._propertyID = propertyDescription.id
 		this[propertyName]._parent = this
 	}
 }

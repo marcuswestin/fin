@@ -4,7 +4,8 @@ module.exports = {
 	Class: Class,
 	blockCallback: blockCallback,
 	each: each,
-	map: map
+	map: map,
+	copyArray: copyArray
 }
 
 function curry(fn /* arg1, arg2, ... */) {
@@ -123,6 +124,10 @@ function blockCallback(callback, opts) {
 		}
 	}
 	return result
+}
+
+function copyArray(array) {
+	return Array.prototype.slice.call(array, 0)
 }
 
 // 

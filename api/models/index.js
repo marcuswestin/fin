@@ -12,6 +12,9 @@ function process(modelDescriptions) {
 		_validateModelDescription(modelName, modelDescriptions[modelName])
 		_createModelConstructor(modelName, modelDescriptions[modelName])
 	}
+	
+	if (customModels.Global) { customModels.global = new customModels.Global(0) }
+	if (customModels.Local) { customModels.local = new customModels.Local(-1) }
 }
 
 var _validateModelDescription = function(modelName, properties) {
@@ -48,11 +51,6 @@ var _createModelConstructor = function(modelName, modelDescription) {
 	}
 	modelConstructor.prototype = CustomModelPrototype
 	modelConstructor.description = modelDescription
-	
-	switch (modelName) {
-		case 'Global': customModels.global = new customModels.Global(0); break
-		case 'Local': customModels.local = new customModels.Local(-1); break
-	}
 }
 
 /* Util

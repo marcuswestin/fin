@@ -76,13 +76,10 @@ function _waitForID(model, callback) {
 }
 
 /* TODO
- - add on, observe and promise to RootModel
- - have Text and Number extend RootModel with set
- - have Set and List extend RootModel and publish on('add') and on('remove')
- - to implement on/observe/promise, climb the parent models to create the observation chain
- - call fin.create in initializer
  - add fin.transact
  - add "static" descriptor for text and number properties. Static properties won't be observed; only a snapshot will be requested
+ - implement List unshift, pop, shift
+ - add Set, implement add, remove, has
 */
 
 // TODO check that each instance property is present in modelProperties when created

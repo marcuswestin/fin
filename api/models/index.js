@@ -58,6 +58,14 @@ var _createModelConstructor = function(modelName, modelDescription) {
 
 /* Util
  ******/
+function _waitForID(model, callback) {
+	if (model._id !== undefined) { callback(model._id) }
+	else if (model._waitingForID) { model._waitingForID.push(callback) }
+	else { model._waitingForID = [callback] }
+}
+
+/* Schema assert utils
+ *********************/
 function assert(isOK, msg) {
 	if (isOK) { return }
 	throw new Error(msg)
@@ -67,12 +75,6 @@ function prefer(isTrue, msg) {
 	if (isTrue) { return }
 	if (window.console) { console.log("Warning: " + msg) }
 	else { alert("Warning: " + msg) }
-}
-
-function _waitForID(model, callback) {
-	if (model._id !== undefined) { callback(model._id) }
-	else if (model._waitingForID) { model._waitingForID.push(callback) }
-	else { model._waitingForID = [callback] }
 }
 
 /* TODO

@@ -33,7 +33,7 @@ var _validateModelDescription = function(modelName, properties) {
 		if (collectionOf) { assert(isCollection, 'Only collections (Sets and Lists) should have an "of" descriptor. '+modelName+'\'s "'+propertyName+'" has one but should not since it is of type "'+valueType+'".') }
 		assert(isCollection == !!collectionOf, 'Only collections (Sets and Lists) ')
 		assert(97 <= firstLetterCode && firstLetterCode <= 122, 'Property names should start with a lowercase letter. "'+propertyName+'" does not.')
-		assert(typeof property.id == 'number', 'Properties need an id. "'+propertyName+'" does not')
+		assert(property.id !== undefined, 'Properties need an id. "'+propertyName+'" does not')
 		assert(!CustomModelPrototype[propertyName], 'Certain property names would overwrite important model methods. "'+propertyName+'" on "'+modelName+'" is such a property - pick a different property name.')
 		assert(!propertyIDs[property.id], 'Property IDs need to be unique. "'+modelName+'" has two properties with the id '+property.id+'')
 		propertyIDs[property.id] = true

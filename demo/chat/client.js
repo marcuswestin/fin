@@ -41,7 +41,7 @@ models.global.messages.on('push', function(message) {
 		sender = div.appendChild(document.createElement('div')),
 		messageInput = div.appendChild(document.createElement('input'))
 	
-	// TODO this isn't working message.from.name.observe(function(value) { sender.innerHTML = value + ':' })
+	message.from.name.observe(function(value) { sender.innerHTML = value + ':' })
 	
 	reflectProperty(messageInput, message.text)
 })

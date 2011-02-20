@@ -21,19 +21,22 @@ models.process({
 })
 
 fin.connect(function() {
-	$('connecting').style.display = 'none'
-	$('loginForm').style.display = 'block'
+	hide($('connecting'))
+	show($('user'))
 })
 
 $('login').onclick = function() {
 	user = new models.User({ name: $('username').value, age: 25 }).create()
-	$('loginForm').style.display = 'none'
-	$('chat').style.display = 'block'
+	hide($('login'))
+	show($('online'))
+	reflectProperty($('username'), user.name)
+	user.name.observe(function(name) { $('status').innerHTML = 'Online as "'+name+'"' })
 }
 
 $('send').onclick = function() {
 	var message = new models.Message({ from:user, text:$('message').value }).create()
 	models.global.messages.push(message)
+	$('message').value = ''
 }
 
 models.global.messages.on('push', function(message) {
@@ -55,3 +58,6 @@ function reflectProperty(input, property) {
 		property.set(input.value)
 	}, 0)}
 }
+
+function show(el) { el.style.display = 'block' }
+function hide(el) { el.style.display = 'none' }

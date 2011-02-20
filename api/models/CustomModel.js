@@ -17,11 +17,14 @@ function _instantiate(idOrValues) {
 			valueType = propertyDescription.type,
 			value = values[propertyName]
 		
-		// If the property type is a custom model, support passing in the ID of the item as a number
-		if (fin._customModels[valueType] && typeof value != 'number') {
+		if (fin._customModels[valueType]) {
+			if (typeof value != 'object') {
+				var Model = fin._customModels[valueType]
+				value = new Model(value)
+			}
 			this[propertyName] = value
 		} else {
-			var Model = fin._propertyModels[valueType] || fin._customModels[valueType]
+			var Model = fin._propertyModels[valueType]
 			this[propertyName] = new Model(value, propertyDescription.of)
 		}
 		this[propertyName]._propertyID = propertyDescription.id

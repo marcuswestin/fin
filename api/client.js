@@ -157,13 +157,13 @@ module.exports = new (function(){
 	/* 
 	 * Observe an item property list, and get notified any time it changes
 	 */
-	this.observeList = function(itemName, propName, callback, length) {
-		if (!itemName || !propName || !callback) { log("observe requires at least three arguments", itemName, propName, callback, length) }
+	this.observeList = function(itemID, propName, callback, length) {
+		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires at least three arguments", itemName, propName, callback, length) }
 		
 		var propertyChain = propName.split('.'),
-			subId = this._observeChain(itemName, propertyChain, 0, callback, { snapshot: false })
+			subId = this._observeChain(itemID, propertyChain, 0, callback, { snapshot: false })
 		
-		this.extendList(itemName, propName, length)
+		this.extendList(itemID, propName, length)
 		return subId
 	}
 	

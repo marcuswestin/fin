@@ -82,6 +82,7 @@ function _waitForID(model, callback) {
  - to implement on/observe/promise, climb the parent models to create the observation chain
  - call fin.create in initializer
  - add fin.transact
+ - add "static" descriptor for text and number properties. Static properties won't be observed; only a snapshot will be requested
 */
 
 // TODO check that each instance property is present in modelProperties when created

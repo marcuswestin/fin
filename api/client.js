@@ -362,7 +362,7 @@ module.exports = new (function(){
 	
 	this._resolvePropertyChain = function(id, property, callback) {
 		// TODO Do we need a _getItemID here?
-		var propertyChain = (typeof property == 'string' ? property : copyArray(property))
+		var propertyChain = (typeof property == 'string' ? property.split('.') : copyArray(property))
 		propertyChain.pop() // for foo.bar.cat, we're trying to resolve the item ID of foo.bar
 		if (!propertyChain.length) {
 			callback(this._resolveCachedPropertyChain(id, property))

@@ -71,29 +71,32 @@ function _modelPush(value) {
  * in the context of the model passed in
  *****************************************/
 var _observe = function(propertyModel, callback) {
-	var info = _getObservationInfo(propertyModel),
-		of = propertyModel._of
-	if (of) {
-		fin.observeList(info.id, info.chain, function(mutation) {
-			var Model = propertyModels[of] || customModels[of],
-				op = mutation.op
-			util.each(mutation.args, function(arg) {
-				callback.call(propertyModel, new Model(arg), op)
+	_getObservationInfo(propertyModel, function(info) {
+		var of = propertyModel._of
+		if (of) {
+			fin.observeList(info.id, info.chain, function(mutation) {
+				var Model = propertyModels[of] || customModels[of],
+					op = mutation.op
+				util.each(mutation.args, function(arg) {
+					callback.call(propertyModel, new Model(arg), op)
+				})
 			})
-		})
-	} else {
-		fin.observe(info.id, info.chain, function(mutation) {
-			var value = mutation.args[0]
-			callback.call(propertyModel, value, mutation.op)
-		})
-	}
+		} else {
+			fin.observe(info.id, info.chain, function(mutation) {
+				var value = mutation.args[0]
+				callback.call(propertyModel, value, mutation.op)
+			})
+		}
+	})
 }
 
-var _getObservationInfo = function(propertyModel) {
+var _getObservationInfo = function(propertyModel, callback) {
 	var propertyNameChain = []
 	while(propertyModel._parent) {
 		propertyNameChain.unshift(propertyModel._propertyID)
 		propertyModel = propertyModel._parent
 	}
-	return { id:propertyModel._id, chain:propertyNameChain }
+	customModels._waitForID(propertyModel, function(id) {
+		callback({ id:id, chain:propertyNameChain })
+	})
 }

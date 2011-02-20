@@ -1,11 +1,11 @@
 module.exports = {
-	process: process,
-	_propertyModels: require('./propertyModels')
+	process: process
 }
 
-var CustomModelPrototype = require('./CustomModel'),
-	customModels = module.exports,
-	propertyModels = module.exports._propertyModels
+var fin = require('../client'),
+	CustomModelPrototype = require('./CustomModel'),
+	propertyModels = fin._propertyModels = require('./propertyModels'),
+	customModels = fin._customModels = module.exports
 
 function process(modelDescriptions) {
 	for (var modelName in modelDescriptions) {

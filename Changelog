@@ -1,3 +1,6 @@
+v0.2.1
++ Small bug fix - resolvePropertyChain was not handling string property chains properly
+
 v0.2.0
 + first version of fin models! Yay ORM
 + Use latest version 0.1.5 of browser-require

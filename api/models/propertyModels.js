@@ -41,7 +41,6 @@ var _observe = function(propertyModel, callback) {
 
 var _getObservationInfo = function(propertyModel) {
 	var propertyNameChain = []
-	
 	while(propertyModel._parent) {
 		propertyNameChain.push(propertyModel._propertyID)
 		propertyModel = propertyModel._parent

@@ -22,7 +22,13 @@ var _validateModelDescription = function(modelName, properties) {
 	assert(!propertyModels[modelName], 'Property model "'+modelName+'" already exists')
 	for (propertyName in properties) {
 		var property = properties[propertyName],
-			firstLetterCode = propertyName.charCodeAt(0)
+			firstLetterCode = propertyName.charCodeAt(0),
+			valueType = property.type,
+			collectionOf = property.of,
+			isCollection = (valueType == 'List' || valueType == 'Set')
+		if (isCollection) { assert(collectionOf, 'Collections (Sets and Lists) require the "of" descriptor, e.g. { id:1, type:"List" of:"Number" }. '+modelName+'\'s "'+propertyName+'" is a "'+valueType+'" but it does not have one.') }
+		if (collectionOf) { assert(isCollection, 'Only collections (Sets and Lists) should have an "of" descriptor. '+modelName+'\'s "'+propertyName+'" has one but should not since it is of type "'+valueType+'".') }
+		assert(isCollection == !!collectionOf, 'Only collections (Sets and Lists) ')
 		assert(97 <= firstLetterCode && firstLetterCode <= 122, 'Property names should start with a lowercase letter. "'+propertyName+'" does not.')
 		assert(typeof property.id == 'number', 'Properties need an id. "'+propertyName+'" does not')
 		assert(!CustomModelPrototype[propertyName], 'Certain property names would overwrite important model methods. "'+propertyName+'" on "'+modelName+'" is such a property - pick a different property name.')

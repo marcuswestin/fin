@@ -4,28 +4,31 @@ module.exports = {
 	"List": PropertyModel
 }
 
-var fin = require('../client') 
+var fin = require('../client'),
+	util = require('../fin/util')
 
 /* Property model types (Text/Number, List/Set)
  **********************************************/
-function PropertyModel(value) { this._value = value }
+function PropertyModel(value, propertyDescription) {
+	this._value = value
+	if (!propertyDescription) { propertyDescription = {} }
+	this._of = propertyDescription.of
+}
 PropertyModel.prototype = {
 	observe: _modelObserve,
 	on: _modelOn
 }
 
 function _modelObserve(callback) {
-	_observe(this, function(mutation) {
-		callback(mutation.args, mutation.op)
+	_observe(this, function(value, op) {
+		callback(value, op)
 	})
 }
 
 function _modelOn(mutationType, callback) {
-	_observe(this, function(mutation) {
-		if (mutation.op != mutationType) { return }
-		// TODO if this is a List/Set model, and the type "of" is a CustomModel,
-		// then instantiate that model and pass it as the argument to callback
-		callback(mutation.args)
+	_observe(this, function(value, op) {
+		if (op != mutationType) { return }
+		callback(value, op)
 	})
 }
 
@@ -33,10 +36,22 @@ function _modelOn(mutationType, callback) {
  * in the context of the model passed in
  *****************************************/
 var _observe = function(propertyModel, callback) {
-	var info = _getObservationInfo(propertyModel)
-	fin.observe(info.id, info.chain, function(mutation) {
-		callback.call(propertyModel, mutation)
-	})
+	var info = _getObservationInfo(propertyModel),
+		of = propertyModel._of
+	if (of) {
+		fin.observeList(info.id, info.chain, function(mutation) {
+			var Model = fin._propertyModels[of] || fin._customModels[of],
+				op = mutation.op
+			util.each(mutation.args, function(arg) {
+				callback.call(propertyModel, new Model(arg), op)
+			})
+		})
+	} else {
+		fin.observe(info.id, info.chain, function(mutation) {
+			var value = mutation.args[0]
+			callback.call(propertyModel, value, mutation.op)
+		})
+	}
 }
 
 var _getObservationInfo = function(propertyModel) {

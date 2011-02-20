@@ -1,7 +1,7 @@
 module.exports = {
-	"Text": PropertyModel,
-	"Number": PropertyModel,
-	"List": PropertyModel
+	"Text": ValuePropertyModel,
+	"Number": ValuePropertyModel,
+	"List": CollectionPropertyModel
 }
 
 var fin = require('../client'),
@@ -11,13 +11,23 @@ var fin = require('../client'),
 
 /* Property model types (Text/Number, List/Set)
  **********************************************/
-function PropertyModel(value, of) {
+function ValuePropertyModel(value) { this._value = value }
+function CollectionPropertyModel(value, of) {
 	this._value = value
 	this._of = of
+	this._ofCustomModel = !!customModels[this._of]
 }
-PropertyModel.prototype = {
+
+ValuePropertyModel.prototype = {
 	observe: _modelObserve,
-	on: _modelOn
+	on: _modelOn,
+	set: _modelSet
+}
+
+CollectionPropertyModel.prototype = {
+	observe: _modelObserve,
+	on: _modelOn,
+	push: _modelPush
 }
 
 function _modelObserve(callback) {
@@ -30,6 +40,30 @@ function _modelOn(mutationType, callback) {
 	_observe(this, function(value, op) {
 		if (op != mutationType) { return }
 		callback(value, op)
+	})
+}
+
+function _modelSet(value) {
+	var propertyID = this._propertyID
+	customModels._waitForID(this._parent, function(itemID) {
+		fin.set(itemID, [propertyID], value)
+	})
+}
+
+function _modelPush(value) {
+	// TODO support pushing raw values, e.g. a string if we're of("String"), or an ID number if we're of a CustomModel
+	var propertyID = this._propertyID,
+		parent = this._parent,
+		ofCustomModel = this._ofCustomModel
+
+	customModels._waitForID(parent, function(itemID) {
+		if (ofCustomModel) {
+			customModels._waitForID(value, function(valueItemID) {
+				fin.push(itemID, [propertyID], valueItemID)
+			})
+		} else {
+			fin.push(itemID, [propertyID], value._value)
+		}
 	})
 }
 

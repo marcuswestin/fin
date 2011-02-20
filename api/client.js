@@ -192,12 +192,12 @@ module.exports = new (function(){
 		}))
 	}
 	
-	this.append = function(itemId, propName /*, val1, val2, ... */) {
+	this.push = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
 		this._listOp(itemId, propName, 'push', values)
 	}
 	
-	this.prepend = function(itemId, propName /*, val1, val2, ... */) {
+	this.unshift = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
 		this._listOp(itemId, propName, 'unshift', values)
 	}

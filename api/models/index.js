@@ -25,8 +25,8 @@ var _validateModelDescription = function(modelName, properties) {
 		var property = properties[propertyName]
 		assert(97 <= firstLetterCode && firstLetterCode <= 122, 'Property names should start with a lowercase letter. "'+propertyName+'" does not.')
 		assert(typeof property.id == 'number', 'Properties need an id. "'+propertyName+'" does not')
-		assert(!propertyIDs[property.id], 'Property IDs need to be unique. "'+modelName+'" has two properties with the id '+property.id+'')
 		assert(!CustomModelPrototype[propertyName], 'Certain property names would overwrite important model methods. "'+propertyName+'" on "'+modelName+'" is such a property - pick a different property name.')
+		assert(!propertyIDs[property.id], 'Property IDs need to be unique. "'+modelName+'" has two properties with the id '+property.id+'')
 		propertyIDs[property.id] = true
 	}
 }

@@ -508,3 +508,7 @@ module.exports = new (function(){
 	
 	this._init()
 })()
+
+// TODO
+// - bake observeList and observeSet together, and (maybe) bake them together with observe as well
+// - move the chaining of observations to the server

@@ -30,3 +30,10 @@ TODO
 	- check that instanceProperties fullfill "type" & "required" in modelProperties
 	- check that each instance property is present in modelProperties when created
 	- don't require create to be called explicitly for new models - add another params to suppress creation
+- engines
+	- couchdb storage engine
+	- mysql storage engine?
+	- 0mq pubsub engine
+- upgrade to latest socket.io
+- upgrade to latest node
+- think about how we can add search...

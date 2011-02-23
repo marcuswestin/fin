@@ -16,3 +16,17 @@ v0.1.0
 + There are two APIs: api/client.js and api/server.js
 + Engines are completely decoupled and split between pubsub and storage
 + Redis and development (node in-memory) engines exist for pubsub and storage
+
+TODO
+- client API
+	- bake observeList and observeSet together, and (maybe) bake them together with observe as well
+	- move the chaining of observations to the server
+	- add fin.transact
+- models
+	- add "static" descriptor for text and number properties. Static properties won't be observed; only a snapshot will be requested
+	- implement List unshift, pop, shift
+	- add Set, implement add, remove, has
+	- document models in README.md
+	- check that instanceProperties fullfill "type" & "required" in modelProperties
+	- check that each instance property is present in modelProperties when created
+	- don't require create to be called explicitly for new models - add another params to suppress creation

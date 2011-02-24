@@ -1,3 +1,6 @@
+intended v0.3.0
++ fin transactions - item mutations and creations can be done atomically
+
 v0.2.0
 + first version of fin models! Yay ORM
 + Use latest version 0.1.5 of browser-require
@@ -21,7 +24,9 @@ TODO
 - client API
 	- bake observeList and observeSet together, and (maybe) bake them together with observe as well
 	- move the chaining of observations to the server
-	- add fin.transact
+	- make fin.transact work for create - will require full server-side execution as well as temporary "uncreated" model object IDs
+		- CustomModel#create - grab a transactionHold and resume/complete around _createInDatabase()
+		- api/client.js - make the 'create' requestResponse transactionSensitive
 - models
 	- add "static" descriptor for text and number properties. Static properties won't be observed; only a snapshot will be requested
 	- implement List unshift, pop, shift

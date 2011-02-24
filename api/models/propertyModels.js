@@ -57,9 +57,13 @@ function _modelOn(mutationType, callback) {
 }
 
 function _modelSet(value) {
-	var propertyID = this._propertyID
+	var propertyID = this._propertyID,
+		transactionHold = fin._holdTransaction()
+	
 	customModels._waitForID(this._parent, function(itemID) {
+		transactionHold.resume()
 		fin.set(itemID, [propertyID], value)
+		transactionHold.complete()
 	})
 }
 
@@ -105,17 +109,19 @@ var _getObservationInfo = function(propertyModel, callback) {
 
 var _collectionOp = function(propertyModel, op, value) {
 	// TODO support operating on raw values, e.g. a string if we're of("String"), or an ID number if we're of a CustomModel
-	var propertyID = propertyModel._propertyID,
-		parent = propertyModel._parent,
-		ofCustomModel = propertyModel._ofCustomModel
+	var transactionHold = fin._holdTransaction()
 	
-	customModels._waitForID(parent, function(itemID) {
-		if (ofCustomModel) {
-			customModels._waitForID(value, function(valueItemID) {
-				fin[op](itemID, [propertyID], valueItemID)
-			})
+	function completeTransaction(itemID, value) {
+		transactionHold.resume()
+		fin[op](itemID, [propertyModel._propertyID], value)
+		transactionHold.complete()
+	}
+	
+	customModels._waitForID(propertyModel._parent, function(parentID) {
+		if (propertyModel._ofCustomModel) {
+			customModels._waitForID(value, function(valueID) { completeTransaction(parentID, valueID) })
 		} else {
-			fin[op](itemID, [propertyID], value._value)
+			completeTransaction(itemID, value._value)
 		}
 	})
 }

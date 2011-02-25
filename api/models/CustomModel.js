@@ -6,7 +6,7 @@ module.exports = {
 var fin = require('../client'),
 	customModels = require('./'),
 	propertyModels = require('./propertyModels'),
-	each = require('../fin/util').each
+	util = require('../fin/util')
 
 function _instantiate(idOrValues) {
 	var values
@@ -15,23 +15,28 @@ function _instantiate(idOrValues) {
 	values = values || {}
 	
 	for (var propertyName in this._constructor.description) {
-		var propertyDescription = this._constructor.description[propertyName],
-			valueType = propertyDescription.type,
-			value = values[propertyName]
-		
-		if (customModels[valueType]) {
-			if (typeof value != 'object') {
-				var Model = customModels[valueType]
-				value = new Model(value)
-			}
-			this[propertyName] = value
-		} else {
-			var Model = propertyModels[valueType]
-			this[propertyName] = new Model(value, propertyDescription.of)
-		}
-		this[propertyName]._propertyID = propertyDescription.id
-		this[propertyName]._parent = this
+		var value = values[propertyName],
+			description = this._constructor.description[propertyName],
+			delayedProperty = util.bind(this, _instantiateProperty, propertyName, value, description)
+		util.defineGetter(this, propertyName, delayedProperty)
 	}
+}
+
+var _instantiateProperty = function(propertyName, value, propertyDescription) {
+	var type = propertyDescription.type
+	if (customModels[type]) {
+		if (typeof value != 'object') {
+			var Model = customModels[type]
+			value = new Model(value)
+		}
+		this[name] = value
+	} else {
+		var Model = propertyModels[type]
+		this[name] = new Model(value, propertyDescription.of)
+	}
+	this[name]._propertyID = propertyDescription.id
+	this[name]._parent = this
+	return this[name]
 }
 
 function create() {
@@ -39,7 +44,7 @@ function create() {
 	_waitForPropertyIDs(this, function() {
 		_createInDatabase(this, function(newID) {
 			this._id = newID
-			each(this._waitingForID, function(fn) { fn(newID) })
+			util.each(this._waitingForID, function(fn) { fn(newID) })
 			delete this._waitingForID
 		})
 	})
@@ -56,7 +61,7 @@ var _createInDatabase = function(model, callback) {
 
 function _currentValues(model) {
 	var keyValuePairs = {}
-	each(model._constructor.description, function(propertyDescription, propertyName) {
+	util.each(model._constructor.description, function(propertyDescription, propertyName) {
 		var property = model[propertyName],
 			value = (customModels[propertyDescription.type] ? property._id : property._value)
 		keyValuePairs[propertyDescription.id] = value
@@ -70,7 +75,7 @@ var _waitForPropertyIDs = function(model, callback) {
 		if (--waitingFor) { return }
 		callback.call(model)
 	}
-	each(model._constructor.description, function(propertyDescription, propertyName) {
+	util.each(model._constructor.description, function(propertyDescription, propertyName) {
 		if (propertyModels[propertyDescription.type]) { return }
 		waitingFor++
 		customModels._waitForID(model[propertyName], tryNow)

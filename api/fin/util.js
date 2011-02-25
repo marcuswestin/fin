@@ -5,7 +5,8 @@ module.exports = {
 	blockCallback: blockCallback,
 	each: each,
 	map: map,
-	copyArray: copyArray
+	copyArray: copyArray,
+	defineGetter: defineGetter
 }
 
 function curry(fn /* arg1, arg2, ... */) {
@@ -129,6 +130,29 @@ function blockCallback(callback, opts) {
 function copyArray(array) {
 	return Array.prototype.slice.call(array, 0)
 }
+
+function defineGetter(object, propertyName, getter) {
+	var fn = object.defineGetter ? _w3cDefineGetter
+		: object.__defineGetter__ ? _interimDefineGetter
+		: Object.defineProperty ? _ie8DefineGetter
+		: function() { throw 'defineGetter not supported' }
+	
+	module.exports.defineGetter = fn
+	fn.apply(this, arguments)
+}
+
+var _w3cDefineGetter = function(object, propertyName, getter) {
+	object.defineGetter(propertyName, getter)
+}
+
+var _interimDefineGetter = function(object, propertyName, getter) {
+	object.__defineGetter__(propertyName, getter)
+}
+
+var _ie8DefineGetter = function(object, propertyName, getter) {
+	Object.defineProperty(object, propertyName, { value:getter, enumerable:true, configurable:true })
+}
+
 
 // 
 // exports.getDependable = function() {

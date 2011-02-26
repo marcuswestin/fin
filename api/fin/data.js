@@ -107,7 +107,7 @@ function mutateItem(mutation, origClient, callback) {
  ****************/
 var _retrieveBytes = function(key, callback) {
 	store.getBytes(key, function(err, value) {
-		if (err) { log 'could not retrieve BYTES for key: '+[key, err].join(' ') }
+		if (err) { throw 'could not retrieve BYTES for key: '+[key, err].join(' ') }
 		callback(value)
 	})
 }

@@ -1,6 +1,7 @@
-intended v0.2.1
-+ bug fix: models with circular properties would cause infinite loops at instantiation time (fixed using getters).
+v0.2.1
++ Bug fix: models with circular properties would cause infinite loops at instantiation time (fixed using getters).
 + fin models will no longer work in IE6/7 since they do not support getters :(
++ Implement model property Set functionality, and re-implement set observation/mutation server-side (sets have not been working for a while...)
 
 v0.2.0
 + first version of fin models! Yay ORM

@@ -29,14 +29,15 @@ var _instantiateProperty = function(propertyName, value, propertyDescription) {
 			var Model = customModels[type]
 			value = new Model(value)
 		}
-		this[name] = value
 	} else {
 		var Model = propertyModels[type]
-		this[name] = new Model(value, propertyDescription.of)
+		value = new Model(value, propertyDescription.of)
 	}
-	this[name]._propertyID = propertyDescription.id
-	this[name]._parent = this
-	return this[name]
+	delete this[propertyName]
+	this[propertyName] = value
+	this[propertyName]._propertyID = propertyDescription.id
+	this[propertyName]._parent = this
+	return this[propertyName]
 }
 
 function create() {

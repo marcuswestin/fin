@@ -75,13 +75,6 @@ function createItem(itemProperties, origClient, callback) {
 	})
 }
 
-// this.deleteItem = function(itemID, callback) {
-// 	this._store.delete(itemID, function(err) {
-// 		if (err) { throw log('Could not delete item ' + itemID, err) }
-// 		callback()
-// 	})
-// }
-
 function mutateItem(mutation, origClient, callback) {
 	_mutateItem(mutation, callback)
 	_publishMutation(mutation, origClient)

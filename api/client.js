@@ -11,7 +11,7 @@ var bind = util.bind,
 	forEach = util.forEach,
 	copyArray = util.copyArray
 
-module.exports = new (function(){
+var fin = module.exports = new (function(){
 
 /**********************************
  * The core API: connect, create, *
@@ -206,21 +206,66 @@ module.exports = new (function(){
 /********************
  * Miscelaneous API *
  ********************/
-	this.request = function(request, args) {
+	this.request = function(request, args, transactionSensitive) {
 		args = args || {}
 		args.request = request
-		this._socket.send(args)
+		this._send(args, transactionSensitive)
 	}
 	
 	/* 
 	 * Make a request with an associated requestId, 
 	 * and call the callback upon response
 	 */
-	this.requestResponse = function(request, args, callback) {
+	this.requestResponse = function(request, args, callback, transactionSensitive) {
 		var requestId = this._scheduleCallback(callback)
 		args.request = request
 		args._requestId = requestId
+		this._send(args, transactionSensitive)
+	}
+	
+	this._send = function(args, transactionSensitive) {
+		var currentTransactionID = this._transactionStack[this._transactionStack.length - 1]
+		if (currentTransactionID && transactionSensitive) {
+			this._transactions[currentTransactionID].actions.push(args)
+			return
+		}
 		this._socket.send(args)
+	}
+	
+	/*
+	 * Make a transaction of multiple mutations; either
+	 * all or none of the mutations will happen
+	 */
+	this.transact = function(transactionFn) {
+		var id = 't' + this._uniqueRequestId++
+		this._transactions[id] = { waitingFor:1, actions:[] }
+		this._transactionStack.push(id)
+		transactionFn(id)
+		this._endTransaction(id)
+	}
+	
+	this._endTransaction = function(transactionID) {
+		var id = this._transactionStack.pop()
+		if (id != transactionID) { throw 'transaction ID mismatch in _endTransaction! '+id+' '+transactionID }
+		if (--this._transactions[id].waitingFor) { return }
+		this.request('transact', { actions: this._transactions[id].actions })
+		delete this._transactions[id]
+	}
+	
+	var emptyTransactionHold = { resume:function(){}, complete:function(){} }
+	this._holdTransaction = function() {
+		var transactionID = this._transactionStack[this._transactionStack.length - 1]
+		if (!transactionID) { return emptyTransactionHold }
+		
+		this._transactions[transactionID].waitingFor++
+		
+		var resume = function() { fin._transactionStack.push(transactionID) }
+		var complete = function() { fin._endTransaction(transactionID) }
+		
+		return {
+			resume: resume,
+			complete: complete
+		}
 	}
 	
 	/* 
@@ -272,6 +317,8 @@ module.exports = new (function(){
 		this._connectCallbacks = []
 		this._requestCallbacks = {}
 		this._eventHandlers = {}
+		this._transactions = {}
+		this._transactionStack = []
 		this._socket = new io.Socket(location.hostname, {
 			port: 8080,
 			connectTimeout: 500,
@@ -391,7 +438,7 @@ module.exports = new (function(){
 			property: resolved.property
 		}
 		
-		if (itemID != this._localID) { this.request('mutate', { mutation:mutation }) }
+		if (itemID != this._localID) { this.request('mutate', { mutation:mutation }, true) }
 		
 		this._handleMutation(mutation)
 	}

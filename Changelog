@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 intended v0.2.3
 + Fix: Development engine storage Sets coerced number member values into strings
 
@@ -8,6 +9,10 @@ v0.2.2
 
 v0.2.1
 + Small bug fix - resolvePropertyChain was not handling string property chains properly
+=======
+intended v0.3.0
++ fin transactions - item mutations and creations can be done atomically
+>>>>>>> transactions
 
 v0.2.0
 + first version of fin models! Yay ORM
@@ -29,6 +34,7 @@ v0.1.0
 + Redis and development (node in-memory) engines exist for pubsub and storage
 
 TODO
+<<<<<<< HEAD
 - move the chaining of observations to the server
 - don't require create to be called explicitly for new models - add another params to suppress creation
 - upgrade to latest socket.io
@@ -41,8 +47,31 @@ TODO
 - on connect, send a sha1 sum of the schema to the server, to ensure they use the same one
 - check that instanceProperties fullfill "type" & "required" in modelProperties
 - check that each instance property is present in modelProperties when created
+=======
+- client API
+	- bake observeList and observeSet together, and (maybe) bake them together with observe as well
+	- move the chaining of observations to the server
+	- make fin.transact work for create - will require full server-side execution as well as temporary "uncreated" model object IDs
+		- CustomModel#create - grab a transactionHold and resume/complete around _createInDatabase()
+		- api/client.js - make the 'create' requestResponse transactionSensitive
+- models
+	- add "static" descriptor for text and number properties. Static properties won't be observed; only a snapshot will be requested
+	- implement List unshift, pop, shift
+	- add Set, implement add, remove, has
+	- document models in README.md
+	- check that instanceProperties fullfill "type" & "required" in modelProperties
+	- check that each instance property is present in modelProperties when created
+	- don't require create to be called explicitly for new models - add another params to suppress creation
+>>>>>>> transactions
 - engines
 	- couchdb storage engine
 	- mysql storage engine?
 	- 0mq pubsub engine
+<<<<<<< HEAD
+=======
+	- redis engine needs transaction support. Switch from redis-node-client to redis-node?
+- upgrade to latest socket.io
+- upgrade to latest node
+>>>>>>> transactions
 - think about how we can add search...
+- The order of actions in a transaction is undefined (the first action can come in last, if it is waiting for an ID). This is bad

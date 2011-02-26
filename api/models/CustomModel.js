@@ -60,7 +60,7 @@ var _createInDatabase = function(model, callback) {
 	})
 }
 
-function _currentValues(model) {
+var _currentValues = function(model) {
 	var keyValuePairs = {}
 	util.each(model._constructor.description, function(propertyDescription, propertyName) {
 		var property = model[propertyName],

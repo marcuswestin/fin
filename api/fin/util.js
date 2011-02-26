@@ -5,6 +5,7 @@ module.exports = {
 	blockCallback: blockCallback,
 	each: each,
 	map: map,
+	pick: pick,
 	copyArray: copyArray,
 	defineGetter: defineGetter
 }
@@ -40,6 +41,15 @@ function map(items, fn) {
 	var results = []
 	each(items, function(item, key) { results.push(fn(item, key)) })
 	return results
+}
+
+function pick(arr, fn) {
+	var result = []
+	for (var i=0, value; i < arr.length; i++) {
+		value = fn(arr[i])
+		if (value) { result.push(value) }
+	}
+	return result
 }
 
 function Class(parent, proto) {

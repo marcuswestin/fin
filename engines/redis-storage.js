@@ -20,6 +20,7 @@ var storeAPI = {
 	getMembers: getMembers,
 	set: handleSet,
 	handleMutation: handleMutation,
+	transact: handleTransaction,
 	increment: handleIncrement,
 	close: close
 }
@@ -74,9 +75,15 @@ var finToRedisOperationMap = {
 	'subtract': 'decrby'
 }
 
-function handleMutation(operation, args) {
-	var redisOp = finToRedisOperationMap[operation]
-	this.redisClient[redisOp].apply(this.redisClient, args)
+function handleMutation(operation, key, args, callback) {
+	var redisOp = finToRedisOperationMap[operation],
+		operationArgs = [key].concat(args)
+	if (callback) { operationArgs.push(callback) }
+	this.redisClient[redisOp].apply(this.redisClient, operationArgs)
+}
+
+function handleTransaction(transactionFn) {
+	this.redisClient.transact(transactionFn)
 }
 
 function handleIncrement(key, callback) {

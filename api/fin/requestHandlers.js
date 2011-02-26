@@ -7,6 +7,7 @@ module.exports = {
 	unsubscribeHandler: handleUnsubscribeRequest,
 	createHandler: handleCreateRequest,
 	mutateHandler: handleMutateRequest,
+	transactionHandler: handleTransactionRequest,
 	extendListHandler: handleExtendListRequest
 }
 
@@ -38,8 +39,12 @@ function handleCreateRequest(client, request) {
 }
 
 function handleMutateRequest(client, request) {
-	request.mutation.time = new Date().getTime()
 	data.mutateItem(request.mutation, client)
+}
+
+function handleTransactionRequest(client, request) {
+	var mutations = util.pick(request.actions, function(act) { return act.request == 'mutate' && act.mutation })
+	data.transact(mutations, client)
 }
 
 function handleExtendListRequest(client, request) {

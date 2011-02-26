@@ -41,7 +41,6 @@ function handleCreateRequest(client, request) {
 }
 
 function handleMutateRequest(client, request) {
-	request.mutation.time = new Date().getTime()
 	data.mutateItem(request.mutation, client)
 }
 

@@ -8,7 +8,8 @@ module.exports = {
 	retrieveStateMutation: retrieveStateMutation,
 	retrieveSet: retrieveSet,
 	createItem: createItem,
-	mutateItem: mutateItem
+	mutateItem: mutateItem,
+	transact: transact
 }
 
 /* State
@@ -82,34 +83,25 @@ function createItem(itemProperties, origClient, callback) {
 // 	})
 // }
 
-log("storage TODO: Fix the 9 digit limit on connId")
 function mutateItem(mutation, origClient, callback) {
-	var key = keys.getItemPropertyKey(mutation.id, mutation.property),
-		operation = mutation.op,
-		args = Array.prototype.slice.call(mutation.args, 0),
-		connId = origClient ? origClient.sessionId : ''
-	
-	if (connId.length > 9) {
-		// TODO Right now we parse the connection ID out of the mutation bytes, and the first digit says how many bytes the ID is.
-		// Really, we should use the byte value of the first byte to signify how long the ID is, and panic if it's longer than 255 characters
-		connId = connId.substr(0, 9)
-	}
+	_mutateItem(mutation, callback)
+	_publishMutation(mutation, origClient)
+}
 
-	var mutationBuffer = connId.length + connId + JSON.stringify(mutation)
-	
-	args.unshift(key)
-	log('Apply and publish mutation', operation, args)
-	if (callback) { args.push(callback) }
-	store.handleMutation(operation, args)
-	
-	// TODO clients should subscribe against pattern channels, 
-	//	e.g. for item props *:1@type:* and for prop channels *:#type:*
-	//	mutations then come with a single publication channel, 
-	//	e.g. :1@type:#type: for a mutation that changes the type of item 1
-	// var propChannel = keys.getPropertyChannel(propName)
-	
-	pubsub.publish(key, mutationBuffer)
-	// pubsub.publish(propChannel, mutationBuffer)
+function transact(mutations, origClient) {
+	store.transact(function() {
+		for (var i=0; i < mutations.length; i++) {
+			_mutateItem(mutations[i])
+		}
+	})
+	for (var i=0, mutation; mutation = mutations[i]; i++) {
+		_publishMutation(mutation, origClient)
+	}
+}
+
+function _mutateItem(mutation, callback) {
+	var key = keys.getItemPropertyKey(mutation.id, mutation.property)
+	store.handleMutation(mutation.op, key, mutation.args, callback)
 }
 
 /* Util functions
@@ -119,4 +111,26 @@ var _retrieveBytes = function(key, callback) {
 		if (err) { throw log('could not retrieve BYTES for key', key, err) }
 		callback(value)
 	})
+}
+
+log("storage TODO: Fix the 9 digit limit on connId")
+var _publishMutation = function(mutation, origClient) {
+	var key = keys.getItemPropertyKey(mutation.id, mutation.property),
+		connId = origClient ? origClient.sessionId : ''
+	
+	if (connId.length > 9) {
+		// TODO Right now we parse the connection ID out of the mutation bytes, and the first digit says how many bytes the ID is.
+		// Really, we should use the byte value of the first byte to signify how long the ID is, and panic if it's longer than 255 characters
+		connId = connId.substr(0, 9)
+	}
+	
+	// TODO clients should subscribe against pattern channels, 
+	//	e.g. for item props *:1@type:* and for prop channels *:#type:*
+	//	mutations then come with a single publication channel, 
+	//	e.g. :1@type:#type: for a mutation that changes the type of item 1
+	// var propChannel = keys.getPropertyChannel(propName)
+	
+	var mutationBuffer = connId.length + connId + JSON.stringify(mutation)
+	pubsub.publish(key, mutationBuffer)
+	// pubsub.publish(propChannel, mutationBuffer)
 }

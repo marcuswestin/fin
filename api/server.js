@@ -36,6 +36,7 @@ function start(theEngine, httpServer) {
 		.handleRequest('create', requests.createHandler)
 		.handleRequest('mutate', requests.mutateHandler)
 		.handleRequest('extend_list', requests.extendListHandler)
+		.handleRequest('transact', requests.transactionHandler)
 }
 
 function handleRequest(messageType, handler) {

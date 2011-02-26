@@ -78,8 +78,15 @@ var storeAPI = {
 	
 	/* Mutation handlers
 	 *******************/
-	handleMutation: function(operation, args) {
-		storeAPI[operation].apply(this, args)
+	handleMutation: function(operation, key, args, callback) {
+		var operationArgs = [key].concat(args)
+		if (callback) { operationArgs.push(callback) }
+		storeAPI[operation].apply(this, operationArgs)
+	},
+	
+	transact: function(transactionFn) {
+		// the development engine acts atomically. We assume node won't halt during an operation
+		transactionFn()
 	},
 	
 	set: function(key, value, callback) {

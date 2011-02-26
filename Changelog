@@ -39,6 +39,9 @@ TODO
 	- couchdb storage engine
 	- mysql storage engine?
 	- 0mq pubsub engine
+	- redis engine needs transaction support. Switch from redis-node-client to redis-node?
 - upgrade to latest socket.io
 - upgrade to latest node
 - think about how we can add search...
+- rename api/fin/requests to something better - it's a Connection that represents a client server-side
+- The order of actions in a transaction is undefined (the first action can come in last, if it is waiting for an ID). This is bad

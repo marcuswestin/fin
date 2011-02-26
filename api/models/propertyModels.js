@@ -66,8 +66,8 @@ function _modelSet(value) {
 function _listModelPush(value) { _collectionOp(this, 'push', value) }
 function _listModelUnshift(value) { _collectionOp(this, 'unshift', value) }
 
-function _setModelAdd(value) { _collectionOp(this, 'sadd', value) }
-function _setModelRemove(value) { _collectionOp(this, 'srem', value) }
+function _setModelAdd(value) { _collectionOp(this, 'addToSet', value) }
+function _setModelRemove(value) { _collectionOp(this, 'removeFromSet', value) }
 
 /* Util functions. All callbacks get called
  * in the context of the model passed in
@@ -76,7 +76,8 @@ var _observe = function(propertyModel, callback) {
 	_getObservationInfo(propertyModel, function(info) {
 		var of = propertyModel._of
 		if (of) {
-			fin.observeList(info.id, info.chain, function(mutation) {
+			var op = propertyModel instanceof Set ? 'observeSet' : 'observeList'
+			fin[op](info.id, info.chain, function(mutation) {
 				var Model = propertyModels[of] || customModels[of],
 					op = mutation.op
 				util.each(mutation.args, function(arg) {

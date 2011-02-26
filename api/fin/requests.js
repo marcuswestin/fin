@@ -1,7 +1,6 @@
 var data = require('./data'),
 	keys = require('./keys'),
-	util = require('./util'),
-	log = require('./logger').log
+	util = require('./util')
 
 module.exports = {
 	observeHandler: handleObserveRequest,
@@ -15,7 +14,6 @@ function handleObserveRequest(client, request) {
 	var type = request.type,
 		key = keys.getItemPropertyKey(request.id, request.property)
 	
-	log("subscribe to channel", key)
 	client.pubsub.subscribe(key, util.curry(_itemMutationChannelHandler, client))
 	
 	if (request.snapshot != false) {
@@ -56,7 +54,7 @@ function handleExtendListRequest(client, request) {
 
 /* Util
  ******/
-log("requests TODO: Fix the 9 digit limit on connId")
+console.log("requests TODO: Fix the 9 digit limit on connId")
 var _itemMutationChannelHandler = function(client, key, mutationBytes) {
 	var mutationInfo = _parseMutationBytes(mutationBytes)
 	if (mutationInfo.originId == client.sessionId.substr(0, 9)) { return }

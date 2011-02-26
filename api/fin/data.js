@@ -1,6 +1,5 @@
 var keys = require('./keys'),
-	util = require('./util'),
-	log = require('./logger').log
+	util = require('./util')
 
 module.exports = {
 	setEngine: setEngine,
@@ -25,7 +24,7 @@ function setEngine(theEngine) {
 function getListItems(listKey, from, to, callback) {
 	if (!to) { to = -1 } // grab the entire list if no end index is specified
 	store.getListItems(listKey, from, to, function(err, items) {
-		if (err) { throw log('could not retrieve list range', listKey, from, to, err) }
+		if (err) { throw 'could not retrieve list range: '+[listKey, from, to, err].join(' ') }
 		callback(items)
 	})
 }
@@ -45,20 +44,20 @@ function retrieveStateMutation(key, type, callback) {
 			break
 			
 		default:
-			throw log('could not retrieve state mutation of unknown type', type, key)
+			throw 'could not retrieve state mutation of unknown type: '+[type, key].join(' ')
 	}
 }
 
 function _retrieveSet(key, callback) {
 	store.getMembers(key, function(err, members) {
-		if (err) { throw log('could not retrieve set members', key, err) }
+		if (err) { throw 'could not retrieve set members: '+[key, err].join(' ') }
 		callback(members)
 	})
 }
 
 function createItem(itemProperties, origClient, callback) {
 	store.increment(keys.uniqueIdKey, function(err, newItemID) {
-		if (err) { throw log('Could not increment unique item id counter', err) }
+		if (err) { throw 'could not increment unique item id counter: '+err }
 		
 		var doCallback = util.blockCallback(
 				util.curry(callback, newItemID), { throwErr: true, fireOnce: true })
@@ -81,7 +80,7 @@ function createItem(itemProperties, origClient, callback) {
 // 	})
 // }
 
-log("storage TODO: Fix the 9 digit limit on connId")
+console.log("storage TODO: Fix the 9 digit limit on connId")
 function mutateItem(mutation, origClient, callback) {
 	var key = keys.getItemPropertyKey(mutation.id, mutation.property),
 		operation = mutation.op,
@@ -97,7 +96,7 @@ function mutateItem(mutation, origClient, callback) {
 	var mutationBuffer = connId.length + connId + JSON.stringify(mutation)
 	
 	args.unshift(key)
-	log('Apply and publish mutation', operation, args)
+	console.log('Apply and publish mutation', operation, args)
 	if (callback) { args.push(callback) }
 	store.handleMutation(operation, args)
 	
@@ -115,7 +114,7 @@ function mutateItem(mutation, origClient, callback) {
  ****************/
 var _retrieveBytes = function(key, callback) {
 	store.getBytes(key, function(err, value) {
-		if (err) { throw log('could not retrieve BYTES for key', key, err) }
+		if (err) { log 'could not retrieve BYTES for key: '+[key, err].join(' ') }
 		callback(value)
 	})
 }

@@ -6,7 +6,6 @@ module.exports = {
 	setEngine: setEngine,
 	getListItems: getListItems,
 	retrieveStateMutation: retrieveStateMutation,
-	retrieveSet: retrieveSet,
 	createItem: createItem,
 	mutateItem: mutateItem
 }
@@ -40,7 +39,7 @@ function retrieveStateMutation(key, type, callback) {
 			break
 		
 		case 'SET':
-			retrieveSet(key, function(members) {
+			_retrieveSet(key, function(members) {
 				callback({ op: 'sadd', args: members })
 			})
 			break
@@ -50,7 +49,7 @@ function retrieveStateMutation(key, type, callback) {
 	}
 }
 
-function retrieveSet(key, callback) {
+function _retrieveSet(key, callback) {
 	store.getMembers(key, function(err, members) {
 		if (err) { throw log('could not retrieve set members', key, err) }
 		callback(members)

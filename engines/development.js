@@ -73,7 +73,7 @@ var storeAPI = {
 			callback && callback(typeError('getMembers', 'set', key))
 		} else {
 			var response = []
-			for (var value in data[key]) { response.push(value) }
+			for (var value in data[key]) { response.push(JSON.parse(value)) }
 			callback && callback(null, response)
 		}
 	},
@@ -167,6 +167,7 @@ var storeAPI = {
 	},
 	
 	sadd: function(key, value, callback) {
+		value = JSON.stringify(value)
 		if (typeof data[key] == 'undefined') {
 			data[key] = {}
 			data[key][value] = true
@@ -181,6 +182,7 @@ var storeAPI = {
 	},
 	
 	srem: function(key, value, callback) {
+		value = JSON.stringify(value)
 		if (typeof data[key] == 'undefined') {
 			callback && callback(null, 0)
 		} else if (typeof data[key] == 'object') {

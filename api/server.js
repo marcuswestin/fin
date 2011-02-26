@@ -2,7 +2,6 @@ var events = require('events'),
 	io = require('../lib/socket.io'),
 	data = require('./fin/data'),
 	requests = require('./fin/requests'),
-	log = require('./fin/logger').log,
 	util = require('./fin/util')
 
 module.exports = {
@@ -52,7 +51,7 @@ function on(event, handler) {
 /* Handler functions
  *******************/
 function _handleConnection(client) {
-	log('new connection', client.sessionId)
+	console.log('new connection', client.sessionId)
 	client.on('message', util.curry(_handleMessage, client))
 	client.on('disconnect', util.curry(_handleDisconnect, client))
 	client.pubsub = engine.getPubSub()
@@ -61,7 +60,7 @@ function _handleConnection(client) {
 
 function _handleMessage(client, message) {
 	if (!requestHandlers[message.request]) {
-		log('unknown request type', message.request)
+		console.log('unknown request type', message.request)
 		return
 	}
 	requestHandlers[message.request](client, message)

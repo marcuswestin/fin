@@ -1,6 +1,5 @@
 var keys = require('./keys'),
-	util = require('./util'),
-	log = require('./logger').log
+	util = require('./util')
 
 module.exports = {
 	setEngine: setEngine,
@@ -27,7 +26,7 @@ function setEngine(theEngine) {
 function getListItems(listKey, from, to, callback) {
 	if (!to) { to = -1 } // grab the entire list if no end index is specified
 	store.getListItems(listKey, from, to, function(err, items) {
-		if (err) { throw log('could not retrieve list range', listKey, from, to, err) }
+		if (err) { throw 'could not retrieve list range: '+[listKey,from,to,err].join(' ')  }
 		callback(items)
 	})
 }
@@ -47,20 +46,20 @@ function retrieveStateMutation(key, type, callback) {
 			break
 			
 		default:
-			throw log('could not retrieve state mutation of unknown type', type, key)
+			throw 'could not retrieve state mutation of unknown type: '+[type+key].join(' ')
 	}
 }
 
 function retrieveSet(key, callback) {
 	store.getMembers(key, function(err, members) {
-		if (err) { throw log('could not retrieve set members', key, err) }
+		if (err) { throw 'could not retrieve members of set: '+[key,err].join(' ') }
 		callback(members)
 	})
 }
 
 function createItem(itemProperties, origClient, callback) {
 	store.increment(keys.uniqueIdKey, function(err, newItemID) {
-		if (err) { throw log('Could not increment unique item id counter', err) }
+		if (err) { throw 'Could not increment unique item id counter: '+err }
 		
 		var doCallback = util.blockCallback(
 				util.curry(callback, newItemID), { throwErr: true, fireOnce: true })
@@ -108,12 +107,12 @@ function _mutateItem(mutation, callback) {
  ****************/
 var _retrieveBytes = function(key, callback) {
 	store.getBytes(key, function(err, value) {
-		if (err) { throw log('could not retrieve BYTES for key', key, err) }
+		if (err) { throw 'could not retrieve BYTES for key: '+[key, err].join(' ') }
 		callback(value)
 	})
 }
 
-log("storage TODO: Fix the 9 digit limit on connId")
+console.log("storage TODO: Fix the 9 digit limit on connId")
 var _publishMutation = function(mutation, origClient) {
 	var key = keys.getItemPropertyKey(mutation.id, mutation.property),
 		connId = origClient ? origClient.sessionId : ''

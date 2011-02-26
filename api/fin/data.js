@@ -73,13 +73,6 @@ function createItem(itemProperties, origClient, callback) {
 	})
 }
 
-// this.deleteItem = function(itemID, callback) {
-// 	this._store.delete(itemID, function(err) {
-// 		if (err) { throw log('Could not delete item ' + itemID, err) }
-// 		callback()
-// 	})
-// }
-
 console.log("storage TODO: Fix the 9 digit limit on connId")
 function mutateItem(mutation, origClient, callback) {
 	var key = keys.getItemPropertyKey(mutation.id, mutation.property),

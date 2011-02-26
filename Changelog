@@ -18,22 +18,20 @@ v0.1.0
 + Redis and development (node in-memory) engines exist for pubsub and storage
 
 TODO
-- client API
-	- bake observeList and observeSet together, and (maybe) bake them together with observe as well
-	- move the chaining of observations to the server
-	- add fin.transact
-- models
-	- add "static" descriptor for text and number properties. Static properties won't be observed; only a snapshot will be requested
-	- implement List unshift, pop, shift
-	- add Set, implement add, remove, has
-	- document models in README.md
-	- check that instanceProperties fullfill "type" & "required" in modelProperties
-	- check that each instance property is present in modelProperties when created
-	- don't require create to be called explicitly for new models - add another params to suppress creation
+- move the chaining of observations to the server
+- don't require create to be called explicitly for new models - add another params to suppress creation
+- upgrade to latest socket.io
+- upgrade to latest node
+- document models in README.md
+- bake observeList and observeSet together, and (maybe) bake them together with observe as well
+- implement List unshift, pop, shift
+- add Set, implement add, remove, has
+- use model schema server-side as well, to validate item creations and mutations
+- on connect, send a sha1 sum of the schema to the server, to ensure they use the same one
+- check that instanceProperties fullfill "type" & "required" in modelProperties
+- check that each instance property is present in modelProperties when created
 - engines
 	- couchdb storage engine
 	- mysql storage engine?
 	- 0mq pubsub engine
-- upgrade to latest socket.io
-- upgrade to latest node
 - think about how we can add search...

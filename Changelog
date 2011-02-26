@@ -1,3 +1,6 @@
+intended v0.2.3
++ Fix: Development engine storage Sets coerced number member values into strings
+
 v0.2.2
 + Bug fix: models with circular properties would cause infinite loops at instantiation time (fixed using getters).
 + fin models will no longer work in IE6/7 since they do not support getters :(

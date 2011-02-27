@@ -3,6 +3,7 @@ intended v0.3.0
 
 intended v0.2.3
 + Fix: Development engine storage Sets coerced number member values into strings
++ Item creation now takes a callback: new models.Item({}).create(function(itemID){})
 
 v0.2.2
 + Bug fix: models with circular properties would cause infinite loops at instantiation time (fixed using getters).

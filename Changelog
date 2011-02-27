@@ -1,7 +1,7 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
-intended v0.2.3
+v0.2.3
 + Fix: Development engine storage Sets coerced number member values into strings
 + Item creation now takes a callback: new models.Item({}).create(function(itemID){})
 

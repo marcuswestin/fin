@@ -1,5 +1,3 @@
-// This is what we want - it doesn't work yet :)
-
 var fin = require('../../api/client'),
 	models = require('../../api/models')
 

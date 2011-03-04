@@ -30,7 +30,7 @@ function each(items, ctx, fn) {
 	if (!items) { return }
 	if (!fn) { fn = ctx, ctx = this }
 	if (isArray(items)) {
-		for (var i=0, item; item = items[i]; i++) { fn.call(ctx, item, i) }
+		for (var i=0; i < items.length; i++) { fn.call(ctx, items[i], i) }
 	} else {
 		for (var key in items) { fn.call(ctx, items[key], key) }
 	}

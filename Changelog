@@ -1,6 +1,10 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
+v0.2.3.1
++ Fix: Calling new M().create(callback); new M().create(); without a callback the second time would cause the first callback to never execute
++ Fix: Don't skip out early in util.each if an item in the array is null
+
 v0.2.3
 + Fix: Development engine storage Sets coerced number member values into strings
 + Item creation now takes a callback: new models.Item({}).create(function(itemID){})

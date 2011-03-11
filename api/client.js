@@ -20,8 +20,7 @@ module.exports = new (function(){
  * The core API: connect, create, *
  * observe, set & release  *
  **********************************/
-	/*
-	 * Connect to the fin database. The callback will be called
+	/* Connect to the fin database. The callback will be called
 	 * once you're connected with the server
 	 */
 	this.connect = function(callback) {
@@ -37,8 +36,7 @@ module.exports = new (function(){
 		}
 	}
 	
-	/* 
-	 * Create an item with the given data as properties, 
+	/* Create an item with the given data as properties,
 	 * and get notified of the new item id when it's been created
 	 */
 	this.create = function(properties, callback) {
@@ -51,8 +49,7 @@ module.exports = new (function(){
 		this.requestResponse('create', { data:properties }, callback)
 	}
 
-	/*
-	 * Observe an item property, and get notified any time it changes.
+	/* Observe an item property, and get notified any time it changes.
 	 * The item property may be chained (e.g. observe(1, 'driver.car.model')),
 	 *  assuming that driver.car will resolve to an item ID
 	 */
@@ -61,8 +58,7 @@ module.exports = new (function(){
 		return this._observeChain(itemID, propName, 0, callback, {})
 	}
 	
-	/*
-	 * Observe a chain of item properties, e.g. observe(1, 'driver.car.model')
+	/* Observe a chain of item properties, e.g. observe(1, 'driver.car.model')
 	 */
 	this._chainDependants = {}
 	this._observeChain = function(itemID, property, index, callback, observeArgs) {
@@ -85,15 +81,13 @@ module.exports = new (function(){
 		}
 	}
 	
-	/*
-	 * Mutate a fin item with the given operation
+	/* Mutate a fin item with the given operation
 	 */
 	this.set = function(itemID, propName, value) {
 		this.mutate('set', itemID, propName, [value])
 	}
 	
-	/* 
-	 * Release an observation
+	/* Release an observation
 	 */
 	this.release = function(subId) {
 		var key = this._subIdToKey[subId],
@@ -123,8 +117,7 @@ module.exports = new (function(){
 				: itemName
 	}
 	
-	/*
-	 * Get the last cached mutation of a currently observed item property
+	/* Get the last cached mutation of a currently observed item property
 	 */
 	this.getCachedMutation = function(itemName, propName) {
 		var itemID = this._getItemID(itemName),
@@ -155,8 +148,7 @@ module.exports = new (function(){
 /************
  * List API *
  ************/
-	/* 
-	 * Observe an item property list, and get notified any time it changes
+	/* Observe an item property list, and get notified any time it changes
 	 */
 	this.observeList = function(itemID, propName, callback, length) {
 		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires at least three arguments", itemName, propName, callback, length) }
@@ -167,8 +159,7 @@ module.exports = new (function(){
 		return subId
 	}
 	
-	/*
-	 * Extend the history of an observed list
+	/* Extend the history of an observed list
 	 */
 	this._listLength = {}
 	this.extendList = function(id, prop, extendToIndex) {
@@ -215,8 +206,7 @@ module.exports = new (function(){
 		this._socket.send(args)
 	}
 	
-	/* 
-	 * Make a request with an associated requestId, 
+	/* Make a request with an associated requestId,
 	 * and call the callback upon response
 	 */
 	this.requestResponse = function(request, args, callback) {
@@ -226,8 +216,7 @@ module.exports = new (function(){
 		this._socket.send(args)
 	}
 	
-	/* 
-	 * Focus an item property for editing. Any other focused client gets blurred.
+	/* Focus an item property for editing. Any other focused client gets blurred.
 	 * When another client requests focus, onBlurCallback gets called
 	 */
 	this.focus = function(itemId, propName, onBlurCallback) {
@@ -262,8 +251,7 @@ module.exports = new (function(){
 		return releaseFn
 	}
 	
-	/*
-	 * Get approximately the current server time
+	/* Get approximately the current server time
 	 */
 	// TODO The timestamp should be offset by a time given by the server
 	this.now = function() { return new Date().getTime() }

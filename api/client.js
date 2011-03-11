@@ -21,8 +21,7 @@ module.exports = new (function(){
  * observe, set & release  *
  **********************************/
 	/* Connect to the fin database. The callback will be called
-	 * once you're connected with the server
-	 */
+	 * once you have a connection with the server */
 	this.connect = function(callback) {
 		if (this._socket.connected) {
 			if (callback) { callback() }
@@ -37,8 +36,7 @@ module.exports = new (function(){
 	}
 	
 	/* Create an item with the given data as properties,
-	 * and get notified of the new item id when it's been created
-	 */
+	 * and get notified of the new item id when it's been created */
 	this.create = function(properties, callback) {
 		if (typeof callback != 'function') { throw log('Second argument to fin.create should be a callback') }
 		for (var key in properties) {
@@ -51,44 +49,18 @@ module.exports = new (function(){
 
 	/* Observe an item property, and get notified any time it changes.
 	 * The item property may be chained (e.g. observe(1, 'driver.car.model')),
-	 *  assuming that driver.car will resolve to an item ID
-	 */
+	 *  assuming that driver.car will resolve to an item ID */
 	this.observe = function(itemID, propName, callback) {
 		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires three arguments", itemId, propName, callback); }
 		return this._observeChain(itemID, propName, 0, callback, {})
 	}
 	
-	/* Observe a chain of item properties, e.g. observe(1, 'driver.car.model')
-	 */
-	this._chainDependants = {}
-	this._observeChain = function(itemID, property, index, callback, observeArgs) {
-		var propertyChain = (typeof property == 'string' ? property.split('.') : property),
-			property = propertyChain[index],
-			subID, dependantSubID, lastSubItemID
-		
-		if (index == propertyChain.length - 1) {
-			observeArgs.id = itemID
-			observeArgs.property = property
-			return this._observe(observeArgs, callback)
-		} else {
-			return subID = this._observe({ id: itemID, property: property }, bind(this, function(mutation, subItemID) {
-				if (subItemID == lastSubItemID) { return }
-				lastSubItemID = subItemID
-				if (dependantSubID) { this.release(dependantSubID) }
-				dependantSubID = this._observeChain(subItemID, propertyChain, index + 1, callback, observeArgs)
-				this._chainDependants[subID] = dependantSubID
-			}))
-		}
-	}
-	
-	/* Mutate a fin item with the given operation
-	 */
+	/* Mutate a fin item with the given operation */
 	this.set = function(itemID, propName, value) {
-		this.mutate('set', itemID, propName, [value])
+		this._mutate('set', itemID, propName, [value])
 	}
 	
-	/* Release an observation
-	 */
+	/* Release an observation */
 	this.release = function(subId) {
 		var key = this._subIdToKey[subId],
 			keyInfo = keys.getKeyInfo(key),
@@ -111,14 +83,7 @@ module.exports = new (function(){
 		}
 	}
 	
-	this._getItemID = function(itemName) {
-		return itemName == 'LOCAL' ? this._localID
-				: itemName == 'GLOBAL' ? this._globalID
-				: itemName
-	}
-	
-	/* Get the last cached mutation of a currently observed item property
-	 */
+	/* Get the last cached mutation of a currently observed item property */
 	this.getCachedMutation = function(itemName, propName) {
 		var itemID = this._getItemID(itemName),
 			key = keys.getItemPropertyKey(itemID, propName)
@@ -126,30 +91,26 @@ module.exports = new (function(){
 		return this._mutationCache[key]
 	}
 	
-	this.handle = function(messageType, handler) {
-		this._eventHandlers[messageType] = handler
-	}
-	
 /***********
  * Set API *
  ***********/
+	/* Observe a set of values */
 	this.observeSet = function(itemName, propName, callback) {
 		this._observe({ id: itemName, property: propName, type: 'SET' }, callback)
 	}
-
+	/* Add a value to a set */
 	this.addToSet = function(itemName, propName, member) {
-		this.mutate('sadd', itemName, propName, [member])
+		this._mutate('sadd', itemName, propName, [member])
 	}
-
+	/* Remove a value from a set */
 	this.removeFromSet = function(itemName, propName, member) {
-		this.mutate('srem', itemName, propName, [member])
+		this._mutate('srem', itemName, propName, [member])
 	}
 
 /************
  * List API *
  ************/
-	/* Observe an item property list, and get notified any time it changes
-	 */
+	/* Observe an item property list, and get notified any time it changes */
 	this.observeList = function(itemID, propName, callback, length) {
 		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires at least three arguments", itemName, propName, callback, length) }
 		
@@ -159,8 +120,7 @@ module.exports = new (function(){
 		return subId
 	}
 	
-	/* Extend the history of an observed list
-	 */
+	/* Extend the history of an observed list */
 	this._listLength = {}
 	this.extendList = function(id, prop, extendToIndex) {
 		if (typeof id != 'number' || !prop) { log("extendList requires a numeric ID and a property", itemID, prop) }
@@ -182,33 +142,28 @@ module.exports = new (function(){
 			}))
 		}))
 	}
-	
+	/* Add a value onto the end of a list */
 	this.push = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
 		this._listOp(itemId, propName, 'push', values)
 	}
-	
+	/* Add a value at the beginning of a list */
 	this.unshift = function(itemId, propName /*, val1, val2, ... */) {
 		var values = Array.prototype.slice.call(arguments, 2)
 		this._listOp(itemId, propName, 'unshift', values)
 	}
 	
-	this._listOp = function(itemId, propName, op, values) {
-		this.mutate(op, itemId, propName, values)
-	}
-	
 /********************
  * Miscelaneous API *
  ********************/
+	/* Make a custom request to the server */
 	this.request = function(request, args) {
 		args = args || {}
 		args.request = request
 		this._socket.send(args)
 	}
 	
-	/* Make a request with an associated requestId,
-	 * and call the callback upon response
-	 */
+	/* Make a custom request to the server that expects an explicit response in the callback */
 	this.requestResponse = function(request, args, callback) {
 		var requestId = this._scheduleCallback(callback)
 		args.request = request
@@ -216,9 +171,13 @@ module.exports = new (function(){
 		this._socket.send(args)
 	}
 	
+	/* Handle a custom server event */
+	this.handle = function(messageType, handler) {
+		this._eventHandlers[messageType] = handler
+	}
+	
 	/* Focus an item property for editing. Any other focused client gets blurred.
-	 * When another client requests focus, onBlurCallback gets called
-	 */
+	 * When another client requests focus, onBlurCallback gets called */
 	this.focus = function(itemId, propName, onBlurCallback) {
 		var sessionId = this._client.getSessionID(),
 			focusProp = keys.getFocusProperty(propName),
@@ -251,8 +210,7 @@ module.exports = new (function(){
 		return releaseFn
 	}
 	
-	/* Get approximately the current server time
-	 */
+	/* Get approximately the current server time */
 	// TODO The timestamp should be offset by a time given by the server
 	this.now = function() { return new Date().getTime() }
 	
@@ -304,6 +262,38 @@ module.exports = new (function(){
 	
 	this._handleDisconnect = function() {
 		log('_handleDisconnect', arguments)
+	}
+	
+	this._listOp = function(itemId, propName, op, values) {
+		this._mutate(op, itemId, propName, values)
+	}
+	
+	// Observe a chain of item properties, e.g. observe(1, 'driver.car.model')
+	this._chainDependants = {}
+	this._observeChain = function(itemID, property, index, callback, observeArgs) {
+		var propertyChain = (typeof property == 'string' ? property.split('.') : property),
+			property = propertyChain[index],
+			subID, dependantSubID, lastSubItemID
+		
+		if (index == propertyChain.length - 1) {
+			observeArgs.id = itemID
+			observeArgs.property = property
+			return this._observe(observeArgs, callback)
+		} else {
+			return subID = this._observe({ id: itemID, property: property }, bind(this, function(mutation, subItemID) {
+				if (subItemID == lastSubItemID) { return }
+				lastSubItemID = subItemID
+				if (dependantSubID) { this.release(dependantSubID) }
+				dependantSubID = this._observeChain(subItemID, propertyChain, index + 1, callback, observeArgs)
+				this._chainDependants[subID] = dependantSubID
+			}))
+		}
+	}
+	
+	this._getItemID = function(itemName) {
+		return itemName == 'LOCAL' ? this._localID
+				: itemName == 'GLOBAL' ? this._globalID
+				: itemName
 	}
 	
 	this._subIdToKey = {}
@@ -374,7 +364,7 @@ module.exports = new (function(){
 	
 	this._localID = -1
 	this._globalID = 0
-	this.mutate = function(op, id, prop, args) {
+	this._mutate = function(op, id, prop, args) {
 		var resolved = this._resolveCachedPropertyChain(id, prop),
 			itemID = this._getItemID(resolved.id)
 		

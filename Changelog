@@ -1,6 +1,11 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
+v0.2.4
++ no longer required to call create explicitly on new model instances
++ tested with node v0.2.4
++ models are now documented in the README
+
 v0.2.3.1
 + Fix: Calling new M().create(callback); new M().create(); without a callback the second time would cause the first callback to never execute
 + Fix: Don't skip out early in util.each if an item in the array is null
@@ -38,11 +43,8 @@ v0.1.0
 
 TODO
 - move the chaining of observations to the server
-- don't require create to be called explicitly for new models - add another params to suppress creation
 - typecheck arguments passed in to model mutation functions (e.g. number.set('foo') should fail)
 - upgrade to latest socket.io
-- upgrade to latest node
-- document models in README.md
 - bake observeList and observeSet together, and (maybe) bake them together with observe as well
 - implement List unshift, pop, shift
 - add Set, implement add, remove, has
@@ -56,6 +58,5 @@ TODO
 	- 0mq pubsub engine
 	- redis engine needs transaction support. Switch from redis-node-client to redis-node?
 - upgrade to latest socket.io
-- upgrade to latest node
 - think about how we can add search...
 - The order of actions in a transaction is undefined (the first action can come in last, if it is waiting for an ID). This is bad

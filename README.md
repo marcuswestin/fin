@@ -29,8 +29,3 @@ or just
 
 Finally, fire up your browser to localhost/[path to fin]/demo
 
-Running tests
--------------
-Go through the "Getting started" steps above to get fin up and running. Then run the tests:
-	cd test
-	node run_tests.js

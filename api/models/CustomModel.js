@@ -20,6 +20,11 @@ function _instantiate(idOrValues) {
 			delayedProperty = util.bind(this, _instantiateProperty, propertyName, value, description)
 		util.defineGetter(this, propertyName, delayedProperty)
 	}
+
+	// When a model is instantiated with a set of properties,
+	//  we want to go ahead and create then item server-side
+	//  right away.
+	if (this._id === undefined && idOrValues !== undefined) { create.call(this) }
 }
 
 var _instantiateProperty = function(propertyName, value, propertyDescription) {

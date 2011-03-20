@@ -24,7 +24,7 @@ fin.connect(function() {
 })
 
 $('login').onclick = function() {
-	user = new models.User({ name: $('username').value, age: 25 }).create()
+	user = new models.User({ name: $('username').value, age: 25 })
 	hide($('login'))
 	show($('online'))
 	reflectProperty($('username'), user.name)
@@ -32,7 +32,7 @@ $('login').onclick = function() {
 }
 
 $('send').onclick = function() {
-	var message = new models.Message({ from:user, text:$('message').value }).create()
+	var message = new models.Message({ from:user, text:$('message').value })
 	models.global.messages.push(message)
 	$('message').value = ''
 }

@@ -1,14 +1,13 @@
 var keys = require('./keys'),
-	util = require('./util'),
-	log = require('./logger').log
+	util = require('./util')
 
 module.exports = {
 	setEngine: setEngine,
 	getListItems: getListItems,
 	retrieveStateMutation: retrieveStateMutation,
-	retrieveSet: retrieveSet,
 	createItem: createItem,
-	mutateItem: mutateItem
+	mutateItem: mutateItem,
+	transact: transact
 }
 
 /* State
@@ -26,7 +25,7 @@ function setEngine(theEngine) {
 function getListItems(listKey, from, to, callback) {
 	if (!to) { to = -1 } // grab the entire list if no end index is specified
 	store.getListItems(listKey, from, to, function(err, items) {
-		if (err) { throw log('could not retrieve list range', listKey, from, to, err) }
+		if (err) { throw 'could not retrieve list range: '+[listKey,from,to,err].join(' ')  }
 		callback(items)
 	})
 }
@@ -40,26 +39,26 @@ function retrieveStateMutation(key, type, callback) {
 			break
 		
 		case 'SET':
-			retrieveSet(key, function(members) {
+			_retrieveSet(key, function(members) {
 				callback({ op: 'sadd', args: members })
 			})
 			break
 			
 		default:
-			throw log('could not retrieve state mutation of unknown type', type, key)
+			throw 'could not retrieve state mutation of unknown type: '+[type+key].join(' ')
 	}
 }
 
-function retrieveSet(key, callback) {
+function _retrieveSet(key, callback) {
 	store.getMembers(key, function(err, members) {
-		if (err) { throw log('could not retrieve set members', key, err) }
+		if (err) { throw 'could not retrieve members of set: '+[key,err].join(' ') }
 		callback(members)
 	})
 }
 
 function createItem(itemProperties, origClient, callback) {
 	store.increment(keys.uniqueIdKey, function(err, newItemID) {
-		if (err) { throw log('Could not increment unique item id counter', err) }
+		if (err) { throw 'could not increment unique item id counter: '+err }
 		
 		var doCallback = util.blockCallback(
 				util.curry(callback, newItemID), { throwErr: true, fireOnce: true })
@@ -75,18 +74,39 @@ function createItem(itemProperties, origClient, callback) {
 	})
 }
 
-// this.deleteItem = function(itemID, callback) {
-// 	this._store.delete(itemID, function(err) {
-// 		if (err) { throw log('Could not delete item ' + itemID, err) }
-// 		callback()
-// 	})
-// }
-
-log("storage TODO: Fix the 9 digit limit on connId")
 function mutateItem(mutation, origClient, callback) {
+	_mutateItem(mutation, callback)
+	_publishMutation(mutation, origClient)
+}
+
+function transact(mutations, origClient) {
+	store.transact(function() {
+		for (var i=0; i < mutations.length; i++) {
+			_mutateItem(mutations[i])
+		}
+	})
+	for (var i=0, mutation; mutation = mutations[i]; i++) {
+		_publishMutation(mutation, origClient)
+	}
+}
+
+function _mutateItem(mutation, callback) {
+	var key = keys.getItemPropertyKey(mutation.id, mutation.property)
+	store.handleMutation(mutation.op, key, mutation.args, callback)
+}
+
+/* Util functions
+ ****************/
+var _retrieveBytes = function(key, callback) {
+	store.getBytes(key, function(err, value) {
+		if (err) { throw 'could not retrieve BYTES for key: '+[key, err].join(' ') }
+		callback(value)
+	})
+}
+
+console.log("storage TODO: Fix the 9 digit limit on connId")
+var _publishMutation = function(mutation, origClient) {
 	var key = keys.getItemPropertyKey(mutation.id, mutation.property),
-		operation = mutation.op,
-		args = Array.prototype.slice.call(mutation.args, 0),
 		connId = origClient ? origClient.sessionId : ''
 	
 	if (connId.length > 9) {
@@ -94,29 +114,13 @@ function mutateItem(mutation, origClient, callback) {
 		// Really, we should use the byte value of the first byte to signify how long the ID is, and panic if it's longer than 255 characters
 		connId = connId.substr(0, 9)
 	}
-
-	var mutationBuffer = connId.length + connId + JSON.stringify(mutation)
-	
-	args.unshift(key)
-	log('Apply and publish mutation', operation, args)
-	if (callback) { args.push(callback) }
-	store.handleMutation(operation, args)
-	
 	// TODO clients should subscribe against pattern channels, 
 	//	e.g. for item props *:1@type:* and for prop channels *:#type:*
 	//	mutations then come with a single publication channel, 
 	//	e.g. :1@type:#type: for a mutation that changes the type of item 1
 	// var propChannel = keys.getPropertyChannel(propName)
 	
+	var mutationBuffer = connId.length + connId + JSON.stringify(mutation)
 	pubsub.publish(key, mutationBuffer)
 	// pubsub.publish(propChannel, mutationBuffer)
-}
-
-/* Util functions
- ****************/
-var _retrieveBytes = function(key, callback) {
-	store.getBytes(key, function(err, value) {
-		if (err) { throw log('could not retrieve BYTES for key', key, err) }
-		callback(value)
-	})
 }

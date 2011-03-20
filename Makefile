@@ -15,7 +15,7 @@ lib/redis-node-client:
 lib/browser-require:
 	git clone git://github.com/marcuswestin/browser-require.git
 	mv browser-require lib/
-	cd lib/browser-require; git checkout v0.1.5
+	cd lib/browser-require; git checkout v0.1.6
 
 lib/socket.io:
 	git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io
@@ -28,7 +28,7 @@ lib/socket.io:
 .PHONY: install-node
 install-node:
 	git clone git://github.com/ry/node.git /tmp/fin-node
-	cd /tmp/fin-node; git checkout v0.3.2; ./configure; make; sudo make install
+	cd /tmp/fin-node; git checkout v0.4.2; ./configure; make; sudo make install
 	rm -rf /tmp/fin-node
 
 .PHONY: install-redis

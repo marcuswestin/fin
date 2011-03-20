@@ -57,17 +57,21 @@ function _modelOn(mutationType, callback) {
 }
 
 function _modelSet(value) {
-	var propertyID = this._propertyID
+	var propertyID = this._propertyID,
+		transactionHold = fin._holdTransaction()
+	
 	customModels._waitForID(this._parent, function(itemID) {
+		transactionHold.resume()
 		fin.set(itemID, [propertyID], value)
+		transactionHold.complete()
 	})
 }
 
 function _listModelPush(value) { _collectionOp(this, 'push', value) }
 function _listModelUnshift(value) { _collectionOp(this, 'unshift', value) }
 
-function _setModelAdd(value) { _collectionOp(this, 'sadd', value) }
-function _setModelRemove(value) { _collectionOp(this, 'srem', value) }
+function _setModelAdd(value) { _collectionOp(this, 'addToSet', value) }
+function _setModelRemove(value) { _collectionOp(this, 'removeFromSet', value) }
 
 /* Util functions. All callbacks get called
  * in the context of the model passed in
@@ -76,7 +80,8 @@ var _observe = function(propertyModel, callback) {
 	_getObservationInfo(propertyModel, function(info) {
 		var of = propertyModel._of
 		if (of) {
-			fin.observeList(info.id, info.chain, function(mutation) {
+			var op = propertyModel instanceof Set ? 'observeSet' : 'observeList'
+			fin[op](info.id, info.chain, function(mutation) {
 				var Model = propertyModels[of] || customModels[of],
 					op = mutation.op
 				util.each(mutation.args, function(arg) {
@@ -105,17 +110,19 @@ var _getObservationInfo = function(propertyModel, callback) {
 
 var _collectionOp = function(propertyModel, op, value) {
 	// TODO support operating on raw values, e.g. a string if we're of("String"), or an ID number if we're of a CustomModel
-	var propertyID = propertyModel._propertyID,
-		parent = propertyModel._parent,
-		ofCustomModel = propertyModel._ofCustomModel
+	var transactionHold = fin._holdTransaction()
 	
-	customModels._waitForID(parent, function(itemID) {
-		if (ofCustomModel) {
-			customModels._waitForID(value, function(valueItemID) {
-				fin[op](itemID, [propertyID], valueItemID)
-			})
+	function completeTransaction(itemID, value) {
+		transactionHold.resume()
+		fin[op](itemID, [propertyModel._propertyID], value)
+		transactionHold.complete()
+	}
+	
+	customModels._waitForID(propertyModel._parent, function(parentID) {
+		if (propertyModel._ofCustomModel) {
+			customModels._waitForID(value, function(valueID) { completeTransaction(parentID, valueID) })
 		} else {
-			fin[op](itemID, [propertyID], value._value)
+			completeTransaction(itemID, value._value)
 		}
 	})
 }

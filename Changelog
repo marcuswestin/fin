@@ -1,3 +1,24 @@
+intended v0.3.0
++ fin transactions - item mutations and creations can be done atomically
+
+v0.2.4
++ no longer required to call create explicitly on new model instances
++ tested with node v0.2.4
++ models are now documented in the README
+
+v0.2.3.1
++ Fix: Calling new M().create(callback); new M().create(); without a callback the second time would cause the first callback to never execute
++ Fix: Don't skip out early in util.each if an item in the array is null
+
+v0.2.3
++ Fix: Development engine storage Sets coerced number member values into strings
++ Item creation now takes a callback: new models.Item({}).create(function(itemID){})
+
+v0.2.2
++ Bug fix: models with circular properties would cause infinite loops at instantiation time (fixed using getters).
++ fin models will no longer work in IE6/7 since they do not support getters :(
++ Implement model property Set functionality, and re-implement set observation/mutation server-side (sets have not been working for a while...)
+
 v0.2.1
 + Small bug fix - resolvePropertyChain was not handling string property chains properly
 
@@ -19,3 +40,23 @@ v0.1.0
 + There are two APIs: api/client.js and api/server.js
 + Engines are completely decoupled and split between pubsub and storage
 + Redis and development (node in-memory) engines exist for pubsub and storage
+
+TODO
+- move the chaining of observations to the server
+- typecheck arguments passed in to model mutation functions (e.g. number.set('foo') should fail)
+- upgrade to latest socket.io
+- bake observeList and observeSet together, and (maybe) bake them together with observe as well
+- implement List unshift, pop, shift
+- add Set, implement add, remove, has
+- use model schema server-side as well, to validate item creations and mutations
+- on connect, send a sha1 sum of the schema to the server, to ensure they use the same one
+- check that instanceProperties fullfill "type" & "required" in modelProperties
+- check that each instance property is present in modelProperties when created
+- engines
+	- couchdb storage engine
+	- mysql storage engine?
+	- 0mq pubsub engine
+	- redis engine needs transaction support. Switch from redis-node-client to redis-node?
+- upgrade to latest socket.io
+- think about how we can add search...
+- The order of actions in a transaction is undefined (the first action can come in last, if it is waiting for an ID). This is bad

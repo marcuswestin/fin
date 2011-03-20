@@ -76,15 +76,3 @@ function prefer(isTrue, msg) {
 	if (window.console) { console.log("Warning: " + msg) }
 	else { alert("Warning: " + msg) }
 }
-
-/* TODO
- - add fin.transact
- - add "static" descriptor for text and number properties. Static properties won't be observed; only a snapshot will be requested
- - implement List unshift, pop, shift
- - add Set, implement add, remove, has
- - document models in README.md
-*/
-
-// TODO check that each instance property is present in modelProperties when created
-// TODO check that instanceProperties fullfill "type" & "required" in modelProperties
-// TODO don't require create to be called explicitly for new models - add another params to suppress creation

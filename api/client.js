@@ -11,10 +11,7 @@ var bind = util.bind,
 	forEach = util.forEach,
 	copyArray = util.copyArray
 
-var debug = true,
-	log = debug ? function() { console.log.apply(console, arguments) } : function(){}
-
-module.exports = new (function(){
+var fin = module.exports = new (function(){
 
 /**********************************
  * The core API: connect, create, *
@@ -38,7 +35,7 @@ module.exports = new (function(){
 	/* Create an item with the given data as properties,
 	 * and get notified of the new item id when it's been created */
 	this.create = function(properties, callback) {
-		if (typeof callback != 'function') { throw log('Second argument to fin.create should be a callback') }
+		if (typeof callback != 'function') { throw 'Second argument to fin.create should be a callback' }
 		for (var key in properties) {
 			if (properties[key] instanceof Array && !properties[key].length) {
 				delete properties[key] // For now we assume that engines treat NULL values as empty lists, a la redis
@@ -51,7 +48,7 @@ module.exports = new (function(){
 	 * The item property may be chained (e.g. observe(1, 'driver.car.model')),
 	 *  assuming that driver.car will resolve to an item ID */
 	this.observe = function(itemID, propName, callback) {
-		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires three arguments", itemId, propName, callback); }
+		if (typeof itemID != 'number' || !propName || !callback) { throw 'observe requires three arguments: '+[itemId, propName, callback?'function':callback].join(' ') }
 		return this._observeChain(itemID, propName, 0, callback, {})
 	}
 	
@@ -112,7 +109,7 @@ module.exports = new (function(){
  ************/
 	/* Observe an item property list, and get notified any time it changes */
 	this.observeList = function(itemID, propName, callback, length) {
-		if (typeof itemID != 'number' || !propName || !callback) { log("observe requires at least three arguments", itemName, propName, callback, length) }
+		if (typeof itemID != 'number' || !propName || !callback) { throw 'observe requires at least three arguments: '+[itemName, propName, callback?'function':callback, length].join(' ') }
 		
 		var subId = this._observeChain(itemID, propName, 0, callback, { snapshot: false })
 		
@@ -123,7 +120,7 @@ module.exports = new (function(){
 	/* Extend the history of an observed list */
 	this._listLength = {}
 	this.extendList = function(id, prop, extendToIndex) {
-		if (typeof id != 'number' || !prop) { log("extendList requires a numeric ID and a property", itemID, prop) }
+		if (typeof id != 'number' || !prop) { throw 'extendList requires a numeric ID and a property: '+[itemID, prop].join(' ') }
 		
 		this._resolvePropertyChain(id, prop, bind(this, function(resolved) {
 			var itemID = this._getItemID(resolved.id),
@@ -157,17 +154,26 @@ module.exports = new (function(){
  * Miscelaneous API *
  ********************/
 	/* Make a custom request to the server */
-	this.request = function(request, args) {
+	this.request = function(request, args, transactionSensitive) {
 		args = args || {}
 		args.request = request
-		this._socket.send(args)
+		this._send(args, transactionSensitive)
 	}
 	
 	/* Make a custom request to the server that expects an explicit response in the callback */
-	this.requestResponse = function(request, args, callback) {
+	this.requestResponse = function(request, args, callback, transactionSensitive) {
 		var requestId = this._scheduleCallback(callback)
 		args.request = request
 		args._requestId = requestId
+		this._send(args, transactionSensitive)
+	}
+	
+	this._send = function(args, transactionSensitive) {
+		var currentTransactionID = this._transactionStack[this._transactionStack.length - 1]
+		if (currentTransactionID && transactionSensitive) {
+			this._transactions[currentTransactionID].actions.push(args)
+			return
+		}
 		this._socket.send(args)
 	}
 	
@@ -176,8 +182,46 @@ module.exports = new (function(){
 		this._eventHandlers[messageType] = handler
 	}
 	
-	/* Focus an item property for editing. Any other focused client gets blurred.
-	 * When another client requests focus, onBlurCallback gets called */
+	/*
+	 * Make a transaction of multiple mutations; either
+	 * all or none of the mutations will happen
+	 */
+	this.transact = function(transactionFn) {
+		var id = 't' + this._uniqueRequestId++
+		this._transactions[id] = { waitingFor:1, actions:[] }
+		this._transactionStack.push(id)
+		transactionFn(id)
+		this._endTransaction(id)
+	}
+	
+	this._endTransaction = function(transactionID) {
+		var id = this._transactionStack.pop()
+		if (id != transactionID) { throw 'transaction ID mismatch in _endTransaction! '+id+' '+transactionID }
+		if (--this._transactions[id].waitingFor) { return }
+		this.request('transact', { actions: this._transactions[id].actions })
+		delete this._transactions[id]
+	}
+	
+	var emptyTransactionHold = { resume:function(){}, complete:function(){} }
+	this._holdTransaction = function() {
+		var transactionID = this._transactionStack[this._transactionStack.length - 1]
+		if (!transactionID) { return emptyTransactionHold }
+		
+		this._transactions[transactionID].waitingFor++
+		
+		var resume = function() { fin._transactionStack.push(transactionID) }
+		var complete = function() { fin._endTransaction(transactionID) }
+		
+		return {
+			resume: resume,
+			complete: complete
+		}
+	}
+	
+	/* 
+	 * Focus an item property for editing. Any other focused client gets blurred.
+	 * When another client requests focus, onBlurCallback gets called
+	 */
 	this.focus = function(itemId, propName, onBlurCallback) {
 		var sessionId = this._client.getSessionID(),
 			focusProp = keys.getFocusProperty(propName),
@@ -221,6 +265,8 @@ module.exports = new (function(){
 		this._connectCallbacks = []
 		this._requestCallbacks = {}
 		this._eventHandlers = {}
+		this._transactions = {}
+		this._transactionStack = []
 		this._socket = new io.Socket(location.hostname, {
 			port: 8080,
 			connectTimeout: 500,
@@ -237,12 +283,10 @@ module.exports = new (function(){
 	
 	this._onMutationMessage = function(data) {
 		var mutation = JSON.parse(data)
-		log('handle mutation', mutation)
 		this._handleMutation(mutation)
 	}
 	
 	this._handleConnected = function() {
-		log("Connected!")
 		for (var i=0; i<this._connectCallbacks.length; i++) {
 			this._connectCallbacks[i]()
 		}
@@ -251,17 +295,16 @@ module.exports = new (function(){
 	
 	this._handleMessage = function(message) {
 		if (message.response) {
-			log('handle resonse', message.response)
 			this._executeCallback(message.response, message.data)
 		} else if (this._eventHandlers[message.event]) {
 			this._eventHandlers[message.event](message.data)
 		} else {
-			log('received unknown message', message)
+			throw 'received unknown message: '+JSON.stringify(message)
 		}
 	}
 	
 	this._handleDisconnect = function() {
-		log('_handleDisconnect', arguments)
+		console.log('_handleDisconnect', arguments)
 	}
 	
 	this._listOp = function(itemId, propName, op, values) {
@@ -312,7 +355,7 @@ module.exports = new (function(){
 		}
 		
 		if (itemID != this._localID && pool.count(key) == 1) {
-			if (typeof itemID != 'number') { throw new Error('Expected numeric ID but got "'+itemID+'"') }
+			if (typeof itemID != 'number') { throw 'Expected numeric ID but got: '+itemID }
 			var request = { id:itemID, property:property, type:type }
 			if (typeof params.snapshot != 'undefined') {
 				request.snapshot = params.snapshot
@@ -375,7 +418,7 @@ module.exports = new (function(){
 			property: resolved.property
 		}
 		
-		if (itemID != this._localID) { this.request('mutate', { mutation:mutation }) }
+		if (itemID != this._localID) { this.request('mutate', { mutation:mutation }, true) }
 		
 		this._handleMutation(mutation)
 	}
@@ -395,13 +438,13 @@ module.exports = new (function(){
 				break
 			case 'increment':
 			case 'decrement':
-				if (args.length) { throw log("Argument for operation without signature " + operation) }
+				if (args.length) { throw 'Argument for operation without signature: '+operation }
 				break
 			case 'add':
 			case 'subtract':
-				if (args.length != 1) { throw log('Missing argument for "'+operation+'"') }
+				if (args.length != 1) { throw 'Missing argument for: '+operation }
 				break
-			default: throw log("Unknown operation for deserialization " + operation)
+			default: throw 'Unknown operation for deserialization: '+operation
 		}
 	}
 	
@@ -466,7 +509,7 @@ module.exports = new (function(){
 				cachedMutation.value = mutation.value = (cachedValue || 0) - mutation.args[0]
 				break
 			default:
-				throw log('Unknown operation for caching "'+mutation.op+'"')
+				throw 'Unknown operation for caching: '+mutation.op
 		}
 		return mutationCache[key]
 	}
@@ -486,7 +529,3 @@ module.exports = new (function(){
 	
 	this._init()
 })()
-
-// TODO
-// - bake observeList and observeSet together, and (maybe) bake them together with observe as well
-// - move the chaining of observations to the server

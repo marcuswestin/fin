@@ -1,11 +1,12 @@
 module.exports = {
 	bind: bind,
 	curry: curry,
-	Class: Class,
 	blockCallback: blockCallback,
 	each: each,
 	map: map,
-	copyArray: copyArray
+	pick: pick,
+	copyArray: copyArray,
+	defineGetter: defineGetter
 }
 
 function curry(fn /* arg1, arg2, ... */) {
@@ -29,7 +30,7 @@ function each(items, ctx, fn) {
 	if (!items) { return }
 	if (!fn) { fn = ctx, ctx = this }
 	if (isArray(items)) {
-		for (var i=0, item; item = items[i]; i++) { fn.call(ctx, item, i) }
+		for (var i=0; i < items.length; i++) { fn.call(ctx, items[i], i) }
 	} else {
 		for (var key in items) { fn.call(ctx, items[key], key) }
 	}
@@ -41,43 +42,14 @@ function map(items, fn) {
 	return results
 }
 
-function Class(parent, proto) {
-	if(!proto) { proto = parent }
-	proto.prototype = parent.prototype
-	
-	var cls = function() { if(this.init) { this.init.apply(this, arguments) }}
-	cls.prototype = new proto(function(context, method, args) {
-		var target = parent
-		while(target = target.prototype) {
-			if(target[method]) {
-				return target[method].apply(context, args || [])
-			}
-		}
-		throw new Error('supr: parent method ' + method + ' does not exist')
-	})
-	
-	// Sometimes you want a method that renders UI to only execute once if it's called 
-	// multiple times within a short time period. Delayed methods do just that
-	cls.prototype.createDelayedMethod = function(methodName, fn) {
-		// "this" is the class
-		this[methodName] = function() {
-			// now "this" is the instance. Each instance gets its own function
-			var executionTimeout
-			this[methodName] = bind(this, function() {
-				clearTimeout(executionTimeout)
-				executionTimeout = setTimeout(bind(fn, 'apply', this, arguments), 10)
-			})
-			this[methodName].apply(this, arguments)
-		}
+function pick(arr, fn) {
+	var result = []
+	for (var i=0, value; i < arr.length; i++) {
+		value = fn(arr[i])
+		if (value) { result.push(value) }
 	}
-	
-	cls.prototype.constructor = cls
-	return cls
+	return result
 }
-// 
-// function Singleton(parent, proto) {
-// 	return new (exports.Class(parent, proto))()
-// }
 
 // var stripRegexp = /^\s*(.*?)\s*$/
 // exports.strip = function(str) {
@@ -129,6 +101,29 @@ function blockCallback(callback, opts) {
 function copyArray(array) {
 	return Array.prototype.slice.call(array, 0)
 }
+
+function defineGetter(object, propertyName, getter) {
+	var fn = object.defineGetter ? _w3cDefineGetter
+		: object.__defineGetter__ ? _interimDefineGetter
+		: Object.defineProperty ? _ie8DefineGetter
+		: function() { throw 'defineGetter not supported' }
+	
+	module.exports.defineGetter = fn
+	fn.apply(this, arguments)
+}
+
+var _w3cDefineGetter = function(object, propertyName, getter) {
+	object.defineGetter(propertyName, getter)
+}
+
+var _interimDefineGetter = function(object, propertyName, getter) {
+	object.__defineGetter__(propertyName, getter)
+}
+
+var _ie8DefineGetter = function(object, propertyName, getter) {
+	Object.defineProperty(object, propertyName, { value:getter, enumerable:true, configurable:true })
+}
+
 
 // 
 // exports.getDependable = function() {

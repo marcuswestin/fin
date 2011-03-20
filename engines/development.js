@@ -69,17 +69,26 @@ var storeAPI = {
 	getMembers: function(key, callback) {
 		if (typeof data[key] == 'undefined') {
 			callback && callback(null, [])
-		} else if (!(data[key] instanceof Array)) {
+		} else if (typeof data[key] != 'object') {
 			callback && callback(typeError('getMembers', 'set', key))
 		} else {
-			callback && callback(null, data[key].members)
+			var response = []
+			for (var value in data[key]) { response.push(JSON.parse(value)) }
+			callback && callback(null, response)
 		}
 	},
 	
 	/* Mutation handlers
 	 *******************/
-	handleMutation: function(operation, args) {
-		storeAPI[operation].apply(this, args)
+	handleMutation: function(operation, key, args, callback) {
+		var operationArgs = [key].concat(args)
+		if (callback) { operationArgs.push(callback) }
+		storeAPI[operation].apply(this, operationArgs)
+	},
+	
+	transact: function(transactionFn) {
+		// the development engine acts atomically. We assume node won't halt during an operation
+		transactionFn()
 	},
 	
 	set: function(key, value, callback) {
@@ -164,8 +173,33 @@ var storeAPI = {
 		}
 	},
 	
-	sadd: function() { throw new Error('sadd not yet implemented') },
-	srem: function() { throw new Error('srem not yet implemented') }	
+	sadd: function(key, value, callback) {
+		value = JSON.stringify(value)
+		if (typeof data[key] == 'undefined') {
+			data[key] = {}
+			data[key][value] = true
+			callback && callback(null, 1)
+		} else if (typeof data[key] == 'object') {
+			var response = data[key][value] ? 0 : 1
+			data[key][value] = true
+			callback && callback(null, response)
+		} else {
+			callback && callback(typeError('sadd', 'set', key), null)
+		}
+	},
+	
+	srem: function(key, value, callback) {
+		value = JSON.stringify(value)
+		if (typeof data[key] == 'undefined') {
+			callback && callback(null, 0)
+		} else if (typeof data[key] == 'object') {
+			var response = data[key][value] ? 1 : 0
+			delete data[key][value]
+			callback && callback(null, response)
+		} else {
+			callback && callback(typeError('srem', 'set', key), null)
+		}
+	},
 }
 
 var pubsubAPI = {

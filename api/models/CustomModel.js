@@ -40,9 +40,8 @@ var _instantiateProperty = function(propertyName, value, propertyDescription) {
 	return this[propertyName]
 }
 
-function create(callback) {
+function create() {
 	if (this._id) { return this } // already created
-	if (callback) { _waitForID(this, callback) }
 	_waitForPropertyIDs(this, function() {
 		_createInDatabase(this, function(newID) {
 			this._id = newID

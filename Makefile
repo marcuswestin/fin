@@ -20,7 +20,7 @@ lib/browser-require:
 lib/socket.io:
 	git clone git://github.com/LearnBoost/Socket.IO-node.git socket.io
 	mv socket.io lib/
-	cd lib/socket.io; git checkout 0.6.1
+	cd lib/socket.io; git checkout 0.6.16
 
 ##################
 ### Utilities ####

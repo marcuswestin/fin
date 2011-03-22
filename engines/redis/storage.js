@@ -1,5 +1,5 @@
 var redis = require('../lib/redis-node-client/lib/redis-client'),
-	util = require('./util')
+	util = require('../util')
 
 module.exports = {
 	getStore: getStore

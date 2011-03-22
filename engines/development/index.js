@@ -1,6 +1,6 @@
-var storeAPI = require('./development-storage'),
-	pubsubAPI = require('./development-pubsub'),
-	util = require('./util')
+var storeAPI = require('./storage'),
+	pubsubAPI = require('./pubsub'),
+	util = require('../util')
 
 module.exports = {
 	getStore: function() { return util.create(storeAPI) },

@@ -1,5 +1,5 @@
-var storage = require('./redis-storage'),
-	pubsub = require('./redis-pubsub')
+var storage = require('./storage'),
+	pubsub = require('./pubsub')
 
 module.exports = {
 	getStore: storage.getStore,

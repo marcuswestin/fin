@@ -481,10 +481,10 @@ var fin = module.exports = new (function(){
 				mutationCache[key] = mutation
 				break
 			case 'push':
-				cachedArgs = cachedArgs.concat(mutation.args)
+				cachedMutation.args = cachedMutation.args.concat(mutation.args)
 				break
 			case 'unshift':
-				cachedArgs = mutation.args.concat(cachedArgs)
+				cachedMutation.args = mutation.args.concat(cachedMutation.args)
 				break
 			case 'sadd':
 				for (var i=0, itemId; itemId = mutation.args[i]; i++) {

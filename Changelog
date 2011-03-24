@@ -1,6 +1,9 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
+intended v0.2.5
++ Fix: a second observation of a list value will now receive the correct cached values (was previously limited to a single value)
+
 v0.2.4
 + no longer required to call create explicitly on new model instances
 + tested with node v0.2.4

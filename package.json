@@ -1,0 +1,17 @@
+{
+  "name": "fin",
+  "description": "Realtime data layer for web applications",
+  "version": "0.2.5",
+  "homepage": "https://github.com/marcuswestin/fin",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/marcuswestin/fin.git"
+  },
+  "author": "Marcus Westin <narcvs@gmail.com> (http://marcuswest.in)",
+  "directories": {
+    "lib": "lib"
+  },
+  "engines": {
+    "node": ">= 0.4.2"
+  }
+}

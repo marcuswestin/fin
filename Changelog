@@ -1,8 +1,11 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
-intended v0.2.5
+intended v0.2.6
 + Fix: a second observation of a list value will now receive the correct cached values (was previously limited to a single value)
+
+v0.2.5
++ Use latest lib/require
 
 v0.2.4
 + no longer required to call create explicitly on new model instances
@@ -45,6 +48,7 @@ v0.1.0
 + Redis and development (node in-memory) engines exist for pubsub and storage
 
 TODO
+- use submodules rather than a makefile
 - move the chaining of observations to the server
 - typecheck arguments passed in to model mutation functions (e.g. number.set('foo') should fail)
 - upgrade to latest socket.io

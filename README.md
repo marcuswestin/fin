@@ -10,7 +10,7 @@ Now fire up your browser to localhost/[path to fin]/demo, or try out the Key/Val
 
 Key/Value API
 -------------
-	<script src="http://localhost:8080/client-api.js"></script>
+	<script src="http://localhost:8080/fin-api.js"></script>
 	<script>
 	fin.connect('localhost', 8080, function() {
 		// Create items
@@ -34,7 +34,7 @@ Key/Value API
 
 ORM API
 -------
-	<script src="http://localhost:8080/models-api.js"></script>
+	<script src="http://localhost:8080/fin-models-api.js"></script>
 	<script>
 	fin.connect('localhost', 8080, function() {
 		// Declare schema

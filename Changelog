@@ -1,6 +1,9 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
+v0.2.9
++ the fin server now serves the client API js files
+
 v0.2.8
 + Export fin as a commandline executable
 

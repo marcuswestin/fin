@@ -19,17 +19,9 @@ var fin = module.exports = new (function(){
  **********************************/
 	/* Connect to the fin database. The callback will be called
 	 * once you have a connection with the server */
-	this.connect = function(callback) {
-		if (this._socket.connected) {
-			if (callback) { callback() }
-			return
-		}
-		if (callback) {
-			this._connectCallbacks.push(callback)
-		}
-		if (!this._socket.connecting) {
-			this._socket.connect()
-		}
+	this.connect = function(host, port, callback) {
+		if (this._socket) { throw "fin.connect has already been called" }
+		this._doConnect(host, port, callback)
 	}
 	
 	/* Create an item with the given data as properties,
@@ -262,35 +254,31 @@ var fin = module.exports = new (function(){
  * Private methods *
  *******************/
 	this._init = function() {
-		this._connectCallbacks = []
 		this._requestCallbacks = {}
 		this._eventHandlers = {}
 		this._transactions = {}
 		this._transactionStack = []
-		this._socket = new io.Socket(location.hostname, {
-			port: 8080,
-			connectTimeout: 500,
-			transports: 'websocket,xhr-multipart,flashsocket,htmlfile,xhr-polling,jsonp-polling'.split(',')
-		})
-		
-		this._socket
-			.on('connect', bind(this, '_handleConnected'))
-			.on('message', bind(this, '_handleMessage'))
-			.on('disconnect', bind(this, '_handleDisconnect'))
-		
 		this.handle('mutation', bind(this, '_onMutationMessage'))
 	}
 	
+	this._doConnect = function(host, port, callback) {
+		this._socket = new io.Socket(host, {
+			port: port,
+			connectTimeout: 500,
+			transports: 'websocket,xhr-multipart,flashsocket,htmlfile,xhr-polling,jsonp-polling'.split(',')
+		})
+
+		this._socket
+			.on('connect', bind(this, callback))
+			.on('message', bind(this, '_handleMessage'))
+			.on('disconnect', bind(this, '_handleDisconnect'))
+		
+		this._socket.connect()
+	}
+
 	this._onMutationMessage = function(data) {
 		var mutation = JSON.parse(data)
 		this._handleMutation(mutation)
-	}
-	
-	this._handleConnected = function() {
-		for (var i=0; i<this._connectCallbacks.length; i++) {
-			this._connectCallbacks[i]()
-		}
-		this._connectCallbacks = []
 	}
 	
 	this._handleMessage = function(message) {

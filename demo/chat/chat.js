@@ -18,7 +18,7 @@ models.process({
 	}
 })
 
-fin.connect(function() {
+fin.connect('127.0.0.1', 8080, function() {
 	hide($('connecting'))
 	show($('user'))
 })

@@ -2,6 +2,7 @@ intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
 intended v0.2.6
++ Connect now takes a host and port: fin.connect('localhost', 8080, function() { ... })
 + Fix: a second observation of a list value will now receive the correct cached values (was previously limited to a single value)
 
 v0.2.5

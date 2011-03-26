@@ -28,8 +28,8 @@ function start(host, port, theEngine, httpServer) {
 	
 	if (!httpServer) {
 		httpServer = require('http').createServer(function(req, res){
-			if (req.url == '/client-api.js') { res.end(clientAPI) }
-			if (req.url == '/models-api.js') { res.end(modelsAPI) }
+			if (req.url == '/fin-api.js') { res.end(clientAPI) }
+			if (req.url == '/fin-models-api.js') { res.end(modelsAPI) }
 		})
 		httpServer.listen(port, host)
 	}

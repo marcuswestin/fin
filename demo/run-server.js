@@ -1,7 +1,7 @@
 var http = require('http'),
 	path = require('path'),
 	fs = require('fs'),
-	fin = require('../api/server'),
+	fin = require('fin'),
 	engine = require('../engines/development')
 
 var contentTypes = {

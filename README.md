@@ -1,3 +1,12 @@
+Getting started
+---------------
+Install fin
+	npm install fin
+
+Run a demo
+	node demo/run-server.js
+Fire up your browser to localhost/[path to fin]/demo
+
 Key/Value API
 -------------
 Create an item
@@ -44,15 +53,6 @@ Observe models
 		message.text.observe(function(text) { console.log('message text is',  text) })
 	})
 
-
-Getting started
----------------
-npm install fin
-
-Run a demo
-	node demo/run-server.js
-
-Fire up your browser to localhost/[path to fin]/demo
 
 Development vs Production
 -------------------------

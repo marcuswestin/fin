@@ -3,9 +3,10 @@ Getting started
 Install fin
 	npm install fin
 
-Run a demo
-	node demo/run-server.js
-	# Now fire up your browser to localhost/[path to fin]/demo
+Run the server
+	fin localhost 8080
+
+Now fire up your browser to localhost/[path to fin]/demo, or try out the Key/Value API example below
 
 Key/Value API
 -------------

@@ -3,6 +3,8 @@ intended v0.3.0
 
 intended v0.2.6
 + Manage dependencies with npm
++ The server API is now exposed as the main fin module - var fin = require('fin')
++ Create bundled builds of client-side API files with require('require/compiler')
 + Connect now takes a host and port: fin.connect('localhost', 8080, function() { ... })
 + Fix: a second observation of a list value will now receive the correct cached values (was previously limited to a single value)
 

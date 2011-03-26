@@ -67,9 +67,8 @@ Engines
 -------
 Fin uses pluggable engines for storage and pubsub. You can build your own engine, or use one that comes with fin.
 	
-	var fin = require('fin'),
-		engine = require('fin/engines/development')
-	fin.start(engine)
+	var fin = require('fin'), engine = require('fin/engines/development')
+	fin.start('localhost', 8080, engine)
 
 The "development" engine holds all data and handles subscriptions in node process memory. It's great for development since you do not need to install a storage system and a pubsub system to get started. In production, you should use a more scalable engine, e.g. the redis engine:
 
@@ -79,4 +78,4 @@ Start redis server
 	redis-server
 Start fin server
 	var fin = require('fin'), redisEngine = require('fin/engines/development')
-	fin.start(redisEngine)
+	fin.start('production.com', 8080, redisEngine)

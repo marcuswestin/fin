@@ -18,13 +18,13 @@ var	_handlers = {},
 
 /* Exported API
  **************/
-function start(theEngine, httpServer) {
+function start(host, port, theEngine, httpServer) {
 	_engine = theEngine
 	data.setEngine(_engine)
 	
 	if (!httpServer) {
 		httpServer = require('http').createServer(function(){})
-		httpServer.listen(8080, '127.0.0.1')
+		httpServer.listen(port, host)
 	}
 	var socket = io.listen(httpServer)
 	socket.on('connection', _handleConnection)

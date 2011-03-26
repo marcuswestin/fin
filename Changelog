@@ -1,6 +1,9 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
+v0.2.7
++ Improved README instructions
+
 v0.2.6
 + Manage dependencies with npm
 + The server API is now exposed as the main fin module - var fin = require('fin')

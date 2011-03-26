@@ -6,5 +6,5 @@ var host = process.argv[2] || 'localhost',
 
 console.log('starting fin with', engineName, 'engine on', host, ':', port)
 
-var fin = require('fin'), engine = require('fin/engines/' + engineName)
-fin.start(engine)
+var fin = require('../api/server'), engine = require('../engines/' + engineName)
+fin.start(host, port, engine)

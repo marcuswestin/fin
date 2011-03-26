@@ -1,4 +1,5 @@
 var events = require('events'),
+	fs = require('fs'),
 	io = require('../lib/socket.io'),
 	data = require('./fin/data'),
 	requestHandlers = require('./fin/requestHandlers'),
@@ -21,9 +22,15 @@ var	_handlers = {},
 function start(host, port, theEngine, httpServer) {
 	_engine = theEngine
 	data.setEngine(_engine)
+
+	var clientAPI = fs.readFileSync(__dirname + '/../fin-client.min.js'),
+		modelsAPI = fs.readFileSync(__dirname + '/../fin-models-client.min.js')
 	
 	if (!httpServer) {
-		httpServer = require('http').createServer(function(){})
+		httpServer = require('http').createServer(function(req, res){
+			if (req.url == '/client-api.js') { res.end(clientAPI) }
+			if (req.url == '/models-api.js') { res.end(modelsAPI) }
+		})
 		httpServer.listen(port, host)
 	}
 	var socket = io.listen(httpServer)

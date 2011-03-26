@@ -16,10 +16,9 @@ Mutate an item property
 ORM API
 -------
 Create your schema
-	var fin = require('./api/client'),
-		models = require('./api/models')
-
-	models.process({
+	<script src="fin-models-client.min.js"></script>
+	<script>
+	fin.models.process({
 		"Global": {
 			"messages": { id:1, type:'List', of:'Message' }
 		},
@@ -32,14 +31,15 @@ Create your schema
 			"age":  { id:2, type:'Number' }
 		}
 	})
+	</script>
 
 Instantiate models
-	var user = new models.User(1) // user with ID 1
-	var message = new models.Message({ text:'Hi!', from:user })
-	models.global.messages.push(message)
+	var user = new fin.models.User(1) // user with ID 1
+	var message = new fin.models.Message({ text:'Hi!', from:user })
+	fin.models.global.messages.push(message)
 
 Observe models
-	models.global.messages.on('push', function(message) {
+	fin.models.global.messages.on('push', function(message) {
 		message.from.name.observe(function(name) { console.log('message from', name) })
 		message.text.observe(function(text) { console.log('message text is',  text) })
 	})
@@ -47,17 +47,12 @@ Observe models
 
 Getting started
 ---------------
-Fin requires node
-	sudo make install-node
-
-Fin also needs some local libraries
-	make
+npm install fin
 
 Run a demo
 	node demo/run-server.js
 
 Fire up your browser to localhost/[path to fin]/demo
-
 
 Development vs Production
 -------------------------

@@ -1,4 +1,4 @@
-var redis = require('../lib/redis-node-client/lib/redis-client'),
+var redis = require('redis-client'),
 	util = require('../util')
 
 module.exports = {

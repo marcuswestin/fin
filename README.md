@@ -26,7 +26,7 @@ Key/Value API
 			var names = ['john', 'david', 'lars', 'henrik', 'johannes', 'mark']
 			setInterval(function() {
 				fin.set(friendID, 'name', names[Math.floor(Math.random() * names.length)])
-			}, Math.ceil(Math.random() * 10000))
+			}, 1000 + Math.ceil(Math.random() * 3000))
 		})
 	})
 	</script>

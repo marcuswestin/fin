@@ -11,7 +11,8 @@ var bind = util.bind,
 	forEach = util.forEach,
 	copyArray = util.copyArray
 
-var fin = module.exports = new (function(){
+// Create fin in the global namespace
+fin = new (function(){
 
 /**********************************
  * The core API: connect, create, *

@@ -1,10 +1,7 @@
-var fin = require('../../api/client'),
-	models = require('../../api/models')
-
 var user = null,
 	$ = function(id) { return document.getElementById(id) }
 
-models.process({
+fin.models.process({
 	"Global": {
 		"messages": { id:1, type:"List", of:"Message" }
 	},
@@ -24,7 +21,7 @@ fin.connect('127.0.0.1', 8080, function() {
 })
 
 $('login').onclick = function() {
-	user = new models.User({ name: $('username').value, age: 25 })
+	user = new fin.models.User({ name: $('username').value, age: 25 })
 	hide($('login'))
 	show($('online'))
 	reflectProperty($('username'), user.name)
@@ -32,12 +29,12 @@ $('login').onclick = function() {
 }
 
 $('send').onclick = function() {
-	var message = new models.Message({ from:user, text:$('message').value })
-	models.global.messages.push(message)
+	var message = new fin.models.Message({ from:user, text:$('message').value })
+	fin.models.global.messages.push(message)
 	$('message').value = ''
 }
 
-models.global.messages.on('push', function(message) {
+fin.models.global.messages.on('push', function(message) {
 	var div = $('messages').appendChild(document.createElement('div')),
 		sender = div.appendChild(document.createElement('div')),
 		messageInput = div.appendChild(document.createElement('input'))

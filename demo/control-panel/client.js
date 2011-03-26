@@ -1,5 +1,3 @@
-var fin = require('../../api/client')
-
 fin.connect('127.0.0.1', 8080, function() {
 	var createButton = document.getElementById('create-button'),
 		createPropInput = document.getElementById('create-prop-input'),

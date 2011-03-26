@@ -1,11 +1,12 @@
-module.exports = {
+require('../client')
+
+fin.models = {
 	process: process,
 	_waitForID: _waitForID
 }
 
 var CustomModelPrototype = require('./CustomModel'),
-	propertyModels = require('./propertyModels'),
-	customModels = module.exports
+	propertyModels = require('./propertyModels')
 
 function process(modelDescriptions) {
 	for (var modelName in modelDescriptions) {
@@ -13,15 +14,15 @@ function process(modelDescriptions) {
 		_createModelConstructor(modelName, modelDescriptions[modelName])
 	}
 	
-	if (customModels.Global) { customModels.global = new customModels.Global(0) }
-	if (customModels.Local) { customModels.local = new customModels.Local(-1) }
+	if (fin.models.Global) { fin.models.global = new fin.models.Global(0) }
+	if (fin.models.Local) { fin.models.local = new fin.models.Local(-1) }
 }
 
 var _validateModelDescription = function(modelName, properties) {
 	var firstLetterCode = modelName.charCodeAt(0),
 		propertyIDs = {}
 	assert(65 <= firstLetterCode && firstLetterCode <= 90, 'Model names should start with an upper case letter. "'+modelName+'" does not.')
-	assert(!customModels[modelName], 'Model "'+modelName+'" already exists')
+	assert(!fin.models[modelName], 'Model "'+modelName+'" already exists')
 	assert(!propertyModels[modelName], 'Property model "'+modelName+'" already exists')
 	for (propertyName in properties) {
 		var property = properties[propertyName],
@@ -44,8 +45,8 @@ var _validateModelDescription = function(modelName, properties) {
 }
 
 var _createModelConstructor = function(modelName, modelDescription) {
-	var modelConstructor = customModels[modelName] = function(idOrValues) {
-		this._constructor = customModels[modelName]
+	var modelConstructor = fin.models[modelName] = function(idOrValues) {
+		this._constructor = fin.models[modelName]
 		this._instantiate.call(this, idOrValues)
 	}
 	var modelPropertiesID = []

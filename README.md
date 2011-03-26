@@ -12,17 +12,22 @@ Key/Value API
 	<script src="fin-client.min.js"></script>
 	<script>
 	fin.connect('localhost', 8080, function() {
-		// Create an item
-		fin.create({ type: 'user', name: 'marcus', friend:2 }, function(newItemID) { ... })
-		
-		// Subscribe to an item property
-		fin.observe(itemID, property, function(mutation) { ... })
-		fin.observe(1, 'name', function(mutation, name) { console.log(name) })
-		fin.observe(1, 'friend.name', function(mutation, name) { console.log("friend's name is", name) })
+		// Create items
+		fin.create({ name: 'john' }, function(friendID) {
+			fin.create({ name: 'marcus' }, function(marcusID) {
+				fin.set(marcusID, 'friend', friendID)
 
-		// Mutate an item property
-		fin.set(itemID, property, value)
-		fin.set(1, 'name', 'marcus westin')
+				// Observe item properties
+				fin.observe(marcusID, 'name', function(mutation) { console.log("Marcus' name is", mutation.value) })
+				fin.observe(marcusID, 'friend.name', function(mutation) { console.log("Marcus' friend's name is", mutation.value) })
+			})
+
+			// Mutate item properties
+			var names = ['john', 'david', 'lars', 'henrik', 'johannes', 'mark']
+			setInterval(function() {
+				fin.set(friendID, 'name', names[Math.floor(Math.random() * names.length)])
+			}, Math.ceil(Math.random() * 10000))
+		})
 	})
 	</script>
 

@@ -1,6 +1,9 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
+intended v0.2.12
++ Seems like npm silently swallows directories named "build" when publishing a package :/ Move build/* to builds/*
+
 v0.2.11
 + Serve the fin client API files even if the HTTP server is passed in to fin.start
 + Built files are put in their own /build directory rather than at the repo root

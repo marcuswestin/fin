@@ -1,26 +1,26 @@
 # Commands
 ##########
-clients: build/fin-client.js build/fin-models-client.js
-compress: build/fin-client.min.js build/fin-models-client.min.js
+clients: builds/fin-client.js builds/fin-models-client.js
+compress: builds/fin-client.min.js builds/fin-models-client.min.js
 
 publish: clients compress
 	npm publish
 
 # Dependencies
 ##############
-build/fin-client.js: api/*
-	node build/build.js client
-build/fin-client.min.js: api/*
-	node build/build.js client --compress
-build/fin-models-client.js: api/*
-	node build/build.js models
-build/fin-models-client.min.js: api/*
-	node build/build.js models --compress
+builds/fin-client.js: api/*
+	node builds/build.js client
+builds/fin-client.min.js: api/*
+	node builds/build.js client --compress
+builds/fin-models-client.js: api/*
+	node builds/build.js models
+builds/fin-models-client.min.js: api/*
+	node builds/build.js models --compress
 
 # Utilities
 ###########
 clean:
-	rm -f build/fin-*client.js
+	rm -f builds/fin-*client.js
 
 install-node:
 	git clone git://github.com/ry/node.git /tmp/fin-node

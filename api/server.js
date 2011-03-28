@@ -24,8 +24,8 @@ function start(host, port, theEngine, httpServer) {
 	_engine = theEngine
 	data.setEngine(_engine)
 
-	var clientAPI = fs.readFileSync(__dirname + '/../build/fin-client.min.js'),
-		modelsAPI = fs.readFileSync(__dirname + '/../build/fin-models-client.min.js')
+	var clientAPI = fs.readFileSync(__dirname + '/../builds/fin-client.min.js'),
+		modelsAPI = fs.readFileSync(__dirname + '/../builds/fin-models-client.min.js')
 	
 	if (!httpServer) {
 		httpServer = http.createServer()

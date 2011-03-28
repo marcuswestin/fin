@@ -1,9 +1,9 @@
 var require = {}
 require._=(function() {
-	var module = require["api/client"] = {exports:{}}, exports = module.exports
+	var module = require["/Library/WebServer/Documents/fun/lib/fin/api/client"] = {exports:{}}, exports = module.exports
 	// start module code
 	var util = require._=(function() {
-		var module = require["api/fin/util"] = {exports:{}}, exports = module.exports
+		var module = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/util"] = {exports:{}}, exports = module.exports
 		// start module code
 		module.exports = {
 			bind: bind,
@@ -25,7 +25,7 @@ require._=(function() {
 		}
 		
 		function bind(context, method/*, args... */) {
-			if (!context || !method || (typeof method == 'string' && !context[method])) { throw "bad bind arguments" }
+			if (!context || !method || (typeof method == 'string' && !context[method])) { console.log("bad bind arguments"); debugger }
 			var curryArgs = Array.prototype.slice.call(arguments, 2)
 			return function() {
 				fn = (typeof method == 'string' ? context[method] : method)
@@ -162,9 +162,9 @@ require._=(function() {
 		return module.exports
 	})(),
 	Pool = require._=(function() {
-		var module = require["api/fin/Pool"] = {exports:{}}, exports = module.exports
+		var module = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/Pool"] = {exports:{}}, exports = module.exports
 		// start module code
-		var Class = require["api/fin/util"].exports.Class
+		var Class = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/util"].exports.Class
 		
 		module.exports = function() {
 			this._pool = {}
@@ -207,7 +207,7 @@ require._=(function() {
 		return module.exports
 	})(),
 	keys = require._=(function() {
-		var module = require["api/fin/keys"] = {exports:{}}, exports = module.exports
+		var module = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/keys"] = {exports:{}}, exports = module.exports
 		// start module code
 		/************************************
 		 * Redis key and channel namespaces *
@@ -256,7 +256,7 @@ require._=(function() {
 	// socket.io expects the request for the js file to come in at root
 	//  level, and puts the io object in the global scope
 	require._=(function() {
-		var module = require["lib/socket.io/support/socket.io-client/socket.io"] = {exports:{}}, exports = module.exports
+		var module = require["/Library/WebServer/Documents/fun/lib/fin/lib/socket.io/support/socket.io-client/socket.io"] = {exports:{}}, exports = module.exports
 		// start module code
 		/** Socket.IO 0.6.2 - Built with build.js */
 		/**
@@ -2200,14 +2200,14 @@ fin = new (function(){
 	/* Connect to the fin database. The callback will be called
 	 * once you have a connection with the server */
 	this.connect = function(host, port, callback) {
-		if (this._socket) { throw "fin.connect has already been called" }
+		if (this._socket) { error("fin.connect has already been called") }
 		this._doConnect(host, port, callback)
 	}
 	
 	/* Create an item with the given data as properties,
 	 * and get notified of the new item id when it's been created */
 	this.create = function(properties, callback) {
-		if (typeof callback != 'function') { throw 'Second argument to fin.create should be a callback' }
+		if (typeof callback != 'function') { error('Second argument to fin.create should be a callback') }
 		for (var key in properties) {
 			if (properties[key] instanceof Array && !properties[key].length) {
 				delete properties[key] // For now we assume that engines treat NULL values as empty lists, a la redis
@@ -2220,7 +2220,7 @@ fin = new (function(){
 	 * The item property may be chained (e.g. observe(1, 'driver.car.model')),
 	 *  assuming that driver.car will resolve to an item ID */
 	this.observe = function(itemID, propName, callback) {
-		if (typeof itemID != 'number' || !propName || !callback) { throw 'observe requires three arguments: '+[itemId, propName, callback?'function':callback].join(' ') }
+		if (typeof itemID != 'number' || !propName || !callback) { error('observe requires three arguments: '+[itemId, propName, callback?'function':callback].join(' ')) }
 		return this._observeChain(itemID, propName, 0, callback, {})
 	}
 	
@@ -2281,7 +2281,7 @@ fin = new (function(){
 	 ************/
 	/* Observe an item property list, and get notified any time it changes */
 	this.observeList = function(itemID, propName, callback, length) {
-		if (typeof itemID != 'number' || !propName || !callback) { throw 'observe requires at least three arguments: '+[itemName, propName, callback?'function':callback, length].join(' ') }
+		if (typeof itemID != 'number' || !propName || !callback) { error('observe requires at least three arguments: '+[itemName, propName, callback?'function':callback, length].join(' ')) }
 		
 		var subId = this._observeChain(itemID, propName, 0, callback, { snapshot: false })
 		
@@ -2292,7 +2292,7 @@ fin = new (function(){
 	/* Extend the history of an observed list */
 	this._listLength = {}
 	this.extendList = function(id, prop, extendToIndex) {
-		if (typeof id != 'number' || !prop) { throw 'extendList requires a numeric ID and a property: '+[itemID, prop].join(' ') }
+		if (typeof id != 'number' || !prop) { error('extendList requires a numeric ID and a property: '+[itemID, prop].join(' ')) }
 		
 		this._resolvePropertyChain(id, prop, bind(this, function(resolved) {
 			var itemID = this._getItemID(resolved.id),
@@ -2368,7 +2368,7 @@ fin = new (function(){
 	
 	this._endTransaction = function(transactionID) {
 		var id = this._transactionStack.pop()
-		if (id != transactionID) { throw 'transaction ID mismatch in _endTransaction! '+id+' '+transactionID }
+		if (id != transactionID) { error('transaction ID mismatch in _endTransaction! '+id+' '+transactionID) }
 		if (--this._transactions[id].waitingFor) { return }
 		this.request('transact', { actions: this._transactions[id].actions })
 		delete this._transactions[id]
@@ -2467,7 +2467,7 @@ fin = new (function(){
 		} else if (this._eventHandlers[message.event]) {
 			this._eventHandlers[message.event](message.data)
 		} else {
-			throw 'received unknown message: '+JSON.stringify(message)
+			error('received unknown message: '+JSON.stringify(message))
 		}
 	}
 	
@@ -2523,7 +2523,7 @@ fin = new (function(){
 		}
 		
 		if (itemID != this._localID && pool.count(key) == 1) {
-			if (typeof itemID != 'number') { throw 'Expected numeric ID but got: '+itemID }
+			if (typeof itemID != 'number') { error('Expected numeric ID but got: '+itemID) }
 			var request = { id:itemID, property:property, type:type }
 			if (typeof params.snapshot != 'undefined') {
 				request.snapshot = params.snapshot
@@ -2606,13 +2606,13 @@ fin = new (function(){
 			break
 			case 'increment':
 			case 'decrement':
-			if (args.length) { throw 'Argument for operation without signature: '+operation }
+			if (args.length) { error('Argument for operation without signature: '+operation) }
 			break
 			case 'add':
 			case 'subtract':
-			if (args.length != 1) { throw 'Missing argument for: '+operation }
+			if (args.length != 1) { error('Missing argument for: '+operation) }
 			break
-			default: throw 'Unknown operation for deserialization: '+operation
+			default: error('Unknown operation for deserialization: '+operation)
 		}
 	}
 	
@@ -2677,7 +2677,7 @@ fin = new (function(){
 			cachedMutation.value = mutation.value = (cachedValue || 0) - mutation.args[0]
 			break
 			default:
-			throw 'Unknown operation for caching: '+mutation.op
+			error('Unknown operation for caching: '+mutation.op)
 		}
 		return mutationCache[key]
 	}
@@ -2695,6 +2695,11 @@ fin = new (function(){
 		callback(response)
 	}
 	
+	function error(message) {
+		console.log('fin error:', message)
+		debugger
+	}
+	
 	this._init()
 })()
 
@@ -2708,7 +2713,7 @@ _waitForID: _waitForID
 }
 
 var CustomModelPrototype = require._=(function() {
-var module = require["api/models/CustomModel"] = {exports:{}}, exports = module.exports
+var module = require["/Library/WebServer/Documents/fun/lib/fin/api/models/CustomModel"] = {exports:{}}, exports = module.exports
 // start module code
 module.exports = {
 	_instantiate: _instantiate,
@@ -2716,7 +2721,7 @@ module.exports = {
 }
 
 var propertyModels = require._=(function() {
-	var module = require["api/models/propertyModels"] = {exports:{}}, exports = module.exports
+	var module = require["/Library/WebServer/Documents/fun/lib/fin/api/models/propertyModels"] = {exports:{}}, exports = module.exports
 	// start module code
 	module.exports = {
 		"Text": Value,
@@ -2726,7 +2731,7 @@ var propertyModels = require._=(function() {
 	}
 	
 	var propertyModels = module.exports,
-	util = require["api/fin/util"].exports
+	util = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/util"].exports
 	
 	/* Property model types (Text/Number, List/Set)
 	 **********************************************/
@@ -2848,7 +2853,7 @@ var propertyModels = require._=(function() {
 	// end module code
 	return module.exports
 })(),
-util = require["api/fin/util"].exports
+util = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/util"].exports
 
 function _instantiate(idOrValues) {
 	var values
@@ -2940,7 +2945,7 @@ var _waitForID = function(model, callback) {
 // end module code
 return module.exports
 })(),
-propertyModels = require["api/models/propertyModels"].exports
+propertyModels = require["/Library/WebServer/Documents/fun/lib/fin/api/models/propertyModels"].exports
 
 function process(modelDescriptions) {
 for (var modelName in modelDescriptions) {

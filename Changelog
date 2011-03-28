@@ -1,6 +1,10 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
+v0.2.14
++ Upgrade to require v0.1.12
++ Fix issue with importing the socket.io client file
+
 v0.2.13
 + Seems like npm silently swallows directories named "build" when publishing a package :/ Move build/* to builds/*
 

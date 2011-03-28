@@ -1,7 +1,7 @@
 var events = require('events'),
 	http = require('http'),
 	fs = require('fs'),
-	io = require('../lib/socket.io'),
+	io = require('socket.io'),
 	data = require('./fin/data'),
 	requestHandlers = require('./fin/requestHandlers'),
 	util = require('./fin/util')

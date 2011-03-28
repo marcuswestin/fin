@@ -1,3 +1,4 @@
+BUILD_CMD = node api/build.js
 # Commands
 ##########
 clients: builds/fin-client.js builds/fin-models-client.js
@@ -9,13 +10,13 @@ publish: clients compress
 # Dependencies
 ##############
 builds/fin-client.js: api/*
-	node builds/build.js client
+	$(BUILD_CMD) client
 builds/fin-client.min.js: api/*
-	node builds/build.js client --compress
+	$(BUILD_CMD) client --compress
 builds/fin-models-client.js: api/*
-	node builds/build.js models
+	$(BUILD_CMD) models
 builds/fin-models-client.min.js: api/*
-	node builds/build.js models --compress
+	$(BUILD_CMD) models --compress
 
 # Utilities
 ###########

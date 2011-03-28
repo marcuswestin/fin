@@ -4,7 +4,7 @@ var util = require('./fin/util'),
 
 // socket.io expects the request for the js file to come in at root
 //  level, and puts the io object in the global scope
-require('../lib/socket.io/support/socket.io-client/socket.io')
+require('socket.io/support/socket.io-client/socket.io')
 
 // aliases
 var bind = util.bind,

@@ -1,9 +1,9 @@
 var require = {}
 require._=(function() {
-	var module = require["/Library/WebServer/Documents/fun/lib/fin/api/client"] = {exports:{}}, exports = module.exports
+	var module = require["/Users/marcuswestin/Code/marcuswestin/fin/api/client"] = {exports:{}}, exports = module.exports
 	// start module code
 	var util = require._=(function() {
-		var module = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/util"] = {exports:{}}, exports = module.exports
+		var module = require["/Users/marcuswestin/Code/marcuswestin/fin/api/fin/util"] = {exports:{}}, exports = module.exports
 		// start module code
 		module.exports = {
 			bind: bind,
@@ -162,9 +162,9 @@ require._=(function() {
 		return module.exports
 	})(),
 	Pool = require._=(function() {
-		var module = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/Pool"] = {exports:{}}, exports = module.exports
+		var module = require["/Users/marcuswestin/Code/marcuswestin/fin/api/fin/Pool"] = {exports:{}}, exports = module.exports
 		// start module code
-		var Class = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/util"].exports.Class
+		var Class = require["/Users/marcuswestin/Code/marcuswestin/fin/api/fin/util"].exports.Class
 		
 		module.exports = function() {
 			this._pool = {}
@@ -207,7 +207,7 @@ require._=(function() {
 		return module.exports
 	})(),
 	keys = require._=(function() {
-		var module = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/keys"] = {exports:{}}, exports = module.exports
+		var module = require["/Users/marcuswestin/Code/marcuswestin/fin/api/fin/keys"] = {exports:{}}, exports = module.exports
 		// start module code
 		/************************************
 		 * Redis key and channel namespaces *
@@ -256,7 +256,7 @@ require._=(function() {
 	// socket.io expects the request for the js file to come in at root
 	//  level, and puts the io object in the global scope
 	require._=(function() {
-		var module = require["/Library/WebServer/Documents/fun/lib/fin/lib/socket.io/support/socket.io-client/socket.io"] = {exports:{}}, exports = module.exports
+		var module = require["/usr/local/lib/node/.npm/socket.io/0.6.16/package/support/socket.io-client/socket.io"] = {exports:{}}, exports = module.exports
 		// start module code
 		/** Socket.IO 0.6.2 - Built with build.js */
 		/**
@@ -2713,7 +2713,7 @@ _waitForID: _waitForID
 }
 
 var CustomModelPrototype = require._=(function() {
-var module = require["/Library/WebServer/Documents/fun/lib/fin/api/models/CustomModel"] = {exports:{}}, exports = module.exports
+var module = require["/Users/marcuswestin/Code/marcuswestin/fin/api/models/CustomModel"] = {exports:{}}, exports = module.exports
 // start module code
 module.exports = {
 	_instantiate: _instantiate,
@@ -2721,7 +2721,7 @@ module.exports = {
 }
 
 var propertyModels = require._=(function() {
-	var module = require["/Library/WebServer/Documents/fun/lib/fin/api/models/propertyModels"] = {exports:{}}, exports = module.exports
+	var module = require["/Users/marcuswestin/Code/marcuswestin/fin/api/models/propertyModels"] = {exports:{}}, exports = module.exports
 	// start module code
 	module.exports = {
 		"Text": Value,
@@ -2731,7 +2731,7 @@ var propertyModels = require._=(function() {
 	}
 	
 	var propertyModels = module.exports,
-	util = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/util"].exports
+	util = require["/Users/marcuswestin/Code/marcuswestin/fin/api/fin/util"].exports
 	
 	/* Property model types (Text/Number, List/Set)
 	 **********************************************/
@@ -2853,7 +2853,7 @@ var propertyModels = require._=(function() {
 	// end module code
 	return module.exports
 })(),
-util = require["/Library/WebServer/Documents/fun/lib/fin/api/fin/util"].exports
+util = require["/Users/marcuswestin/Code/marcuswestin/fin/api/fin/util"].exports
 
 function _instantiate(idOrValues) {
 	var values
@@ -2945,7 +2945,7 @@ var _waitForID = function(model, callback) {
 // end module code
 return module.exports
 })(),
-propertyModels = require["/Library/WebServer/Documents/fun/lib/fin/api/models/propertyModels"].exports
+propertyModels = require["/Users/marcuswestin/Code/marcuswestin/fin/api/models/propertyModels"].exports
 
 function process(modelDescriptions) {
 for (var modelName in modelDescriptions) {

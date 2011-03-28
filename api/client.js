@@ -21,14 +21,14 @@ fin = new (function(){
 	/* Connect to the fin database. The callback will be called
 	 * once you have a connection with the server */
 	this.connect = function(host, port, callback) {
-		if (this._socket) { throw "fin.connect has already been called" }
+		if (this._socket) { error("fin.connect has already been called") }
 		this._doConnect(host, port, callback)
 	}
 	
 	/* Create an item with the given data as properties,
 	 * and get notified of the new item id when it's been created */
 	this.create = function(properties, callback) {
-		if (typeof callback != 'function') { throw 'Second argument to fin.create should be a callback' }
+		if (typeof callback != 'function') { error('Second argument to fin.create should be a callback') }
 		for (var key in properties) {
 			if (properties[key] instanceof Array && !properties[key].length) {
 				delete properties[key] // For now we assume that engines treat NULL values as empty lists, a la redis
@@ -41,7 +41,7 @@ fin = new (function(){
 	 * The item property may be chained (e.g. observe(1, 'driver.car.model')),
 	 *  assuming that driver.car will resolve to an item ID */
 	this.observe = function(itemID, propName, callback) {
-		if (typeof itemID != 'number' || !propName || !callback) { throw 'observe requires three arguments: '+[itemId, propName, callback?'function':callback].join(' ') }
+		if (typeof itemID != 'number' || !propName || !callback) { error('observe requires three arguments: '+[itemId, propName, callback?'function':callback].join(' ')) }
 		return this._observeChain(itemID, propName, 0, callback, {})
 	}
 	
@@ -102,7 +102,7 @@ fin = new (function(){
  ************/
 	/* Observe an item property list, and get notified any time it changes */
 	this.observeList = function(itemID, propName, callback, length) {
-		if (typeof itemID != 'number' || !propName || !callback) { throw 'observe requires at least three arguments: '+[itemName, propName, callback?'function':callback, length].join(' ') }
+		if (typeof itemID != 'number' || !propName || !callback) { error('observe requires at least three arguments: '+[itemName, propName, callback?'function':callback, length].join(' ')) }
 		
 		var subId = this._observeChain(itemID, propName, 0, callback, { snapshot: false })
 		
@@ -113,7 +113,7 @@ fin = new (function(){
 	/* Extend the history of an observed list */
 	this._listLength = {}
 	this.extendList = function(id, prop, extendToIndex) {
-		if (typeof id != 'number' || !prop) { throw 'extendList requires a numeric ID and a property: '+[itemID, prop].join(' ') }
+		if (typeof id != 'number' || !prop) { error('extendList requires a numeric ID and a property: '+[itemID, prop].join(' ')) }
 		
 		this._resolvePropertyChain(id, prop, bind(this, function(resolved) {
 			var itemID = this._getItemID(resolved.id),
@@ -189,7 +189,7 @@ fin = new (function(){
 	
 	this._endTransaction = function(transactionID) {
 		var id = this._transactionStack.pop()
-		if (id != transactionID) { throw 'transaction ID mismatch in _endTransaction! '+id+' '+transactionID }
+		if (id != transactionID) { error('transaction ID mismatch in _endTransaction! '+id+' '+transactionID) }
 		if (--this._transactions[id].waitingFor) { return }
 		this.request('transact', { actions: this._transactions[id].actions })
 		delete this._transactions[id]
@@ -288,7 +288,7 @@ fin = new (function(){
 		} else if (this._eventHandlers[message.event]) {
 			this._eventHandlers[message.event](message.data)
 		} else {
-			throw 'received unknown message: '+JSON.stringify(message)
+			error('received unknown message: '+JSON.stringify(message))
 		}
 	}
 	
@@ -344,7 +344,7 @@ fin = new (function(){
 		}
 		
 		if (itemID != this._localID && pool.count(key) == 1) {
-			if (typeof itemID != 'number') { throw 'Expected numeric ID but got: '+itemID }
+			if (typeof itemID != 'number') { error('Expected numeric ID but got: '+itemID) }
 			var request = { id:itemID, property:property, type:type }
 			if (typeof params.snapshot != 'undefined') {
 				request.snapshot = params.snapshot
@@ -427,13 +427,13 @@ fin = new (function(){
 				break
 			case 'increment':
 			case 'decrement':
-				if (args.length) { throw 'Argument for operation without signature: '+operation }
+				if (args.length) { error('Argument for operation without signature: '+operation) }
 				break
 			case 'add':
 			case 'subtract':
-				if (args.length != 1) { throw 'Missing argument for: '+operation }
+				if (args.length != 1) { error('Missing argument for: '+operation) }
 				break
-			default: throw 'Unknown operation for deserialization: '+operation
+			default: error('Unknown operation for deserialization: '+operation)
 		}
 	}
 	
@@ -498,7 +498,7 @@ fin = new (function(){
 				cachedMutation.value = mutation.value = (cachedValue || 0) - mutation.args[0]
 				break
 			default:
-				throw 'Unknown operation for caching: '+mutation.op
+				error('Unknown operation for caching: '+mutation.op)
 		}
 		return mutationCache[key]
 	}
@@ -514,6 +514,11 @@ fin = new (function(){
 		var callback = this._requestCallbacks[requestId]
 		delete this._requestCallbacks[requestId]
 		callback(response)
+	}
+
+	function error(message) {
+		console.log('fin error:', message)
+		debugger
 	}
 	
 	this._init()

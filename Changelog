@@ -72,7 +72,7 @@ v0.1.0
 + Redis and development (node in-memory) engines exist for pubsub and storage
 
 TODO
-- use submodules rather than a makefile
+- Properly parse the commandline arguments e.g. --host=localhost --port=8090 --engine=redis
 - move the chaining of observations to the server
 - typecheck arguments passed in to model mutation functions (e.g. number.set('foo') should fail)
 - upgrade to latest socket.io

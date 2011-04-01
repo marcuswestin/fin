@@ -1,5 +1,3 @@
-var Class = require('./util').Class
-
 module.exports = function() {
 	this._pool = {}
 	this._counts = {}

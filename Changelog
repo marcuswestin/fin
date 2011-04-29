@@ -1,6 +1,9 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
+intended v0.2.15
++ Upgrade to require v0.4.0
+
 v0.2.14
 + Upgrade to require v0.1.12
 + Fix issue with importing the socket.io client file

@@ -2,21 +2,13 @@ BUILD_CMD = node api/build.js
 # Commands
 ##########
 clients: builds/fin-client.js builds/fin-models-client.js
-compress: builds/fin-client.min.js builds/fin-models-client.min.js
-
-publish: clients compress
-	npm publish
 
 # Dependencies
 ##############
 builds/fin-client.js: api/*
 	$(BUILD_CMD) client
-builds/fin-client.min.js: api/*
-	$(BUILD_CMD) client --compress
 builds/fin-models-client.js: api/*
 	$(BUILD_CMD) models
-builds/fin-models-client.min.js: api/*
-	$(BUILD_CMD) models --compress
 
 # Utilities
 ###########

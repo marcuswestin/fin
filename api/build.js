@@ -21,19 +21,10 @@ var out = {
 	models: 'fin-models-client'
 }
 
-for (var i=0, target; target = compile[i]; i++) (function(target) {
+compile.forEach(function(target) {
 	console.log('compiling', target, paths[target], '...')
-	var compiledJS = compiler.compileJSFile(paths[target]),
+	var compiledJS = compiler.compile(paths[target]),
 		targetPath = buildDir + out[target]
 	console.log('done compiling', target)
 	fs.writeFileSync(targetPath + '.js', compiledJS)
-	if (arg('--compress')) {
-		console.log('compressing', target, '...')
-		compiler.compressJS(compiledJS, function(compressedJS) {
-			fs.writeFileSync(targetPath + '.min.js', compressedJS)
-			console.log('done compressing', target)
-		})
-	}
-})(target)
-
-
+})

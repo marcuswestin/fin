@@ -1,5 +1,9 @@
 var http = require('http'),
 	fs = require('fs')
+	fin = require('../api/server'),
+	engine = require('../engines/development')
+
+fin.start('localhost', 8080, engine)
 
 http.createServer(function(req, res) {
 	var demo = req.url.substr(1)
@@ -25,6 +29,3 @@ function showDemo(demo, res) {
 		res.end(content)
 	})
 }
-
-var fin = require('../api/server'), engine = require('../engines/development')
-fin.start('localhost', 8080, engine)

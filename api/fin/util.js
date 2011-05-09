@@ -18,7 +18,7 @@ function curry(fn /* arg1, arg2, ... */) {
 }
 
 function bind(context, method/*, args... */) {
-	if (!context || !method || (typeof method == 'string' && !context[method])) { console.log("bad bind arguments"); debugger }
+	if (!context || !method || (typeof method == 'string' && !context[method])) { console.log("bad bind arguments"); }
 	var curryArgs = Array.prototype.slice.call(arguments, 2)
 	return function() {
 		fn = (typeof method == 'string' ? context[method] : method)

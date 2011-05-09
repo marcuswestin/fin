@@ -515,7 +515,6 @@ fin = new (function(){
 
 	function error(message) {
 		console.log('fin error:', message)
-		debugger
 	}
 	
 	this._init()

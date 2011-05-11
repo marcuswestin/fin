@@ -1,7 +1,7 @@
 var util = require('./fin/util'),
 	Pool = require('./fin/Pool'),
 	keys = require('./fin/keys'),
-	io = require('socket.io-browser')
+	io = require('../node_modules/socket.io-browser')
 
 // aliases
 var bind = util.bind,

@@ -7,7 +7,7 @@ var events = require('events'),
 	util = require('./fin/util')
 
 module.exports = {
-	start: start,
+	mount: mount,
 	handleRequest: handleRequest,
 	on: on
 }
@@ -20,24 +20,13 @@ var	_handlers = {},
 
 /* Exported API
  **************/
-function start(host, port, theEngine, httpServer) {
-	_engine = theEngine
-	data.setEngine(_engine)
+function mount(server, engine) {
+	_engine = engine
+	data.setEngine(engine)
 
-	var clientAPI = fs.readFileSync(__dirname + '/../builds/fin-client.js'),
-		modelsAPI = fs.readFileSync(__dirname + '/../builds/fin-models-client.js')
-	
-	if (!httpServer) {
-		httpServer = http.createServer()
-		httpServer.listen(port, host)
-	}
-	httpServer.on('request', function(req, res) {
-		if (req.url == '/fin-api.js') { res.end(clientAPI) }
-		if (req.url == '/fin-models-api.js') { res.end(modelsAPI) }
-	})
-	var socket = io.listen(httpServer)
+	var socket = io.listen(server)
 	socket.on('connection', _handleConnection)
-	
+
 	module.exports
 		.handleRequest('observe', requestHandlers.observeHandler)
 		.handleRequest('unsubscribe', requestHandlers.unsubscribeHandler)

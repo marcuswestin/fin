@@ -1,15 +1,18 @@
 var http = require('http'),
 	fs = require('fs')
+	requireServer = require('require/server'),
 	fin = require('../api/server'),
 	engine = require('../engines/development')
 
-fin.start('localhost', 8080, engine)
-
-http.createServer(function(req, res) {
+var server = http.createServer(function(req, res) {
 	var demo = req.url.substr(1)
 	if (!demo) { listDemos(res) }
 	else { showDemo(demo, res) }
-}).listen(1234)
+})
+
+fin.mount(server, engine)
+requireServer.mount(server)
+server.listen(1234)
 
 function listDemos(res) {
 	fs.readdir(__dirname, function(err, entries) {

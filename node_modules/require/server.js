@@ -77,7 +77,8 @@ function _handleMainModuleRequest(reqPath, res) {
 		return _sendError(res, reqPath, new Error('Could not find main module "' + reqPath + '"'))
 	}
 
-	var deps = util.getDependencyList(modulePath)
+	try { var deps = util.getDependencyList(modulePath) }
+	catch(err) { return _sendError(res, reqPath, err) }
 
 	res.write('var require = {}\n')
 	each(deps, function(dependency) {

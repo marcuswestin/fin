@@ -28,7 +28,6 @@ function mount(server, engine) {
 		ormJS = fs.readFileSync(__dirname + '/../builds/fin-orm.js')
 		
 	server.on('request', function(req, res) {
-		console.log(req.url)
 		if (req.url == '/fin-client.js') { res.end(clientJS) }
 		else if (req.url == '/fin-orm.js') { res.end(ormJS) }
 	})

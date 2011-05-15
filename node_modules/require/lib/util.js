@@ -41,7 +41,7 @@ function resolve(searchPath, pathBase) {
 }
 
 function _findModuleMain(absModulePath) {
-	var foundPath
+	var foundPath = ''
 	function attempt(aPath) {
 		if (foundPath) { return }
 		if (path.existsSync(aPath)) { foundPath = aPath }

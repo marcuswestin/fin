@@ -3,7 +3,8 @@ intended v0.3.0
 
 intended v0.2.15
 + Upgrade to require v0.4.0
-+ Implement fin orm Property#current() which gets the current value of a model property value (must be currently observed)
++ Implement fin orm PropertyModel#current() which gets the current value of a model property value (must be currently observed)
++ Implement fin orm PropertyModel#release()
 
 v0.2.14
 + Upgrade to require v0.1.12

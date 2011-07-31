@@ -11,10 +11,17 @@ if (path.existsSync(dataDumpFile)) {
 }
 
 process.on('exit', function() {
-	console.log('node storage engine detected shutdown - dumping data...')
+	console.log('node storage engine detected shutdown')
+	dumpData()
+})
+
+function dumpData() {
+	console.log('dumping data...')
 	fs.writeFileSync(dataDumpFile, JSON.stringify(data))
 	console.log('done dumping data.')
-})
+}
+
+setInterval(dumpData, 60000)
 
 function typeError(operation, type, key) {
 	return '"'+operation+'" expected a '+type+' at key "'+key+'" but found a '+typeof data[key]

@@ -16,6 +16,6 @@ compile.forEach(function(target) {
 	var file = target + '-api.js',
 		srcPath = path.resolve(srcDir, file),
 		buildPath = path.resolve(buildDir, file)
-	var compiledJS = compiler.compile(srcPath)
+	var compiledJS = compiler.compile(srcPath, { compile:true })
 	fs.writeFileSync(buildPath, compiledJS)
 })

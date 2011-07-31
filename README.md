@@ -12,7 +12,7 @@ Key/Value API
 -------------
 	<script src="http://localhost:8080/fin-api.js"></script>
 	<script>
-	fin.connect('localhost', 8080, function() {
+	fin.connect(function() {
 		// Create items
 		fin.create({ name: 'john' }, function(friendID) {
 			fin.create({ name: 'marcus' }, function(marcusID) {
@@ -36,7 +36,7 @@ ORM API
 -------
 	<script src="http://localhost:8080/fin-models-api.js"></script>
 	<script>
-	fin.connect('localhost', 8080, function() {
+	fin.connect(function() {
 		// Declare schema
 		fin.models.process({
 			"Global": {

@@ -44,9 +44,19 @@
 			}
 		})
 		
-		fin.connect(location.hostname, location.port, function() {
+		fin.connect(function() {
 			hide($('connecting'))
 			show($('user'))
+
+			fin.orm.global.messages.on('push', function(message) {
+				var div = $('messages').appendChild(document.createElement('div')),
+					sender = div.appendChild(document.createElement('div')),
+					messageInput = div.appendChild(document.createElement('input'))
+
+				message.from.name.observe(function(value) { sender.innerHTML = value + ':' })
+
+				reflectProperty(messageInput, message.text)
+			})
 		})
 		
 		$('login').onclick = function() {
@@ -62,16 +72,6 @@
 			fin.orm.global.messages.push(message)
 			$('message').value = ''
 		}
-		
-		fin.orm.global.messages.on('push', function(message) {
-			var div = $('messages').appendChild(document.createElement('div')),
-				sender = div.appendChild(document.createElement('div')),
-				messageInput = div.appendChild(document.createElement('input'))
-			
-			message.from.name.observe(function(value) { sender.innerHTML = value + ':' })
-			
-			reflectProperty(messageInput, message.text)
-		})
 		
 		function reflectProperty(input, property) {
 			property.observe(function(value) { input.value = value })

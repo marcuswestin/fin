@@ -186,6 +186,5 @@ var storeAPI = module.exports = {
 		} else {
 			callback && callback(typeError('srem', 'set', key), null)
 		}
-	},
+	}
 }
-

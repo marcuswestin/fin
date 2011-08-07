@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "socket.io":"0.7.x",
-	"require":"0.4.x"
+	"require":"0.4.x",
+	"std":"0.1.x"
   },
   "build": "node scripts/build.js",
   "bin": {

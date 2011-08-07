@@ -4,6 +4,8 @@ var fs = require('fs'),
 	compiler = require('require/compiler'),
 	path = require('path')
 
+compiler.addReplacement("'object' === typeof module ? module.exports : (window.io = {})", "window.io = {}")
+
 var srcDir = __dirname + '/../lib',
 	buildDir = __dirname + '/../build'
 
@@ -16,6 +18,6 @@ compile.forEach(function(target) {
 	var file = target + '-api.js',
 		srcPath = path.resolve(srcDir, file),
 		buildPath = path.resolve(buildDir, file)
-	var compiledJS = compiler.compile(srcPath, { compile:true })
+	var compiledJS = compiler.compile(srcPath, { minify:false })
 	fs.writeFileSync(buildPath, compiledJS)
 })

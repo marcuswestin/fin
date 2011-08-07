@@ -1,12 +1,12 @@
 var redis = require('redis-client'),
-	util = require('../util')
+	create = require('std/create')
 
 module.exports = {
 	getStore: getStore
 }
 
 function getStore() {
-	var store = util.create(storeAPI)
+	var store = create(storeAPI)
 	store.redisClient = redis.createClient()
 	store.redisClient.stream.setTimeout(0)
 	return store

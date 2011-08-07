@@ -5,6 +5,7 @@ module.exports = {
 	 ****************/
 	initialize: function() {
 		this._subscriptions = []
+		return this
 	},
 	
 	close: function() {

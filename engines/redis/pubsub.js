@@ -1,12 +1,12 @@
 var redis = require('redis-client'),
-	util = require('../util')
+	create = require('std/create')
 
 module.exports = {
 	getPubSub: getPubSub
 }
 
 function getPubSub() {
-	var pubsub = util.create(pubsubAPI)
+	var pubsub = create(pubsubAPI)
 	pubsub.redisClient = redis.createClient()
 	pubsub.redisClient.stream.setTimeout(0)
 	return pubsub

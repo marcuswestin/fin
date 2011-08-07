@@ -1,10 +1,10 @@
 var storeAPI = require('./storage'),
 	pubsubAPI = require('./pubsub'),
-	util = require('../util')
+	create = require('std/create')
 
 module.exports = {
-	getStore: function() { return util.create(storeAPI) },
-	getPubSub: function() { return util.create(pubsubAPI) }
+	getStore: function() { return create(storeAPI) },
+	getPubSub: function() { return create(pubsubAPI).initialize() }
 }
 
 process.on('SIGINT', function() {

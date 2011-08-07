@@ -1,10 +1,11 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
-intended v0.2.15
+v0.2.15
 + Upgrade to require v0.4.0
 + Implement fin orm PropertyModel#current() which gets the current value of a model property value (must be currently observed)
 + Implement fin orm PropertyModel#release()
++ Cleanup: use std, structure models as classes, use latest socket.io, use package.json/npm for dependencies
 
 v0.2.14
 + Upgrade to require v0.1.12

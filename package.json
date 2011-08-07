@@ -9,14 +9,13 @@
   },
   "main": "lib/server-api",
   "scripts": {
-    "install":"./bin/build"
+    "install":"bin/build"
   },
   "dependencies": {
     "socket.io":"0.7.x",
 	"require":"0.4.x",
 	"std":"0.1.x"
   },
-  "build": "node scripts/build.js",
   "bin": {
     "fin": "./bin/fin"
   },

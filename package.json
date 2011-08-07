@@ -12,7 +12,8 @@
     "install":"./bin/build"
   },
   "dependencies": {
-    "socket.io":"0.7.x"
+    "socket.io":"0.7.x",
+	"require":"0.4.x"
   },
   "build": "node scripts/build.js",
   "bin": {

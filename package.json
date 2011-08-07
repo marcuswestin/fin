@@ -11,6 +11,9 @@
   "scripts": {
     "install":"./bin/build"
   },
+  "dependencies": {
+    "socket.io":"0.7.x"
+  },
   "build": "node scripts/build.js",
   "bin": {
     "fin": "./bin/fin"

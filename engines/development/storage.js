@@ -33,7 +33,7 @@ var storeAPI = module.exports = {
 	getBytes: function(key, callback) {
 		if (typeof data[key] == 'undefined') {
 			callback && callback(null, null)
-		} else if (typeof data[key] == 'string' || typeof data[key] == 'number') {
+		} else if (typeof data[key] == 'string' || typeof data[key] == 'number' || typeof data[key] == 'boolean') {
 			callback && callback(null, data[key])
 		} else {
 			callback && callback(typeError('getBytes', 'string or number', key))
@@ -79,7 +79,7 @@ var storeAPI = module.exports = {
 	},
 	
 	set: function(key, value, callback) {
-		if (typeof data[key] == 'undefined' || typeof data[key] == 'string' || typeof data[key] == 'number') {
+		if (typeof data[key] == 'undefined' || typeof data[key] == 'string' || typeof data[key] == 'number' || typeof data[key] == 'boolean') {
 			data[key] = value
 			callback && callback(null, data[key])
 		} else {

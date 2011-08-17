@@ -5,6 +5,7 @@ Run the demo
 	cd fin
 	sudo npm install .
 	sudo npm install ui
+	./bin/build
 	node demo/run-server.js
 	# Go to http://localhost:1234/
 

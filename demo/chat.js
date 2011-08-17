@@ -21,7 +21,9 @@ function setupNodes() {
 			this.on('focus', bind(this, function() { this._focused = true }))
 			this.on('blur', bind(this, function() { this._focused = false }))
 			this.on('keypress', delay(bind(this, function() {
-				dataProperty.set(this.getElement().value)
+				var value = this.getElement().value
+				if (dataProperty.type == 'Number') { value = parseFloat(value, 0) }
+				dataProperty.set(value)
 			}), 10))
 			dataProperty.observe(bind(this, function(value) {
 				if (this._focused) { return }

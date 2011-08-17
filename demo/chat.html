@@ -2,29 +2,19 @@
 	<head>
 		<title>chat with fin</title>
 		<style type="text/css">
-		#user, #online { display:none; }
-		#chat { margin: 50px; }
+			html, body { margin:0; font-family:Helvetica; font-size:18px; color:#333; }
+			.root { width:600px; margin:10px auto; }
+			
+			.top { padding:10px 10px 20px; background:#ccd; position:fixed; top:0; width:580px; }
+			.top .title { font-size:30px; }
+			.top .user label { display:block; margin:5px 0 0 0; }
+			
+			.messages { margin-top:220px; }
+			.messages .message { margin:10px 0 0 0; font-size:16px; }
+			.messages .message input { border-radius:4px; padding:3px 4px; width:100%; }
 		</style>
 	</head>
 	<body>
-		<h1>chat with fin</h1>
-		<div id="connecting">
-			connecting...
-		</div>
-		
-		<div id="user">
-			<input id="username"></input>
-			<button id="login">login</button>
-			<span id="status"></span>
-		</div>
-		
-		<div id="online">
-			<input id="message"></input>
-			<button id="send">send</button>
-			<div id="chat">
-				<div id="messages"></div>
-			</div>
-		</div>
 		<script src="/require/demo/chat"></script>
 	</body>
 </html>

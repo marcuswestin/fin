@@ -1,5 +1,9 @@
-intended v0.3.0
+TODO
 + fin transactions - item mutations and creations can be done atomically
+
+
+intended v0.3.0
++ client-side caching of values for faster loading
 
 v0.2.16
 + Improved README and demo

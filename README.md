@@ -1,4 +1,15 @@
-Getting started
+Run the demo
+------------
+
+	git clone git://github.com/marcuswestin/fin.git
+	cd fin
+	sudo npm install .
+	sudo npm install ui
+	./bin/build
+	node demo/run-server.js
+	# Go to http://localhost:1234/
+
+Commandline
 ---------------
 Install fin
 	npm install fin

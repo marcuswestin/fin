@@ -1,6 +1,9 @@
 intended v0.3.0
 + fin transactions - item mutations and creations can be done atomically
 
+v0.2.16
++ Improved README and demo
+
 v0.2.15
 + Upgrade to require v0.4.0
 + Implement fin orm PropertyModel#current() which gets the current value of a model property value (must be currently observed)

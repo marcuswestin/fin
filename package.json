@@ -14,7 +14,8 @@
   "dependencies": {
     "socket.io":"0.7.x",
 	"require":"0.4.x",
-	"std":"0.1.x"
+	"std":"0.1.x",
+	"store":"1.1.x"
   },
   "bin": {
     "fin": "./bin/fin"

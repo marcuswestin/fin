@@ -4,7 +4,7 @@ var fs = require('fs'),
 var data = {},
 	dataDumpFile = './_development-engine-dump.json'
 
-if (path.existsSync(dataDumpFile)) {
+if (fs.existsSync(dataDumpFile)) {
 	console.log('node engine found ' + dataDumpFile + ' - loading data...')
 	data = JSON.parse(fs.readFileSync(dataDumpFile))
 	console.log('done loading data')

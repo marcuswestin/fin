@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/marcuswestin/fin.png)](http://travis-ci.org/marcuswestin/fin)
 Run the demo
 ------------
 
